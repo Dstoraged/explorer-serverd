@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.imooc.mapper.PledgeTotalDataMapper">
+    <resultMap id="BaseResultMapAccount" type="com.imooc.pojo.PledgeTotalData">
+        <result column="id"  property="id" jdbcType="BIGINT"/>
+        <result column="starttime"  property="startTime" jdbcType="TIMESTAMP"/>
+        <result column="type"  property="type" jdbcType="INTEGER"/>
+        <result column="status"  property="status" jdbcType="INTEGER"/>
+        <result column="address"  property="address" jdbcType="VARCHAR"/>
+        <result column="value"  property="value" jdbcType="DECIMAL"/>
+        <result column="blocknumber"  property="blockNumber" jdbcType="BIGINT"/>
+        <result column="pledgetotalamount"  property="pledgeTotalAmount" jdbcType="DECIMAL"/>
+        <result column="cashtotalamount"  property="cashTotalAmount" jdbcType="DECIMAL"/>
+        <result column="punilshamount"  property="punilshAmount" jdbcType="DECIMAL"/>
+        <result column="realshnumber"  property="realshNumber" jdbcType="BIGINT"/>
+        <result column="nodenumber"  property="nodeNumber" jdbcType="VARCHAR"/>
+        <result column="locknumber"  property="lockNumber" jdbcType="BIGINT"/>
+        <result column="exittime"  property="exitTime" jdbcType="TIMESTAMP"/>
+        <result column="pledgeaddress"  property="pledgeAddress" jdbcType="VARCHAR"/>
+        <result column="releaseintervalnum"  property="releaseIntervalNum" jdbcType="BIGINT"/>
+    </resultMap>
+    <insert id="savePledgeTotalData">
+        insert into pledge_total_data
+        (
+         starttime,type,address,value,blocknumber,pledgetotalamount,cashtotalamount,punilshamount,realshnumber,status,nodenumber,locknumber,releaseintervalnum,exittime,pledgeaddress
+        ) values
+     (
+     #{pledgetotaldata.startTime},#{pledgetotaldata.type},#{pledgetotaldata.address} ,#{pledgetotaldata.value},#{pledgetotaldata.blockNumber},#{pledgetotaldata.pledgeTotalAmount},#{pledgetotaldata.cashTotalAmount},
+     #{pledgetotaldata.punilshAmount},#{pledgetotaldata.realshNumber},#{pledgetotaldata.status},#{pledgetotaldata.nodeNumber},#{pledgetotaldata.lockNumber},#{pledgetotaldata.releaseIntervalNum},#{pledgetotaldata.exitTime},#{pledgetotaldata.pledgeAddress}
+      )
+    </insert>
+
+    <update id="updateTotalData">
+        update pledge_total_data a set starttime=#{date},exittime=#{date},blocknumber=#{blockNumber},pledgetotalamount=value+#{values} ,value=value+#{values} where a.address=#{address} and a.nodenumber=#{nodeNum} and a.status=1
+    </update>
+
+    <update id="updateTotalDataForExit">
+         update pledge_total_data a set blocknumber=#{blockNumber},exittime=#{date},status=#{resultType},punilshamount=#{punilsh},pledgetotalamount=#{values},
+         realshnumber=#{releaseHeight},releaseintervalnum=#{releaseInterval} where a.address=#{address} and a.type=#{type} and a.nodenumber=#{nodeNum} and a.status!=#{status}
+    </update>
+
+    <update id="updateTotalDataForCashOver">
+        update pledge_total_data a set status=#{type},cashtotalamount=#{cashAmount},blocknumber=#{blockNumber} where a.address=#{address} and a.type=#{paramType}  and a.nodenumber=#{nodeNum} and a.status=2
+    </update>
+
+    <select id="selectPageList"  resultMap="BaseResultMapAccount">
+            select * from pledge_total_data a
+            where 1=1
+            <if test="pledgeQueryForm.address!='' and pledgeQueryForm.address!=null">
+                and a.address=#{pledgeQueryForm.address}
+            </if>
+        ORDER BY a.starttime DESC limit #{pledgeQueryForm.current}, #{pledgeQueryForm.size}
+    </select>
+
+    <select id="seleTotalCount"  resultType="java.lang.Long">
+        select count(*)from pledge_total_data a
+        where 1=1
+        <if test="pledgeQueryForm.address!='' and pledgeQueryForm.address!=null">
+            and a.address=#{pledgeQueryForm.address}
+        </if>
+    </select>
+
+    <select id="selectPunilshAmount"  resultMap="BaseResultMapAccount">
+          select * from `pledge_total_data` a where a.address=#{address} and a.type=#{type}
+    </select>
+
+    <select id="selectPledgeTotalDataInfo"  resultMap="BaseResultMapAccount">
+        select * from pledge_total_data a
+        <if test="pledgeQueryForm.address!='' and pledgeQueryForm.address!=null">
+            and a.address=#{pledgeQueryForm.address}
+        </if>
+        <if test="pledgeQueryForm.type!='' and pledgeQueryForm.type!=null">
+            and a.address=#{pledgeQueryForm.address}
+        </if>
+
+    </select>
+</mapper>

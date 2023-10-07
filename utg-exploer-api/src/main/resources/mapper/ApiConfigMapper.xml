@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.imooc.mapper.ApiConfigMapper" >
+
+    <resultMap id="BaseResultMapAccount" type="com.imooc.pojo.ApiConfigView">
+        <result column="id"  property="id" jdbcType="BIGINT"/>
+        <result column="group_name"  property="groupName" jdbcType="VARCHAR"/>
+        <result column="url"  property="url" jdbcType="VARCHAR"/>
+        <result column="descion"  property="descion" jdbcType="VARCHAR"/>
+        <result column="method"  property="method" jdbcType="VARCHAR"/>
+        <result column="action"  property="action" jdbcType="VARCHAR"/>
+        <result column="config_key"  property="configKey" jdbcType="VARCHAR"/>
+        <result column="config_memo"  property="configMemo" jdbcType="VARCHAR"/>
+        <result column="description"  property="description" jdbcType="VARCHAR"/>
+        <result column="config_value"  property="configValue" jdbcType="VARCHAR"/>
+        <result column="updated_by"  property="updatedBy" jdbcType="VARCHAR"/>
+        <result column="type"  property="type" jdbcType="INTEGER"/>
+        <result column="fokid"  property="fokId" jdbcType="INTEGER"/>
+        <result column="valuesconf"  property="valuesConf" jdbcType="VARCHAR"/>
+        <result column="code"  property="code" jdbcType="INTEGER"/>
+        <result column="resultdesc"  property="resultDesc" jdbcType="VARCHAR"/>
+        <result column="method_name"  property="methodName" jdbcType="VARCHAR"/>
+        <result column="isshow"  property="isShow" jdbcType="BIGINT"/>
+        <result column="types"  property="types" jdbcType="BIGINT"/>
+    </resultMap>
+
+    <select id="getAllConfig" resultMap="BaseResultMapAccount">
+       select a.*,b.url,b.group_name,b.method_name,b.action,b.types,b.descion,b.method from api_config a LEFT JOIN  api_configplat b on a.fokid=b.id
+       where b.types=#{types}
+    </select>
+
+    <select id="getAllConfigForEn" resultMap="BaseResultMapAccount">
+       select a.*,b.url,b.group_name,b.method_name,b.action,b.types,b.descion,b.method from api_config a LEFT JOIN  api_configplat_en b on a.fokid=b.id
+       where b.types=#{types}
+    </select>
+</mapper>

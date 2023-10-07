@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.imooc.mapper.PledgeDataMapper">
+    <resultMap id="BaseResultMapAccount" type="com.imooc.pojo.PledgeData">
+        <result column="id"  property="id" jdbcType="BIGINT"/>
+        <result column="txhash"  property="txHash" jdbcType="VARCHAR"/>
+        <result column="logindex"  property="logIndex" jdbcType="VARCHAR"/>
+        <result column="type"  property="type" jdbcType="VARCHAR"/>
+        <result column="address"  property="address" jdbcType="VARCHAR"/>
+        <result column="value"  property="value" jdbcType="DECIMAL"/>
+        <result column="blockhash"  property="blockHash" jdbcType="VARCHAR"/>
+        <result column="blocknumber"  property="blockNumber" jdbcType="BIGINT"/>
+        <result column="starttime"  property="startTime" jdbcType="TIMESTAMP"/>
+        <result column="totalamount"  property="totalAmount" jdbcType="DECIMAL"/>
+        <result column="leftamount"  property="leftAmount" jdbcType="DECIMAL"/>
+        <result column="status"  property="status" jdbcType="INTEGER"/>
+        <result column="gasused"  property="gasUsed" jdbcType="BIGINT"/>
+        <result column="gaslimit"  property="gasLimit" jdbcType="BIGINT"/>
+        <result column="gasprice"  property="gasPrice" jdbcType="BIGINT"/>
+        <result column="unlocknumber"  property="unLockNumber" jdbcType="BIGINT"/>
+        <result column="loglength"  property="logLength" jdbcType="BIGINT"/>
+        <result column="nodenumber"  property="nodeNumber" jdbcType="VARCHAR"/>
+        <result column="presentamount"  property="presentAmount" jdbcType="DECIMAL"/>
+        <result column="locknumheigth"  property="lockNumHeight" jdbcType="BIGINT"/>
+        <result column="pledgeamount"  property="pledgeAmount" jdbcType="DECIMAL"/>
+        <result column="pledgeaddress"  property="pledgeAddress" jdbcType="VARCHAR"/>
+        <result column="punilshamount"  property="punilshAmount" jdbcType="DECIMAL"/>
+        <result column="receiveaddress"  property="receiveaddress" jdbcType="VARCHAR"/>
+        <result column="releaseheigth"  property="releaseHeigth" jdbcType="BIGINT"/>
+        <result column="releaseinterval"  property="releaseInterval" jdbcType="BIGINT"/>
+        <result column="pledgetotalamount"  property="pledgeTotalAmount" jdbcType="DECIMAL"/>
+    </resultMap>
+
+    <insert id="insertOrUpdate">
+      insert into pledge_data
+        (
+         starttime,txhash,type,logindex,address,value,blockhash,blocknumber,totalamount,leftamount,status,gasprice,gaslimit,gasused,unlocknumber,loglength
+         ,nodenumber,presentamount,locknumheigth,pledgeamount,pledgeaddress,punilshamount,receiveaddress,releaseheigth,releaseinterval,pledgetotalamount
+        ) values
+     (
+     #{transaction.startTime},#{transaction.txHash},#{transaction.type},#{transaction.logIndex},#{transaction.address}
+     ,#{transaction.value},#{transaction.blockHash},#{transaction.blockNumber},#{transaction.totalAmount},#{transaction.leftAmount},#{transaction.status},#{transaction.gasPrice},#{transaction.gasLimit},#{transaction.gasUsed},#{transaction.unLockNumber},#{transaction.logLength}
+     ,#{transaction.nodeNumber},#{transaction.presentAmount},#{transaction.lockNumHeight},#{transaction.pledgeAmount},#{transaction.pledgeAddress},#{transaction.punilshAmount},#{transaction.receiveaddress},#{transaction.releaseHeigth},#{transaction.releaseInterval},#{transaction.pledgeTotalAmount}
+      )
+     ON DUPLICATE KEY UPDATE
+       txhash=values(txHash), unlocknumber = values(unLockNumber)
+     </insert>
+
+
+    <select id="selectAllForAddressInfo" resultType="java.util.Map">
+         SELECT  type,address,sum(VALUE),nodenumber,MAX(starttime),MAX(locknumheigth) FROM pledge_data a
+        <where>
+            <if test="pledgeQueryForm.type!=null and pledgeQueryForm.type!='' ">
+                and a.type=#{pledgeQueryForm.type}
+            </if>
+            <if test="pledgeQueryForm.address!=null and pledgeQueryForm.address!='' ">
+                and a.address =#{pledgeQueryForm.address}
+            </if>
+        </where>
+    </select>
+
+    <select id="selectPledgeDataInfo" resultMap="BaseResultMapAccount">
+          select * from pledge_data b
+          <where>
+              <if test="pledgeRnQueryForm.blockNumber!=null  and pledgeRnQueryForm.blockNumber!=''">
+                  and b.blocknumber=#{pledgeRnQueryForm.blockNumber}
+              </if>
+              <if test="pledgeRnQueryForm.type!=null and pledgeRnQueryForm.type!=''">
+                  and b.type=#{pledgeRnQueryForm.type}
+              </if>
+              <if test="pledgeRnQueryForm.txHash!=null and pledgeRnQueryForm.txHash!=''">
+                  and b.txhash=#{pledgeRnQueryForm.txHash}
+              </if>
+              <if test="pledgeRnQueryForm.beginTime !=null and pledgeRnQueryForm.beginTime!=''">
+                  <![CDATA[ and b.starttime>=#{pledgeRnQueryForm.beginTime} ]]>
+              </if>
+              <if test="pledgeRnQueryForm.endTime !=null and pledgeRnQueryForm.endTime !=''">
+                  <![CDATA[ and b.starttime<=#{pledgeRnQueryForm.endTime} ]]>
+              </if>
+          </where>
+    </select>
+</mapper>

@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.imooc.mapper.StorageReleaseMapper">
+   
+   <insert id="insertDetailBatch"  parameterType="java.util.List">
+        insert into storage_release_detail (
+          rewardid, address, revenueaddress, type, blocknumber, totalamount, releaseonce, releasetype, updatetime
+        ) values 
+        <foreach collection="list" item="item" index="index" separator=",">
+        (#{item.rewardid}, #{item.address}, #{item.revenueaddress}, #{item.type}, #{item.blocknumber}, 
+        #{item.totalamount}, #{item.releaseonce}, #{item.releasetype}, #{item.updatetime})        
+        </foreach>
+   </insert>
+      
+   <insert id="insertCompareBatch"  parameterType="java.util.List">
+        insert into storage_release_compare (
+          blockdays, startblock, endblock, revenueaddress, release_stat, release_pay, offset, updatetime
+        ) values 
+        <foreach collection="list" item="item" index="index" separator=",">
+        ( #{item.blockdays}, #{item.startblock}, #{item.endblock}, #{item.revenueaddress}, #{item.release_stat}, #{item.release_pay}, #{item.offset}, #{item.updatetime})      
+        </foreach>
+    </insert>
+   
+    <select id="getRangeReleasePays" resultType="map">
+    select t.blocknumber,t.revenueaddress,t.releaseamount 
+	  from transfer_miner t 
+	 where t.type = 15 
+	 <![CDATA[ and t.blocknumber>=#{startblock} and t.blocknumber<#{endblock} ]]>
+    </select>    
+     
+    <select id="getRangeReleaseStat" resultType="map">
+	select sum(releaseonce) releaseamount,revenueaddress 
+	 from storage_release_detail
+	<![CDATA[ where blocknumber >= #{startblock} and blocknumber<#{endblock} ]]>
+	group by revenueaddress        
+    </select>
+
+</mapper>

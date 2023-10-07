@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.imooc.mapper.BlockForkMapper">
+    <resultMap id="BaseResultMapFork" type="com.imooc.pojo.BlockFork">
+        <result column="id"  property="id" jdbcType="BIGINT"/>
+        <result column="nephewhash"  property="nepHewHash" jdbcType="VARCHAR"/>
+        <result column="nephewnumber"  property="nepHewNumber" jdbcType="BIGINT"/>
+        <result column="istrunk"  property="isTrunk" jdbcType="INTEGER"/>
+        <result column="unclehash"  property="uncleHash" jdbcType="VARCHAR"/>
+        <result column="unclehandled"  property="uncleHandled" jdbcType="INTEGER"/>
+    </resultMap>
+
+    <select id="getBlockFork" resultMap="BaseResultMapFork">
+	  SELECT * from block_fork a  where a.unclehandled=0;
+	</select>
+
+    <insert id="saveOrUpdate">
+      insert  into block_fork
+        (
+         nephewhash,nephewnumber,istrunk,unclehash,unclehandled
+        ) values
+     (
+     #{fork.nepHewHash},#{fork.nepHewNumber},#{fork.isTrunk},#{fork.uncleHash},#{fork.uncleHandled}
+     )
+      ON DUPLICATE KEY UPDATE
+      nephewhash=values(nepHewHash),
+      unclehash=VALUES(uncleHash)
+     </insert>
+</mapper>

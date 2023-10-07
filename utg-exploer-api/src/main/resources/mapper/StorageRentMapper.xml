@@ -1,0 +1,194 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.imooc.mapper.StorageRentMapper">
+    <resultMap id="BaseResultMap" type="com.imooc.pojo.StorageRent">
+        <result column="rentid"         property="rentid"       jdbcType="BIGINT"/>
+        <result column="rent_hash"      property="rentHash"     jdbcType="VARCHAR"/>
+        <result column="device_addr"    property="deviceAddr"   jdbcType="VARCHAR"/>
+        <result column="rent_addr"      property="rentAddr"     jdbcType="VARCHAR"/>        
+        <result column="pledge_addr"    property="pledgeAddr"   jdbcType="VARCHAR"/>
+        <result column="pledge_amount"  property="pledgeAmount" jdbcType="DECIMAL"/>        
+        <result column="rent_space"     property="rentSpace"    jdbcType="DECIMAL"/>  
+        <result column="rent_price"     property="rentPrice"    jdbcType="DECIMAL"/>
+        <result column="rent_time"      property="rentTime"     jdbcType="INTEGER"/>
+        <result column="rent_number"    property="rentNumber"   jdbcType="BIGINT"/>
+        <result column="rent_amount"    property="rentAmount"   jdbcType="DECIMAL"/>
+        <result column="rent_status"    property="rentStatus"   jdbcType="INTEGER"/>        
+        <result column="renew_status"   property="renewStatus"  jdbcType="INTEGER"/>
+        <result column="renew_reqhash"  property="renewReqhash" jdbcType="VARCHAR"/>
+        <result column="renew_number"   property="renewNumber"  jdbcType="BIGINT"/>
+        <result column="renew_time"     property="renewTime"    jdbcType="INTEGER"/>               
+        <result column="recev_amount"   property="recevAmount"  jdbcType="DECIMAL"/>
+        <result column="valid_number"   property="validNumber"  jdbcType="BIGINT"/>
+        <result column="succ_number"    property="succNumber"   jdbcType="BIGINT"/>
+        <result column="fail_count"     property="failCount"    jdbcType="INTEGER"/>
+        <result column="vaild_status"   property="vaildStatus"  jdbcType="INTEGER"/>
+        <result column="vaild24_status" property="vaild24Status" jdbcType="INTEGER"/>
+        <result column="vaild_time"     property="vaildTime"    jdbcType="TIMESTAMP"/>
+        <result column="fail_days"      property="failDays"     jdbcType="INTEGER"/>
+        <result column="instime"        property="instime"      jdbcType="TIMESTAMP"/>
+        <result column="updatetime"     property="updatetime"   jdbcType="TIMESTAMP"/>
+        
+        <result column="attach_text"    property="attachText"   jdbcType="VARCHAR"/>
+        <result column="attach_pic"     property="attachPic"    jdbcType="VARCHAR"/>
+        <result column="attach_picmd5"  property="attachPicmd5" jdbcType="VARCHAR"/>
+        <result column="attach_time"    property="attachTime"   jdbcType="TIMESTAMP"/>
+        
+        <result column="revenue_addr"   property="revenue_addr"   jdbcType="VARCHAR"/>
+        
+    </resultMap>
+    
+    <insert id="insertRent" parameterType="com.imooc.pojo.StorageRent" useGeneratedKeys="true" keyProperty="rentid">
+        insert into storage_rent (
+		  rent_hash, device_addr, rent_addr, rent_space, rent_price, rent_time, rent_number, rent_amount, 
+		  rent_status, recev_amount, valid_number, succ_number, fail_count, instime, updatetime
+		) values  (
+		  #{rentHash}, #{deviceAddr}, #{rentAddr}, #{rentSpace}, #{rentPrice}, #{rentTime}, #{rentNumber}, #{rentAmount}, 
+		  #{rentStatus}, #{recevAmount}, #{validNumber}, #{succNumber}, #{failCount}, #{instime}, #{updatetime}
+		)
+		ON DUPLICATE KEY UPDATE instime = values(instime),updatetime = values(updatetime)
+    </insert>
+    
+    <update id="updateRent" parameterType="com.imooc.pojo.StorageRent">
+      update storage_rent 
+		set rent_hash = #{rentHash}, device_addr = #{deviceAddr}, rent_addr = #{rentAddr}, rent_space = #{rentSpace}, rent_price = #{rentPrice}, rent_time = #{rentTime},rent_number = #{rentNumber}, 
+		  rent_amount = #{rentAmount}, rent_status = #{rentStatus}, recev_amount = #{recevAmount}, valid_number = #{validNumber}, succ_number = #{succNumber}, fail_count = #{failCount}, 
+		  instime = #{instime}, updatetime = #{updatetime} 
+		where rentid = #{rentid}
+    </update>
+    
+    <update id="updateVaildNumber" parameterType="com.imooc.pojo.StorageRent" >
+      update storage_rent set rent_status = #{rentStatus}, pledge_amount = #{pledgeAmount}, valid_number = #{validNumber}, succ_number = #{succNumber}, 
+        renew_status = #{renewStatus}, renew_reqhash = #{renewReqhash},  vaild24_status = #{vaild24Status}, fail_count = #{failCount},  fail_days = #{failDays}
+        where rentid = #{rentid}
+    </update>
+    
+    <update id="batchUpdatePledge" parameterType="java.util.List" >
+        <foreach collection="list" item="item" index="index" open="" close=""  separator=";">
+        update storage_rent set rent_status = #{item.rentStatus}, pledge_amount = #{item.pledgeAmount}, valid_number = #{item.validNumber}, succ_number = #{item.succNumber}, 
+           renew_status = #{item.renewStatus}, renew_reqhash = #{item.renewReqhash}, vaild24_status = #{item.vaild24Status}, fail_count = #{item.failCount},  fail_days = #{item.failDays}
+          where rentid = #{item.rentid}
+        </foreach>
+    </update>
+    
+    <update id="updateVaildStatus" parameterType="com.imooc.pojo.StorageRent" >
+      update storage_rent set vaild_time = #{vaildTime}
+      <if test="vaildStatus!=null">
+        ,vaild_status = #{vaildStatus}
+      </if>
+        where rentid = #{rentid}
+    </update>
+        
+    <update id="cleanVaildStatus" >
+      update storage_rent set vaild_status = 1 
+    </update>
+        
+    <update id="updateRentStatus" parameterType="com.imooc.pojo.StorageRent">
+      update storage_rent set rent_status = #{rentStatus},pledge_addr = #{pledgeAddr},rent_number = #{rentNumber}, valid_number = #{validNumber}, succ_number = #{succNumber}, fail_count =#{failCount},
+      updatetime = #{updatetime} where rentid = #{rentid}
+    </update>
+    
+    <update id="updateRenewRequest" parameterType="com.imooc.pojo.StorageRent" >
+      update storage_rent set renew_status = #{renewStatus} ,renew_reqhash = #{renewReqhash}  where rentid = #{rentid}
+    </update>
+    
+    <update id="updateRentRenew" parameterType="com.imooc.pojo.StorageRent">
+      update storage_rent set rent_time = #{rentTime},rent_amount = #{rentAmount}, renew_status = #{renewStatus} , renew_number = #{renewNumber}, renew_time = #{renewTime},
+        renew_reqhash = #{renewReqhash}, updatetime = #{updatetime} where rentid = #{rentid}
+    </update>
+    
+    <select id="getRentInfo" resultMap="BaseResultMap">
+      SELECT * from storage_rent t  where t.rent_hash = #{rent_hash}  order by t.rentid desc limit 1
+    </select>
+    
+    <select id="getList" resultMap="BaseResultMap">
+        select rentid, rent_hash, device_addr, rent_addr, pledge_addr, pledge_amount, rent_space, rent_price, rent_time, rent_number, rent_amount, rent_status, renew_status, renew_reqhash, 
+               renew_number, renew_time, recev_amount, valid_number, succ_number, fail_count, vaild_status, vaild24_status, vaild_time, fail_days, instime, updatetime
+            from storage_rent t
+        <where>
+            <if test="rent_hash!=null and rent_hash!=''">
+                  and t.rent_hash=#{rent_hash}
+            </if>
+            <if test="device_addr!=null and device_addr!=''">
+                  and t.device_addr=#{device_addr}
+            </if>            
+            <if test="status!=null and status!=''">
+                  and t.rent_status=#{status}
+            </if>            
+        </where>
+        ORDER BY t.rentid DESC 
+    </select>
+     
+    <select id="getPageList" resultMap="BaseResultMap">
+        select t.rentid, t.rent_hash, t.device_addr, t.rent_addr, t.pledge_addr, t.pledge_amount, t.rent_space, t.rent_price, t.rent_time, t.rent_number, t.rent_amount, t.rent_status, 
+               t.renew_status, t.renew_reqhash, t.renew_number, t.renew_time, t.recev_amount, t.valid_number, t.succ_number, t.fail_count, t.vaild_status, t.vaild24_status, t.vaild_time, 
+               t.fail_days, t.instime, t.updatetime,t1.revenue_addr
+         from storage_rent t
+         left join storage_space t1 on t.device_addr = t1.device_addr and t1.pledge_status=0
+        <where>            
+            <if test="storageQueryForm.addr!=null and storageQueryForm.addr!=''">
+                  and (t.rent_hash=#{storageQueryForm.addr} or t.device_addr = #{storageQueryForm.addr})
+            </if>
+            <if test="storageQueryForm.rent_hash!=null and storageQueryForm.rent_hash!=''">
+                  and t.rent_hash=#{storageQueryForm.rent_hash}
+            </if>            
+            <if test="storageQueryForm.rent_hashs !=null and storageQueryForm.rent_hashs.length>0">
+                and t.rent_hash in
+                <foreach collection="storageQueryForm.rent_hashs" item="item" index="index" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
+            <if test="storageQueryForm.device_addr!=null and storageQueryForm.device_addr!=''">
+                  and t.device_addr=#{storageQueryForm.device_addr}
+            </if>
+            <if test="storageQueryForm.rent_addr!=null and storageQueryForm.rent_addr!=''">
+                  and t.rent_addr=#{storageQueryForm.rent_addr}
+            </if>
+            <if test="storageQueryForm.revenue_addr!=null and storageQueryForm.revenue_addr!=''">
+                  and t1.revenue_addr=#{storageQueryForm.revenue_addr}
+            </if>            
+            <if test="storageQueryForm.status!=null">
+                  and t.rent_status=#{storageQueryForm.status}
+            </if>            
+        </where>
+        ORDER BY t.rentid DESC 
+        limit #{storageQueryForm.current}, #{storageQueryForm.size}
+    </select>
+
+    <select id="getTotal" resultType="java.lang.Long">
+        select count(*) from storage_rent t
+        left join storage_space t1 on t.device_addr = t1.device_addr and t1.pledge_status=0
+        <where>
+            <if test="storageQueryForm.addr!=null and storageQueryForm.addr!=''">
+                   and (t.rent_hash=#{storageQueryForm.addr} or t.device_addr = #{storageQueryForm.addr})
+            </if>
+            <if test="storageQueryForm.rent_hash!=null and storageQueryForm.rent_hash!=''">
+                  and t.rent_hash=#{storageQueryForm.rent_hash}
+            </if>
+            <if test="storageQueryForm.rent_hashs !=null and storageQueryForm.rent_hashs.length>0">
+                and t.rent_hash in
+                <foreach collection="storageQueryForm.rent_hashs" item="item" index="index" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
+            <if test="storageQueryForm.device_addr!=null and storageQueryForm.device_addr!=''">
+                  and t.device_addr=#{storageQueryForm.device_addr}
+            </if>
+            <if test="storageQueryForm.rent_addr!=null and storageQueryForm.rent_addr!=''">
+                  and t.rent_addr=#{storageQueryForm.rent_addr}
+            </if>
+            <if test="storageQueryForm.revenue_addr!=null and storageQueryForm.revenue_addr!=''">
+                  and t1.revenue_addr=#{storageQueryForm.revenue_addr}
+            </if>
+            <if test="storageQueryForm.status!=null">
+                  and t.rent_status=#{storageQueryForm.status}
+            </if>            
+        </where>
+    </select>
+    
+    
+    <update id="updateRentAttach" parameterType="com.imooc.pojo.StorageRent" >
+      update storage_rent set attach_text = #{attachText} , attach_pic = #{attachPic}, attach_picmd5 = #{attachPicmd5}, attach_time = #{attachTime}  where rentid = #{rentid}
+    </update>
+    
+</mapper>

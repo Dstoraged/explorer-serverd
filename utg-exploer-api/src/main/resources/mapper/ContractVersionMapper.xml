@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.imooc.mapper.ContractVersionMapper">
+    <resultMap id="BaseResultMapAccount" type="com.imooc.pojo.ContractVersion">
+        <result column="version"  property="version" jdbcType="VARCHAR"/>
+        <result column="vername"  property="vername" jdbcType="VARCHAR"/>
+        <result column="metadata_bytecode"  property="metadata_bytecode" jdbcType="VARCHAR"/>
+        <result column="status"  property="status" jdbcType="INTEGER"/>
+        <result column="ord"  property="ord" jdbcType="INTEGER"/>
+    </resultMap>
+
+
+    <select id="getContractVersion" resultType="com.imooc.pojo.ContractVersion">
+        select * from contract_version where version = #{version} and status=1
+    </select>
+
+
+    <select id="getContractVersionList" resultType="com.imooc.pojo.ContractVersion">
+        select * from contract_version where status=1 order by ord desc        
+    </select>
+        
+</mapper>

@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.imooc.mapper.StorageRequestMapper">
+    <resultMap id="BaseResultMap" type="com.imooc.pojo.StorageRequest">
+        <result column="reqid"          property="reqid"        jdbcType="BIGINT"/>
+        <result column="reqhash"        property="reqhash"      jdbcType="VARCHAR"/>
+        <result column="device_addr"    property="deviceAddr"   jdbcType="VARCHAR"/>
+        <result column="rent_hash"      property="rentHash"     jdbcType="VARCHAR"/>
+        <result column="storageid"      property="storageid"    jdbcType="BIGINT"/>
+        <result column="rentid"         property="rentid"       jdbcType="BIGINT"/>
+        <result column="req_type"       property="reqType"      jdbcType="VARCHAR"/>
+        <result column="req_status"     property="reqStatus"    jdbcType="INTEGER"/>        
+        <result column="req_number"     property="reqNumber"    jdbcType="BIGINT"/>        
+        <result column="req_space"      property="reqSpace"     jdbcType="DECIMAL"/>  
+        <result column="rent_price"     property="rentPrice"    jdbcType="DECIMAL"/>
+        <result column="rent_time"      property="rentTime"     jdbcType="INTEGER"/>        
+        <result column="rent_amount"    property="rentAmount"   jdbcType="DECIMAL"/>        
+        <result column="pledge_status"  property="pledgeStatus" jdbcType="INTEGER"/>
+        <result column="instime"        property="instime"      jdbcType="TIMESTAMP"/>
+        <result column="updatetime"     property="updatetime"   jdbcType="TIMESTAMP"/>        
+                        
+        <result column="pledge_addr"    property="pledge_addr"   jdbcType="VARCHAR"/>  
+        <result column="revenue_addr"   property="revenue_addr"  jdbcType="VARCHAR"/>       
+        <result column="rent_addr"      property="rent_addr"     jdbcType="VARCHAR"/>
+        <result column="rent_status"    property="rent_status"   jdbcType="INTEGER"/>
+    </resultMap>
+    
+    <insert id="insertRequest" parameterType="com.imooc.pojo.StorageRequest" useGeneratedKeys="true" keyProperty="reqid">
+		insert into storage_request (
+		  reqhash, device_addr, rent_hash, storageid, rentid, req_type, req_status, req_number, 
+		  req_space, rent_price, rent_time, rent_amount, pledge_status, instime, updatetime
+		) values (
+		  #{reqhash}, #{deviceAddr}, #{rentHash}, #{storageid}, #{rentid}, #{reqType}, #{reqStatus}, #{reqNumber}, 
+		  #{reqSpace}, #{rentPrice}, #{rentTime}, #{rentAmount}, #{pledgeStatus}, #{instime}, #{updatetime}
+		)
+		ON DUPLICATE KEY UPDATE instime = values(instime),updatetime = values(updatetime)
+    </insert>
+    
+    <update id="updateRequest" parameterType="com.imooc.pojo.StorageRequest">
+        update storage_request set req_status = #{reqStatus} , pledge_status = #{pledgeStatus}, updatetime = #{updatetime} where reqid = #{reqid}
+    </update>
+    
+    <select id="getExpiredRenewRequest" resultMap="BaseResultMap">
+        select * from storage_request where rent_hash=#{rent_hash} and req_type = 'stReNew' and req_status=2
+        <if test="renewList!=null and renewList.size()>0">
+        and reqhash not in
+        <foreach collection="renewList" item="item" index="index" open="(" separator="," close=")">
+          #{item}
+        </foreach>
+        </if>        
+    </select>
+    
+    <update id="updateRenewStatus">
+        update storage_request set req_status = 3 where rent_hash=#{rent_hash} and req_type = 'stReNew' and req_status=2
+        <if test="renewList!=null and renewList.size()>0">
+        and reqhash not in
+        <foreach collection="renewList" item="item" index="index" open="(" separator="," close=")">
+          #{item}
+        </foreach>
+        </if>        
+    </update>
+        
+    <update id="cleanRentRequest">
+        update storage_request set req_status = 3 where rent_hash=#{rent_hash} and req_status=2
+    </update>
+    
+    <select id="getRequestInfo" resultMap="BaseResultMap">
+      SELECT * from storage_request t
+        <where>
+            <if test="device_addr!=null and device_addr!=''">
+                  and t.device_addr = #{device_addr}
+            </if>
+            <if test="rent_hash!=null and rent_hash!=''">
+                  and t.rent_hash=#{rent_hash}
+            </if>
+            <if test="rent_hash==null or rent_hash==''">
+                  and t.rent_hash is null
+            </if>
+            <if test="req_type!=null and req_type!=''">
+                  and t.req_type=#{req_type}
+            </if>
+        </where>
+        ORDER BY t.reqid desc limit 1
+    </select>
+     
+    <select id="getPageList" resultMap="BaseResultMap">
+        select t.*,t1.pledge_addr,t1.revenue_addr,t2.rent_addr,t2.rent_status 
+         from storage_request t
+         left join storage_space t1 on t.storageid = t1.storageid
+         left join storage_rent t2 on t.rentid = t2.rentid
+        <where>
+            <if test="storageQueryForm.device_addr!=null and storageQueryForm.device_addr!=''">
+                  and t.device_addr=#{storageQueryForm.device_addr}
+            </if>
+            <if test="storageQueryForm.rent_hash!=null and storageQueryForm.rent_hash!=''">
+                  and t.rent_hash=#{storageQueryForm.rent_hash}
+            </if>
+            <if test="storageQueryForm.pledge_addr!=null and storageQueryForm.pledge_addr!=''">
+                  and t1.pledge_addr=#{storageQueryForm.pledge_addr}
+            </if>
+            <if test="storageQueryForm.rent_addr!=null and storageQueryForm.rent_addr!=''">
+                  and t2.rent_addr=#{storageQueryForm.rent_addr}
+            </if>
+            <if test="storageQueryForm.status!=null">
+                  and t.pledge_status=#{storageQueryForm.status}
+            </if>
+            <if test="storageQueryForm.req_types !=null and storageQueryForm.req_types.length>0">
+	            and t.req_type in
+	            <foreach collection="storageQueryForm.req_types" item="item" index="index" open="(" separator="," close=")">
+	                #{item}
+	            </foreach>
+	        </if>
+            
+        </where>
+        ORDER BY t.reqid DESC limit #{storageQueryForm.current}, #{storageQueryForm.size}
+    </select>
+
+    <select id="getTotal" resultType="java.lang.Long">
+        select count(*) from storage_request t
+         left join storage_space t1 on t.storageid = t1.storageid
+         left join storage_rent t2 on t.rentid = t2.rentid
+        <where>
+            <if test="storageQueryForm.device_addr!=null and storageQueryForm.device_addr!=''">
+                  and t.device_addr=#{storageQueryForm.device_addr}
+            </if>
+            <if test="storageQueryForm.rent_hash!=null and storageQueryForm.rent_hash!=''">
+                  and t.rent_hash=#{storageQueryForm.rent_hash}
+            </if>
+            <if test="storageQueryForm.pledge_addr!=null and storageQueryForm.pledge_addr!=''">
+                  and t1.pledge_addr=#{storageQueryForm.pledge_addr}
+            </if>
+            <if test="storageQueryForm.rent_addr!=null and storageQueryForm.rent_addr!=''">
+                  and t2.rent_addr=#{storageQueryForm.rent_addr}
+            </if>
+            <if test="storageQueryForm.status!=null">
+                  and t.pledge_status=#{storageQueryForm.status}
+            </if>
+            <if test="storageQueryForm.req_types !=null and storageQueryForm.req_types.length>0">
+                and t.req_type in
+                <foreach collection="storageQueryForm.req_types" item="item" index="index" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
+        </where>
+    </select>
+    
+    <select id="getRequestById" resultMap="BaseResultMap">
+      select t.*,t1.pledge_addr,t1.revenue_addr,t2.rent_addr,t2.rent_status 
+        from storage_request t
+        left join storage_space t1 on t.storageid = t1.storageid
+        left join storage_rent t2 on t.rentid = t2.rentid
+       where 1=1
+       <if test="reqid!=null and reqid!=''">
+             and t.reqid=#{reqid}
+       </if>
+       <if test="device_addr!=null and device_addr!=''">
+             and t.device_addr=#{device_addr}
+       </if>
+       <if test="rent_hash!=null and rent_hash!=''">
+             and t.rent_hash=#{rent_hash}
+       </if>
+       order by t.reqid desc limit 1       
+    </select>
+  
+
+    <insert id="insertOrUpdate">
+      insert into storage_request (
+         reqhash,device_addr,rent_addr,rent_hash,req_type,req_number,req_space,
+         rent_price,rent_time,rent_amount,pledge_status,instime,updatetime
+      ) values (
+        #{request.reqhash},#{request.deviceAddr},#{request.rentAddr},#{request.rentHash},#{request.reqType},#{request.reqNumber},#{request.reqSpace},
+        #{request.rentPrice},#{request.rentTime},#{request.rentAmount},#{request.pledgeStatus},#{request.instime},#{request.updatetime}
+      )
+      ON DUPLICATE KEY UPDATE
+      reqid=#{request.rentid}
+    </insert>
+</mapper>

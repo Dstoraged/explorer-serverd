@@ -1,0 +1,235 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.imooc.mapper.TransferTokenMapper">
+    <resultMap id="BaseResultMapAccount" type="com.imooc.pojo.TransToken">
+        <result column="id"  property="id" jdbcType="BIGINT"/>
+        <result column="transhash"  property="transHash" jdbcType="VARCHAR"/>
+        <result column="logindex"  property="loginIndex" jdbcType="INTEGER"/>
+        <result column="cointype"  property="coinType" jdbcType="INTEGER"/>
+        <result column="fromaddr"  property="fromAddr" jdbcType="VARCHAR"/>
+        <result column="toaddr"  property="toAddr" jdbcType="VARCHAR"/>
+        <result column="amount"  property="amount" jdbcType="DECIMAL"/>
+        <result column="contract"  property="contract" jdbcType="VARCHAR"/>
+        <result column="blockhash"  property="blockHash" jdbcType="VARCHAR"/>
+        <result column="blocknumber"  property="blockNumber" jdbcType="VARCHAR"/>
+        <result column="tokenid"  property="tokenId" jdbcType="INTEGER"/>
+        <result column="gaslimit"  property="gasLimit" jdbcType="BIGINT"/>
+        <result column="nonce"  property="nonce" jdbcType="BIGINT"/>
+        <result column="timestamp"  property="timeStamp" jdbcType="TIMESTAMP"/>                
+        <result column="status" property="status" jdbcType="INTEGER"/>        
+        <result column="value" property="value" jdbcType="DECIMAL"/>
+        <result column="operator" property="operator" jdbcType="VARCHAR"/>
+        <result column="tokenname" property="tokenname" jdbcType="VARCHAR"/>
+        <result column="symbol" property="symbol" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <resultMap id="BaseResultMapToken" type="com.imooc.pojo.TransToken">
+        <result column="id"  property="id" jdbcType="BIGINT"/>
+        <result column="transhash"  property="transHash" jdbcType="VARCHAR"/>
+        <result column="logindex"  property="loginIndex" jdbcType="INTEGER"/>
+        <result column="cointype"  property="coinType" jdbcType="INTEGER"/>
+        <result column="fromaddr"  property="fromAddr" jdbcType="VARCHAR"/>
+        <result column="toaddr"  property="toAddr" jdbcType="VARCHAR"/>
+        <result column="amount"  property="amount" jdbcType="DECIMAL"/>
+        <result column="contract"  property="contract" jdbcType="VARCHAR"/>
+        <result column="blockhash"  property="blockHash" jdbcType="VARCHAR"/>
+        <result column="blocknumber"  property="blockNumber" jdbcType="VARCHAR"/>
+        <result column="tokenid"  property="tokenId" jdbcType="INTEGER"/>
+        <result column="gasUsed"  property="gasUsed" jdbcType="BIGINT"/>
+        <result column="timestamp"  property="timeStamp" jdbcType="TIMESTAMP"/>
+        <result column="gaslimit"  property="gasLimit" jdbcType="BIGINT"/>
+        <result column="nonce"  property="nonce" jdbcType="BIGINT"/>
+        <result column="timestamp"  property="timeStamp" jdbcType="TIMESTAMP"/>
+        <result column="status" property="status" jdbcType="INTEGER"/>        
+        <result column="value" property="value" jdbcType="DECIMAL"/>
+        <result column="operator" property="operator" jdbcType="VARCHAR"/>        
+        <result column="owner" property="owner" jdbcType="VARCHAR"/>
+        <result column="tokenname" property="tokenname" jdbcType="VARCHAR"/>
+        <result column="decimals" property="decimals" jdbcType="INTEGER"/>
+        <result column="totalsupply" property="totalsupply" jdbcType="DECIMAL"/>        
+    </resultMap>
+
+
+    <select id="getTransferList" parameterType="java.lang.Long" resultMap="BaseResultMapAccount">
+        select * from transtoken where cointype=#{coinType}
+    </select>
+
+<!--LEFT JOIN `transaction`  b ON a.transhash = b.hash-->
+   <!-- <select id="getTransToken" parameterType="com.imooc.pojo.Form.BlockQueryForm" resultMap="BaseResultMapToken">
+        select a.*,b.gasused,b.gasprice,b.timestamp from trans_token a LEFT JOIN `transaction`  b ON a.transhash = b.hash
+        <where>
+            <if test="blockQueryForm.address!=null and blockQueryForm.address!='' ">
+                and a.contract=#{blockQueryForm.address}
+            </if>
+        </where>
+        ORDER BY a.id DESC limit #{blockQueryForm.current}, #{blockQueryForm.size}
+    </select>-->
+    <select id="getTransToken" parameterType="com.imooc.pojo.Form.BlockQueryForm" resultMap="BaseResultMapToken">
+        select a.*,b.status,c.name AS tokenname,c.symbol,c.decimals,c.totalsupply
+        from trans_token a
+        LEFT JOIN transaction b ON a.transhash = b.hash
+        LEFT JOIN tokens c ON  a.contract=c.contract 
+        <where>            
+            <if test="blockQueryForm.hash!=null and blockQueryForm.hash!='' ">
+                and a.transhash=#{blockQueryForm.hash}
+            </if>
+            <if test="blockQueryForm.address!=null and blockQueryForm.address!='' ">
+                and a.contract=#{blockQueryForm.address}
+            </if>
+            <if test="blockQueryForm.type!=null ">
+                and a.cointype=#{blockQueryForm.type}
+            </if>
+            <if test="blockQueryForm.tokenid!=null ">
+                and a.tokenid=#{blockQueryForm.tokenid}
+            </if>
+            <if test="blockQueryForm.search!=null and blockQueryForm.search!='' ">
+                and (a.fromaddr=#{blockQueryForm.search} or a.toaddr=#{blockQueryForm.search} or a.transhash=#{blockQueryForm.search})
+            </if>
+            <if test="blockQueryForm.addr!=null and blockQueryForm.addr!='' ">
+                and (a.fromaddr=#{blockQueryForm.addr} or a.toaddr=#{blockQueryForm.addr})
+            </if>
+            <if test="blockQueryForm.fromAddr!=null and blockQueryForm.fromAddr!='' ">
+                and a.fromaddr=#{blockQueryForm.fromAddr}
+            </if>
+            <if test="blockQueryForm.toAddr!=null and blockQueryForm.toAddr!='' ">
+                and a.toaddr=#{blockQueryForm.toAddr}
+            </if>
+        </where>
+        ORDER BY a.blocknumber DESC,logindex limit #{blockQueryForm.current}, #{blockQueryForm.size}
+    </select>
+    
+    <select id="getTransTokenCount" parameterType="com.imooc.pojo.Form.BlockQueryForm"  resultType="java.lang.Long">
+         select  count(1) from trans_token a
+           where 1=1
+            <if test="blockQueryForm.hash!=null and blockQueryForm.hash!='' ">
+                and a.transhash=#{blockQueryForm.hash}
+            </if>
+            <if test="blockQueryForm.address!=null and blockQueryForm.address!='' ">
+                and a.contract=#{blockQueryForm.address}
+            </if>
+            <if test="blockQueryForm.type!=null ">
+                and a.cointype=#{blockQueryForm.type}
+            </if>
+            <if test="blockQueryForm.tokenid!=null ">
+                and a.tokenid=#{blockQueryForm.tokenid}
+            </if>            
+            <if test="blockQueryForm.search!=null and blockQueryForm.search!='' ">
+                and (a.fromaddr=#{blockQueryForm.search} or a.toaddr=#{blockQueryForm.search} or a.transhash=#{blockQueryForm.search})
+            </if>
+            <if test="blockQueryForm.addr!=null and blockQueryForm.addr!='' ">
+                and (a.fromaddr=#{blockQueryForm.addr} or a.toaddr=#{blockQueryForm.addr})
+            </if>
+            <if test="blockQueryForm.fromAddr!=null and blockQueryForm.fromAddr!='' ">
+                and a.fromaddr=#{blockQueryForm.fromAddr}
+            </if>
+            <if test="blockQueryForm.toAddr!=null and blockQueryForm.toAddr!='' ">
+                and a.toaddr=#{blockQueryForm.toAddr}
+            </if>
+    </select>
+    
+    <select id="getTransTokenList" parameterType="com.imooc.pojo.Form.BlockQueryForm" resultMap="BaseResultMapToken">
+        select a.*,b.status,c.name AS tokenname,c.symbol,c.decimals,c.totalsupply
+        from trans_token a
+        LEFT JOIN transaction b ON a.transhash = b.hash 
+        LEFT JOIN tokens c ON  a.contract=c.contract 
+        where 1=1
+            <if test="blockQueryForm.hash!=null and blockQueryForm.hash!='' ">
+                and a.transhash=#{blockQueryForm.hash}
+            </if>
+            <if test="blockQueryForm.contract!=null and blockQueryForm.contract!='' ">
+                and a.contract=#{blockQueryForm.contract}
+            </if>
+            <if test="blockQueryForm.address!=null and blockQueryForm.address!='' ">
+                and ( a.fromaddr=#{blockQueryForm.address} or a.toaddr=#{blockQueryForm.address} )
+            </if>
+            <if test="blockQueryForm.type!=null">
+                and a.cointype=#{blockQueryForm.type}
+            </if>
+            <if test="blockQueryForm.tokenid!=null ">
+                and a.tokenid=#{blockQueryForm.tokenid}
+            </if>
+        ORDER BY a.blocknumber DESC,logindex limit #{blockQueryForm.current}, #{blockQueryForm.size}
+    </select>
+
+    <select id="getTransTokenListCount" parameterType="com.imooc.pojo.Form.BlockQueryForm"  resultType="java.lang.Long">
+         select  count(1) from trans_token a
+           where 1=1
+            <if test="blockQueryForm.hash!=null and blockQueryForm.hash!='' ">
+                and a.transhash=#{blockQueryForm.hash}
+            </if>
+            <if test="blockQueryForm.contract!=null and blockQueryForm.contract!='' ">
+                and a.contract=#{blockQueryForm.contract}
+            </if>
+            <if test="blockQueryForm.address!=null and blockQueryForm.address!='' ">
+                and ( a.fromaddr=#{blockQueryForm.address} or a.toaddr=#{blockQueryForm.address} )
+            </if>
+            <if test="blockQueryForm.type!=null">
+                and a.cointype=#{blockQueryForm.type}
+            </if>
+            <if test="blockQueryForm.tokenid!=null ">
+                and a.tokenid=#{blockQueryForm.tokenid}
+            </if>
+    </select>
+
+    <insert id="insertOrUptate">
+      insert into trans_token
+        (
+         transhash,logindex,cointype,fromaddr,toaddr,amount,contract,blockhash,blocknumber,tokenid,gasused,gasprice,gaslimit,nonce,timestamp,value,operator,owner
+        ) values (
+	     #{transaction.transHash},#{transaction.loginIndex},#{transaction.coinType},#{transaction.fromAddr},#{transaction.toAddr},#{transaction.amount},
+	     #{transaction.contract},#{transaction.blockHash},#{transaction.blockNumber},#{transaction.tokenId},#{transaction.gasUsed},#{transaction.gasPrice},
+	     #{transaction.gasLimit},#{transaction.nonce},#{transaction.timeStamp},#{transaction.value},#{transaction.operator},#{transaction.owner}
+      )
+     ON DUPLICATE KEY UPDATE
+       transhash=values(transHash)
+     </insert>
+
+    <select id="getTransactionByTxHash" resultMap="BaseResultMapToken">
+        select a.*,b.status,c.name AS tokenname,c.symbol,c.decimals,c.totalsupply
+         from trans_token a
+        LEFT JOIN transaction b ON a.transhash = b.hash 
+        LEFT JOIN tokens c ON  a.contract=c.contract 
+        where a.transhash=#{txHash}
+    </select>
+
+
+    <select id="getContractCount" resultType="java.lang.Long">
+      select count(*) from (SELECT DISTINCT fromaddr FROM trans_token WHERE contract =#{contractAddress}
+      union (select distinct  toaddr from trans_token  WHERE contract =#{contractAddress}))c
+    </select>
+        
+    <select id="getTokenHolderList" parameterType="com.imooc.pojo.Form.BlockQueryForm" resultType="map">
+        select contract,address,count(distinct tokenid) quantity,sum(amount) amount from(
+          select contract,fromaddr address,tokenid,(case fromaddr when #{blockQueryForm.addr} then 0 else -value end) value,-amount amount  
+            from trans_token where contract=#{blockQueryForm.address}
+           union
+          select contract,toaddr address,tokenid,value,amount from trans_token where contract=#{blockQueryForm.address}
+        )t group by contract,address
+        limit #{blockQueryForm.current}, #{blockQueryForm.size}
+    </select>
+    
+    <select id="getTokenHolderCount" parameterType="com.imooc.pojo.Form.BlockQueryForm" resultType="long">
+        select count(*) from( 
+        select contract,address,count(distinct tokenid) quantity from(
+          select contract,fromaddr address,tokenid,(case fromaddr when #{blockQueryForm.addr} then 0 else -value end) value,-amount amount 
+            from trans_token where contract=#{blockQueryForm.address}
+           union
+          select contract,toaddr address,tokenid,value,amount from trans_token where contract=#{blockQueryForm.address}
+        )t group by contract,address
+        )t
+    </select>
+    
+    <select id="getTokenInventoryList" parameterType="com.imooc.pojo.Form.BlockQueryForm" resultType="map">
+        select tokenid,owner from (
+          select max(id) as id from trans_token where contract=#{blockQueryForm.address} group by tokenid
+        ) a
+        join trans_token b on a.id=b.id       
+        limit #{blockQueryForm.current}, #{blockQueryForm.size}
+    </select>
+    
+    <select id="getTokenInventoryCount" parameterType="com.imooc.pojo.Form.BlockQueryForm" resultType="long">
+        select count(distinct tokenid) 
+        from trans_token where contract=#{blockQueryForm.address}        
+    </select>
+    
+</mapper>

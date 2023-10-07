@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.imooc.mapper.ContractLockupMapper">
+    <resultMap id="BaseResultMapAccount" type="com.imooc.pojo.ContractLockup">  
+        <result column="id"  property="id" jdbcType="BIGINT"/>
+        <result column="contract"  property="contract" jdbcType="VARCHAR"/>
+        <result column="address"  property="address" jdbcType="VARCHAR"/>        
+        <result column="lockupnumber"  property="lockupnumber" jdbcType="BIGINT"/>
+        <result column="txhash"  property="txhash" jdbcType="VARCHAR"/> 
+        <result column="logindex"  property="logindex" jdbcType="INTEGER"/>
+        <result column="type"  property="type" jdbcType="INTEGER"/>        
+        <result column="lockupamount"  property="lockupamount" jdbcType="DECIMAL"/>
+        <result column="pickupamount"  property="pickupamount" jdbcType="DECIMAL"/>        
+        <result column="remainamount"  property="remainamount" jdbcType="DECIMAL"/>         
+        <result column="lockupperiod"  property="lockupperiod" jdbcType="BIGINT"/>
+        <result column="releaseperiod"  property="releaseperiod" jdbcType="BIGINT"/>
+        <result column="releaseinterval"  property="releaseinterval" jdbcType="BIGINT"/>
+        <result column="cancelnumber"  property="cancelnumber" jdbcType="BIGINT"/>
+        <result column="cancelamount"  property="cancelamount" jdbcType="DECIMAL"/>        
+        <result column="createtime"  property="createtime" jdbcType="TIMESTAMP"/>
+        <result column="updatetime"  property="updatetime" jdbcType="TIMESTAMP"/>
+        
+        <result column="pickamount"  property="pickamount" jdbcType="DECIMAL"/>   
+        <result column="pickcount"  property="pickcount" jdbcType="BIGINT"/>
+    </resultMap>    
+    
+    <select id="getPageList" resultMap="BaseResultMapAccount">
+        select t.*,t1.pickamount,t1.pickcount
+         from contract_lockup t 
+        left join (
+		  select sum(pickupamount) pickamount,count(1) pickcount,contract,lockupnumber
+		   from contract_lockup where type=2
+		    <if test="blockQueryForm.contract!=null and blockQueryForm.contract!=''">
+                  and contract=#{blockQueryForm.contract}
+            </if>
+		  group by contract,lockupnumber
+		) t1 on t.type=1 and t.contract=t1.contract and t.lockupnumber=t1.lockupnumber        
+        <where>
+            <if test="blockQueryForm.address!=null and blockQueryForm.address!=''">
+                  and t.address=#{blockQueryForm.address}
+            </if>
+            <if test="blockQueryForm.contract!=null and blockQueryForm.contract!=''">
+                  and t.contract=#{blockQueryForm.contract}
+            </if>
+            <if test="blockQueryForm.type!=null">
+                  and t.type=#{blockQueryForm.type}
+            </if>
+            <if test="blockQueryForm.lockupnumber!=null">
+                  and t.lockupnumber=#{blockQueryForm.lockupnumber}
+            </if>           
+        </where>
+        ORDER BY t.id DESC limit #{blockQueryForm.current}, #{blockQueryForm.size}
+    </select>
+
+    <select id="getTotal" resultType="java.lang.Long">
+        select count(*) from contract_lockup t
+        <where>
+            <if test="blockQueryForm.address!=null and blockQueryForm.address!=''">
+                  and t.address=#{blockQueryForm.address}
+            </if>
+            <if test="blockQueryForm.contract!=null and blockQueryForm.contract!=''">
+                  and t.contract=#{blockQueryForm.contract}
+            </if>
+            <if test="blockQueryForm.type!=null">
+                  and t.type=#{blockQueryForm.type}
+            </if>
+            <if test="blockQueryForm.lockupnumber!=null">
+                  and t.lockupnumber=#{blockQueryForm.lockupnumber}
+            </if>           
+        </where>
+    </select>
+
+
+    <select id="getList" resultType="com.imooc.pojo.ContractLockup">
+        select t.* from contract_lockup t
+        <where>
+            <if test="contract!=null and contract!=''">
+                  and t.contract=#{contract}
+            </if>
+            <if test="type!=null">
+                  and t.type=#{type}
+            </if>
+            <if test="lockupnumber!=null">
+                  and t.lockupnumber=#{lockupnumber}
+            </if>           
+        </where>
+    </select>
+       
+
+
+    <insert id="saveOrUpdate">
+      insert into contract_lockup (
+         contract, address, type, lockupnumber, txhash, logindex, lockupamount, pickupamount, remainamount, lockupperiod, releaseperiod, releaseinterval, cancelnumber, cancelamount,createtime,updatetime
+      ) values (
+        #{item.contract}, #{item.address}, #{item.type}, #{item.lockupnumber}, #{item.txhash}, #{item.logindex}, #{item.lockupamount}, #{item.pickupamount}, #{item.remainamount}, 
+        #{item.lockupperiod}, #{item.releaseperiod}, #{item.releaseinterval}, #{item.cancelnumber}, #{item.cancelamount}, #{item.createtime}, #{item.updatetime} 
+     )
+     ON DUPLICATE KEY UPDATE
+      lockupamount= values(lockupamount), pickupamount = values(pickupamount), remainamount = values(remainamount) , cancelamount = values(cancelamount)     
+     </insert>
+     
+     <update id="updateCancel">
+        update contract_lockup set cancelnumber = #{item.cancelnumber}, cancelamount = #{item.cancelamount}, updatetime = #{item.updatetime} 
+        where contract = #{item.contract} and address = #{item.address}  and type = #{item.type}  and lockupnumber = #{item.lockupnumber}        
+     </update>
+
+
+
+    <insert id="insertBatch"  parameterType="java.util.List">
+        insert into contract_lockup (
+            contract, address, type, lockupnumber, txhash, logindex, pickupamount, lockupamount, remainamount, lockupperiod, releaseperiod, releaseinterval, cancelnumber, cancelamount, createtime, updatetime
+        ) values
+        <foreach collection="list" item="item" index="index" separator=",">
+        (
+            #{item.contract}, #{item.address}, #{item.type}, #{item.lockupnumber}, #{item.txhash}, #{item.logindex},#{item.pickupamount}, #{item.lockupamount}, #{item.remainamount}, 
+            #{item.lockupperiod}, #{item.releaseperiod}, #{item.releaseinterval}, #{item.cancelnumber}, #{item.cancelamount}, #{item.createtime}, #{item.updatetime}
+        )
+        </foreach>
+    </insert>
+    
+    <update id="updateCancelBatch"  parameterType="java.util.List">
+        <foreach collection="list" item="item" index="index" open="" close=""  separator=";">
+            update contract_lockup set cancelnumber = #{item.cancelnumber}, cancelamount = #{item.cancelamount},   updatetime = #{item.updatetime} where id = #{item.id} 
+        </foreach>
+    </update>
+    
+</mapper>

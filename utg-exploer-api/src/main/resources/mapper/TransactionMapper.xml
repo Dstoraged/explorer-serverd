@@ -1,0 +1,406 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.imooc.mapper.TransactionMapper">
+    <resultMap id="BaseTransactionMap" type="com.imooc.pojo.Transaction">
+        <result column="hash"  property="hash" jdbcType="VARCHAR"/>
+        <result column="istrunk"  property="isTrunk" jdbcType="INTEGER"/>
+        <result column="timestamp"  property="timeStamp" jdbcType="TIMESTAMP"/>
+        <result column="fromaddr"  property="fromAddr" jdbcType="VARCHAR"/>
+        <result column="toaddr"  property="toAddr" jdbcType="VARCHAR"/>
+        <result column="value"  property="value" jdbcType="DECIMAL"/>
+        <result column="nonce"  property="nonce" jdbcType="INTEGER"/>
+        <result column="gaslimit"  property="gasLimit" jdbcType="BIGINT"/>
+        <result column="gasprice"  property="gasPrice" jdbcType="BIGINT"/>
+        <result column="status"  property="status" jdbcType="INTEGER"/>
+        <result column="gasused"  property="gasUsed" jdbcType="BIGINT"/>
+        <result column="cumulative"  property="cumulative" jdbcType="BIGINT"/>
+        <result column="blockhash"  property="blockHash" jdbcType="VARCHAR"/>
+        <result column="blockNumber"  property="blockNumber" jdbcType="BIGINT"/>
+        <result column="blockindex"  property="blockIndex" jdbcType="INTEGER"/>
+        <result column="input"  property="input" jdbcType="VARCHAR"/>
+        <result column="contract"  property="contract" jdbcType="VARCHAR"/>
+        <result column="error"  property="error" jdbcType="VARCHAR"/>
+        <result column="internal"  property="internal" jdbcType="INTEGER"/>
+        <result column="type"  property="type" jdbcType="INTEGER"/>
+        <result column="ufoprefix"  property="ufoprefix" jdbcType="VARCHAR"/>
+        <result column="ufoversion"  property="ufoversion" jdbcType="VARCHAR"/>
+        <result column="ufooperator"  property="ufooperator" jdbcType="VARCHAR"/>
+        <result column="param1"  property="param1" jdbcType="VARCHAR"/>
+        <result column="param2"  property="param2" jdbcType="VARCHAR"/>
+        <result column="param3"  property="param3" jdbcType="DECIMAL"/>
+        <result column="param4"  property="param4" jdbcType="DECIMAL"/>
+        <result column="param5"  property="param5" jdbcType="VARCHAR"/>
+        <result column="param6"  property="param6" jdbcType="VARCHAR"/>
+
+    </resultMap>
+
+    <resultMap id="BaseResultView" type="com.imooc.pojo.View.TransactionView">
+        <result column="hash"  property="hash" jdbcType="VARCHAR"/>
+        <result column="istrunk"  property="isTrunk" jdbcType="INTEGER"/>
+        <result column="timestamp"  property="timeStamp" jdbcType="TIMESTAMP"/>
+        <result column="fromaddr"  property="fromAddr" jdbcType="VARCHAR"/>
+        <result column="toaddr"  property="toAddr" jdbcType="VARCHAR"/>
+        <result column="value"  property="value" jdbcType="DECIMAL"/>
+        <result column="nonce"  property="nonce" jdbcType="INTEGER"/>
+        <result column="gaslimit"  property="gasLimit" jdbcType="BIGINT"/>
+        <result column="gasprice"  property="gasPrice" jdbcType="BIGINT"/>
+        <result column="status"  property="status" jdbcType="INTEGER"/>
+        <result column="gasused"  property="gasUsed" jdbcType="BIGINT"/>
+        <result column="cumulative"  property="cumulative" jdbcType="BIGINT"/>
+        <result column="blockhash"  property="blockHash" jdbcType="VARCHAR"/>
+        <result column="blockNumber"  property="blockNumber" jdbcType="BIGINT"/>
+        <result column="blockindex"  property="blockIndex" jdbcType="INTEGER"/>
+        <result column="input"  property="input" jdbcType="VARCHAR"/>
+        <result column="contract"  property="contract" jdbcType="VARCHAR"/>
+        <result column="error"  property="error" jdbcType="VARCHAR"/>
+        <result column="internal"  property="internal" jdbcType="INTEGER"/>
+        <result column="amount" property="amount" jdbcType="VARCHAR"/>
+        <result column="balance" property="balance" jdbcType="VARCHAR"/>
+        <result column="type" property="type" jdbcType="INTEGER"/>
+
+        <result column="ufoprefix"  property="ufoprefix" jdbcType="VARCHAR"/>
+        <result column="ufoversion"  property="ufoversion" jdbcType="VARCHAR"/>
+        <result column="ufooperator"  property="ufooperator" jdbcType="VARCHAR"/>
+        <result column="param1"  property="param1" jdbcType="VARCHAR"/>
+        <result column="param2"  property="param2" jdbcType="VARCHAR"/>
+        <result column="param3"  property="param3" jdbcType="DECIMAL"/>
+        <result column="param4"  property="param4" jdbcType="DECIMAL"/>
+        <result column="param5"  property="param5" jdbcType="VARCHAR"/>
+        <result column="param6"  property="param6" jdbcType="VARCHAR"/>
+    </resultMap>
+
+
+
+
+     <select id="getTxListInfo" parameterType="java.util.Map"  resultMap="BaseTransactionMap" >
+          select * from transaction a
+          <where>
+            <if test="paramsMap.address !=null">
+                and a.fromaddr=#{paramsMap.address}
+            </if>
+              <if test="paramsMap.startBlock !=null">
+                  and a.blocknumber &gt;=#{paramsMap.startBlock}
+              </if>
+              <if test="paramsMap.endBlock !=null">
+                  and a.blocknumber &lt;=#{paramsMap.endBlock}
+              </if>
+
+          </where>
+     </select>
+
+    <select id="checkStatus" parameterType="java.lang.String"  resultType="com.imooc.pojo.Transaction" >
+        select * from transaction a where a.hash=#{txHash}
+    </select>
+
+
+    <select id="findForkTransaction" resultMap="BaseTransactionMap">
+		SELECT hash, istrunk, timestamp, fromaddr, toaddr, value, nonce, gaslimit, gasprice, status, gasused, cumulative, blockhash, blocknumber, blockindex, internal, input, contract, error
+		  FROM transaction
+		  WHERE fromaddr = #{fromAddress} AND
+		        nonce = #{nonce} AND
+		        hash != #{hash} AND
+		        blockhash != #{blockHash}
+		  ORDER BY ABS(blocknumber - #{blockNumber});
+	</select>
+
+    <select id="getAvgPrice"  resultType="java.lang.Long">
+		select Avg(gasprice)  as AvgGasPrice from transaction a where a.blocknumber= #{number}
+	</select>
+
+    <select id="getTotalByBlockNumber"  resultType="java.lang.Long">
+		select count(*) from transaction  a  where a.blocknumber= #{blockNumber}   and a.fromaddr!=#{fromHash}
+	</select>
+
+    <select id="getTotalTransactionCount"  resultType="java.lang.Long" parameterType="java.util.Map" >
+		select count(*) from transaction a
+		where 1=1              
+            <choose>
+                <when test='paramsMap.txType=="0"'>
+
+                </when>
+                <when test='paramsMap.txType=="1"'>
+                    and  a.ufooperator is null
+                </when>
+                <otherwise>
+                    and a.ufooperator =#{paramsMap.txType} and a.status=1
+                </otherwise>
+            </choose>
+            <if test="paramsMap.contract !=null and paramsMap.contract!=''">
+                and (a.contract = #{paramsMap.contract} or a.toaddr = #{paramsMap.contract})
+            </if>
+            <if test="paramsMap.param1 !=null and paramsMap.param1!=''">
+                and a.param1 = #{paramsMap.param1 }
+            </if>
+            <if test="paramsMap.param2 !=null and paramsMap.param2 !=''">
+                and a.param2 = #{paramsMap.param2 }
+            </if>
+			<if test="paramsMap.param5 !=null">
+                and a.param5 = #{paramsMap.param5 }
+            </if>
+            <if test="paramsMap.address !=null and paramsMap.address!=''">
+                and (a.fromaddr = #{paramsMap.address} or a.toaddr = #{paramsMap.address}) 
+            </if>
+            <if test="paramsMap.fromAddr !=null and paramsMap.fromAddr!=''">
+                and a.fromaddr = #{paramsMap.fromAddr}
+            </if>
+            <if test="paramsMap.toAddr !=null and paramsMap.toAddr!=''">
+                and a.toAddr = #{paramsMap.toAddr}
+            </if>
+            <if test="paramsMap.ufooperator !=null and paramsMap.ufooperator!=''">
+                and a.ufooperator = #{paramsMap.ufooperator}
+            </if>
+            <if test="paramsMap.ufooperator !=null and paramsMap.ufooperator==''">
+                and a.ufooperator is null
+            </if>
+            <if test="paramsMap.status !=null">
+                and a.status = #{paramsMap.status}
+            </if>           
+            <if test="paramsMap.blocknumber !=null">
+                <![CDATA[ and a.blocknumber >= #{paramsMap.blocknumber} ]]>
+            </if>
+            <if test="paramsMap.startBlock !=null">
+                  and a.blocknumber &gt;=#{paramsMap.startBlock}
+            </if>
+            <if test="paramsMap.endBlock !=null">
+                 and a.blocknumber &lt;=#{paramsMap.endBlock}
+            </if>
+	</select>
+
+    <select id="pageList" resultMap="BaseTransactionMap"  parameterType="java.util.Map" >
+	  SELECT * from transaction a
+	  where 1=1       
+            <choose>
+                <when test='paramsMap.txType=="0"'>
+
+                </when>
+                <when test='paramsMap.txType=="1"'>
+                    and  a.ufooperator is null
+                </when>
+                <otherwise>
+                    and a.ufooperator =#{paramsMap.txType} and a.status=1
+                </otherwise>
+            </choose>
+            <if test="paramsMap.contract !=null and paramsMap.contract!=''">
+                and (a.contract = #{paramsMap.contract} or a.toaddr = #{paramsMap.contract})
+            </if>
+            <if test="paramsMap.param1 !=null and paramsMap.param1!=''">
+                and a.param1 = #{paramsMap.param1 }
+            </if>
+            <if test="paramsMap.param2 !=null and paramsMap.param2 !=''">
+                and a.param2 = #{paramsMap.param2 }
+            </if>
+            <if test="paramsMap.param5 !=null">
+                and a.param5 = #{paramsMap.param5 }
+            </if>            
+            <if test="paramsMap.address !=null and paramsMap.address!=''">
+                and (a.fromaddr = #{paramsMap.address} or a.toaddr = #{paramsMap.address}) 
+            </if>
+            <if test="paramsMap.fromAddr !=null and paramsMap.fromAddr!=''">
+                and a.fromaddr = #{paramsMap.fromAddr}
+            </if>
+            <if test="paramsMap.toAddr !=null and paramsMap.toAddr!=''">
+                and a.toAddr = #{paramsMap.toAddr}
+            </if>
+            <if test="paramsMap.ufooperator !=null and paramsMap.ufooperator!=''">
+                and a.ufooperator = #{paramsMap.ufooperator}
+            </if>
+            <if test="paramsMap.ufooperator !=null and paramsMap.ufooperator==''">
+                and a.ufooperator is null
+            </if>
+            <if test="paramsMap.status !=null">
+                and a.status = #{paramsMap.status}
+            </if>            
+            <if test="paramsMap.blocknumber !=null">
+                <![CDATA[ and a.blocknumber >= #{paramsMap.blocknumber} ]]>
+            </if>  
+            <if test="paramsMap.startBlock !=null">
+                  and a.blocknumber &gt;=#{paramsMap.startBlock}
+            </if>
+            <if test="paramsMap.endBlock !=null">
+                 and a.blocknumber &lt;=#{paramsMap.endBlock}
+            </if>     
+        order  by blocknumber desc LIMIT #{pageCurrent}, #{pageSize}
+	</select>
+
+    <select id="getTransactionByTxType" resultMap="BaseTransactionMap"  >
+        SELECT * from transaction a where a.ufooperator =#{txType} and status=1
+        <if test="txType !=null and txType =='Deposit'">
+            and param2 = '0'
+        </if>
+        order  by a.blocknumber DESC
+    </select>
+        
+    <select id="getLatestTransactionByTxType" resultMap="BaseTransactionMap"  >
+        SELECT * from transaction a where a.ufooperator =#{txType} and status=1  order  by a.blocknumber DESC limit 1
+    </select>
+
+    <select id="selectByTxHash" resultMap="BaseTransactionMap">
+        select * from transaction a where a.hash=#{txHash}
+	</select>
+
+    <select id="getTransactionByBlockNumber" resultMap="BaseTransactionMap">
+	  SELECT * from transaction a  where a.blocknumber =#{blockNumber}  order  by a.timestamp DESC,a.nonce DESC LIMIT #{pageCurrent}, #{pageSize}
+	</select>
+
+    <select id="getMaxBlockNumberByAddressHash" resultType="java.lang.Long">
+		select max(blocknumber) from transaction where fromaddr =#{fromAddressHash}
+	</select>
+
+    <!--and a.from_address_hash !=#{fromaddressHash}-->
+    <select id="getFromOrToCount"  resultType="java.lang.Long">
+		select count(*) from transaction  a  where a.fromaddr= #{addressHash} or a.toaddr =#{addressHash} or a.contract=#{addressHash}
+	</select>
+
+    <!--and a.from_address_hash !=#{fromaddressHash} order  by a.inserted_at -->
+    <select id="getTransactionInfoByToHash" resultMap="BaseTransactionMap">
+	  SELECT * from transaction a  where a.toaddr= #{addressHash}order by a.timestamp DESC LIMIT #{pageCurrent}, #{pageSize}
+	</select>
+
+    <select id="getTransactionInfoByAddressHash" resultMap="BaseTransactionMap">
+	  SELECT * from transaction a  where a.fromaddr= #{addressHash} or a.toaddr =#{addressHash}  order  by a.timestamp DESC LIMIT #{pageCurrent}, #{pageSize}
+	</select>
+
+    <select id="getTransactionInfoByFromHash" resultMap="BaseTransactionMap">
+	  SELECT * from transaction a  where a.fromaddr= #{addressHash} order  by a.timestamp DESC LIMIT #{pageCurrent}, #{pageSize}
+	</select>
+
+    <select id="getTransactionByTxHash" resultMap="BaseTransactionMap">
+	  SELECT * from transaction a  where a.hash= #{txHash}
+	</select>
+
+
+    <select id="findWorkTransaction" resultMap="BaseTransactionMap">
+	  SELECT * from transaction a  where a.blockhash= #{blockHash} and a.blocknumber=#{blockNumber} and a.hash=#{hash} and a.fromaddr=#{fromAddress} and a.nonce=#{nonce}
+	</select>
+
+    <!--	 select * from transaction a  where a.fromaddr=#{addressHash} or a.toaddr=#{addressHash}  order  by a.timestamp DESC LIMIT #{pageCurrent}, #{pageSize} -->
+    <select id="getAddressDetail"  resultMap="BaseResultView">
+      select * from transaction a  where a.fromaddr=#{addressHash} or a.toaddr=#{addressHash}  order  by a.timestamp DESC LIMIT #{pageCurrent}, #{pageSize}
+	</select>
+
+    <select id="getTotalTransactionToCount"  resultType="java.lang.Long">
+	   select IFNULL(count(hash),0) from `transaction` a where a.fromaddr= #{toAddress} or a.toaddr =#{toAddress} or a.contract=#{toAddress}
+	</select>
+
+    <insert id="insertorUpdate">
+      insert  into transaction
+        (
+         hash,istrunk,timestamp,fromaddr,toaddr,value,nonce,gaslimit,gasprice,status,gasused,cumulative,
+         blockhash,blocknumber,blockindex,input,contract,error,internal,type,ufoprefix,ufoversion,ufooperator,param1,param2,param3,param4,param5,param6
+        ) values
+     (
+     #{transaction.hash},#{transaction.isTrunk},#{transaction.timeStamp},#{transaction.fromAddr},#{transaction.toAddr}
+     ,#{transaction.value},#{transaction.nonce},#{transaction.gasLimit},#{transaction.gasPrice},#{transaction.status},#{transaction.gasUsed},#{transaction.cumulative}
+     ,#{transaction.blockHash},#{transaction.blockNumber},#{transaction.blockIndex},#{transaction.input},#{transaction.contract},#{transaction.error},#{transaction.internal},#{transaction.type}
+     ,#{transaction.ufoprefix},#{transaction.ufoversion},#{transaction.ufooperator},#{transaction.param1},#{transaction.param2},#{transaction.param3},#{transaction.param4},#{transaction.param5},#{transaction.param6})
+     </insert>
+
+    <insert id="batchTransaction" parameterType="java.util.List">
+        insert  into transaction
+        (
+        hash,istrunk,timestamp,fromaddr,toaddr,value,nonce,gaslimit,gasprice,status,gasused,cumulative,
+        blockhash,blocknumber,blockindex,input,contract,error,internal,type,ufoprefix,ufoversion,ufooperator,param1,param2,param3,param4,param5,param6
+        ) values
+        <foreach collection="list" item="transaction" index="index" separator=",">
+            (
+            #{transaction.hash},#{transaction.isTrunk},#{transaction.timeStamp},#{transaction.fromAddr},#{transaction.toAddr}
+            ,#{transaction.value},#{transaction.nonce},#{transaction.gasLimit},#{transaction.gasPrice},#{transaction.status},#{transaction.gasUsed},#{transaction.cumulative}
+            ,#{transaction.blockHash},#{transaction.blockNumber},#{transaction.blockIndex},#{transaction.input},#{transaction.contract},#{transaction.error},#{transaction.internal},#{transaction.type}
+            ,#{transaction.ufoprefix},#{transaction.ufoversion},#{transaction.ufooperator},#{transaction.param1},#{transaction.param2},#{transaction.param3},#{transaction.param4},#{transaction.param5},#{transaction.param6})
+        </foreach>
+        ON DUPLICATE KEY UPDATE hash=values(hash),blocknumber=values(blocknumber)
+    </insert>
+
+    <select id="getTotalValues" resultType="java.math.BigDecimal">
+          select IFNULL(sum(value),0) from `transaction` a 
+          <where>
+              <if test="param.startTime !=null and param.startTime!=''">
+                  <![CDATA[ and a.timestamp>=#{param.startTime} ]]>
+              </if>
+              <if test="param.endTime !=null and param.endTime !=''">
+                  <![CDATA[ and a.timestamp<=#{param.endTime} ]]>
+              </if>
+          </where>
+    </select>
+
+    <select id="getToAddress" parameterType="com.imooc.pojo.Form.BlockQueryForm" resultMap="BaseTransactionMap">
+        select  * from transaction a
+        <where>
+            <if test="blockQueryForm.address!=null and blockQueryForm.address!='' ">
+                and a.toaddr=#{blockQueryForm.address}
+            </if>
+            <if test="blockQueryForm.blockNumber!=null and blockQueryForm.blockNumber!='' ">
+                and a.blocknumber>=#{blockQueryForm.blockNumber}
+            </if>
+        </where>
+    </select>
+
+    <select id="getFromAndToTransaction" parameterType="com.imooc.pojo.Form.BlockQueryForm" resultMap="BaseTransactionMap">
+        select  * from transaction a
+        <where>
+            <if test="blockQueryForm.toAddr!=null and blockQueryForm.toAddr!='' ">
+                and a.toaddr=#{blockQueryForm.toAddr}
+            </if>
+            <if test="blockQueryForm.fromAddr!=null and blockQueryForm.fromAddr!='' ">
+                and a.fromaddr=#{blockQueryForm.fromAddr}
+            </if>
+        </where>
+        ORDER BY a.blocknumber DESC limit #{blockQueryForm.current}, #{blockQueryForm.size}
+    </select>
+
+    <select id="getTotalFromAndTo" parameterType="com.imooc.pojo.Form.BlockQueryForm" resultType="java.lang.Long">
+        select  count(*) from transaction a
+        <where>
+            <if test="blockQueryForm.toAddr!=null and blockQueryForm.toAddr!='' ">
+                and a.toaddr=#{blockQueryForm.toAddr}
+            </if>
+            <if test="blockQueryForm.fromAddr!=null and blockQueryForm.fromAddr!='' ">
+                and a.fromaddr=#{blockQueryForm.fromAddr}
+            </if>
+        </where>
+    </select>
+
+    <select id="getTotalFromAndToValue" resultType="java.math.BigDecimal">
+        select IFNULL(sum(value),0) from `transaction` a
+        <where>
+            <if test="blockQueryForm.toAddr!=null and blockQueryForm.toAddr!='' ">
+                and a.toaddr=#{blockQueryForm.toAddr}
+            </if>
+            <if test="blockQueryForm.fromAddr!=null and blockQueryForm.fromAddr!='' ">
+                and a.fromaddr=#{blockQueryForm.fromAddr}
+            </if>
+        </where>
+    </select>
+
+    <select id="getAddr0Balance" resultType="java.math.BigDecimal">
+        select balance from addresses where address = #{addressZero}
+    </select>
+    
+    <select id="getAddr0Txin" resultType="java.math.BigDecimal">
+        select ifnull(sum(value),0) value from transaction where toaddr = #{addressZero}
+    </select>
+
+    <select id="getTotalTxValue24H" resultType="java.math.BigDecimal">
+        select IFNULL(sum(value),0) from `transaction` a
+        where `status`=1 and a.`timestamp` > date_add(NOW(), interval -24 hour)
+    </select>
+
+    <select id ="getStProofTx" resultType="map">
+        select param1,blocknumber,timestamp from transaction where ufooperator = 'stProof' 
+        and param2=#{device_addr}
+        <if test="rent_hash==null or rent_hash=='' ">
+        and (param5='' or param5 is null) 
+        </if>
+        <if test="rent_hash!=null and rent_hash!=''">
+        and param5=''
+        </if>        
+        order by blocknumber desc limit 1
+    </select>
+    
+    
+    <select id="queryAll" resultMap="BaseTransactionMap" resultSetType="FORWARD_ONLY" fetchSize="-2147483648" >
+        select hash,istrunk, timestamp, fromaddr, toaddr, value, nonce, gaslimit, gasprice, status, gasused, cumulative, blockhash, blocknumber, blockindex, 
+               contract, error, internal, type, ufoprefix, ufoversion, ufooperator, param1, param2, param3, param4, param5, param6 
+        from  transaction where timestamp
+    </select>
+</mapper>

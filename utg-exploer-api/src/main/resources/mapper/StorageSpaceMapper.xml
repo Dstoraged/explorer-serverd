@@ -1,0 +1,484 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.imooc.mapper.StorageSpaceMapper">
+    <resultMap id="BaseResultMap" type="com.imooc.pojo.StorageSpace">
+        <result column="storageid"      property="storageid"    jdbcType="BIGINT"/>
+        <result column="device_addr"    property="deviceAddr"   jdbcType="VARCHAR"/>
+        <result column="pledge_addr"    property="pledgeAddr"   jdbcType="VARCHAR"/>
+        <result column="revenue_addr"   property="revenueAddr"  jdbcType="VARCHAR"/>        
+        <result column="pledge_status"  property="pledgeStatus" jdbcType="INTEGER"/>
+        <result column="pledge_number"  property="pledgeNumber" jdbcType="BIGINT"/>
+        <result column="pledge_amount"  property="pledgeAmount" jdbcType="DECIMAL"/>
+        <result column="prepledge_amount" property="prepledgeAmount" jdbcType="DECIMAL"/>        
+        <result column="pensate_amount" property="pensateAmount" jdbcType="DECIMAL"/>
+        <result column="declare_space"  property="declareSpace" jdbcType="DECIMAL"/>        
+        <result column="free_space"     property="freeSpace"    jdbcType="DECIMAL"/>
+        <result column="rent_price"     property="rentPrice"    jdbcType="DECIMAL"/>
+        <result column="rent_num"       property="rentNum"      jdbcType="BIGINT"/>
+        <result column="total_amount"   property="totalAmount"  jdbcType="DECIMAL"/>
+        <result column="storage_amount" property="storageAmount" jdbcType="DECIMAL"/>
+        <result column="storage_release" property="storageRelease" jdbcType="DECIMAL"/>
+        <result column="storage_burnt"  property="storageBurnt" jdbcType="DECIMAL"/>
+        <result column="rent_amount"    property="rentAmount"   jdbcType="DECIMAL"/>
+        <result column="rent_release"   property="rentRelease" jdbcType="DECIMAL"/>
+        <result column="rent_burnt"     property="rentBurnt"   jdbcType="DECIMAL"/>       
+        <result column="valid_number"   property="validNumber"  jdbcType="BIGINT"/>
+        <result column="succ_number"    property="succNumber"   jdbcType="BIGINT"/>
+        <result column="fail_count"     property="failCount"    jdbcType="INTEGER"/>
+        <result column="vaild_status"   property="vaildStatus"  jdbcType="INTEGER"/>
+        <result column="vaild24_status" property="vaild24Status" jdbcType="INTEGER"/>
+        <result column="vaild_time"     property="vaildTime"    jdbcType="TIMESTAMP"/>        
+        <result column="vaild_progress" property="vaildProgress" jdbcType="DECIMAL"/>        
+        <result column="fail_days"      property="failDays"     jdbcType="INTEGER"/> 
+        <result column="bw_size"        property="bwSize"       jdbcType="DECIMAL"/>
+        <result column="bw_ratio"       property="bwRatio"      jdbcType="DECIMAL"/>
+        <result column="reward_ratio"   property="rewardRatio"  jdbcType="DECIMAL"/>
+        <result column="bw_changed"      property="bwChanged"   jdbcType="INTEGER"/>
+        <result column="instime"        property="instime"      jdbcType="TIMESTAMP"/>
+        <result column="updatetime"     property="updatetime"   jdbcType="TIMESTAMP"/>
+        
+        <result column="attach_text"    property="attachText"   jdbcType="VARCHAR"/>
+        <result column="attach_pic"     property="attachPic"    jdbcType="VARCHAR"/>
+        <result column="attach_picmd5"  property="attachPicmd5" jdbcType="VARCHAR"/>
+        <result column="attach_time"    property="attachTime"   jdbcType="TIMESTAMP"/>
+        
+        <result column="ratio"          property="ratio"        jdbcType="DECIMAL"/>
+        <result column="capacity"       property="capacity"     jdbcType="DECIMAL"/>
+        <result column="manager_addr"       property="managerAddr"     jdbcType="VARCHAR"/>
+        <result column="entrust_rate"       property="entrustRate"     jdbcType="DECIMAL"/>
+        <result column="sp_hash"       property="spHash"     jdbcType="VARCHAR"/>
+        <result column="sp_height"       property="spHeight"     jdbcType="BIGINT"/>
+        <result column="hav_amount"       property="havAmount"     jdbcType="DECIMAL"/>
+        <result column="manager_amount"       property="managerAmount"     jdbcType="DECIMAL"/>
+        <result column="manager_height"       property="managerHeight"     jdbcType="BIGINT"/>
+        <result column="fee_rate"       property="feeRate"     jdbcType="INTEGER"/>
+        
+    </resultMap>
+    
+    <insert id="insertSpace" parameterType="com.imooc.pojo.StorageSpace" useGeneratedKeys="true" keyProperty="storageid">
+        insert into storage_space (
+		  device_addr, pledge_addr, revenue_addr, pledge_status, pledge_number, pledge_amount, pensate_amount, declare_space, free_space, rent_price, rent_num, 
+		  total_amount, storage_amount, rent_amount, valid_number, succ_number, fail_count, vaild_progress, bw_size, bw_ratio, reward_ratio, instime, updatetime,
+		  hav_amount,manager_amount,manager_height,active_height,sp_jointime,sp_height,sp_hash,entrust_rate,manager_addr
+		) values (    
+		  #{deviceAddr}, #{pledgeAddr}, #{revenueAddr}, #{pledgeStatus}, #{pledgeNumber}, #{pledgeAmount}, #{pensateAmount}, #{declareSpace}, #{freeSpace},  #{rentPrice}, #{rentNum}, 
+		  #{totalAmount}, #{storageAmount}, #{rentAmount}, #{validNumber}, #{succNumber}, #{failCount}, #{vaildProgress}, #{bwSize}, #{bwRatio}, #{rewardRatio}, #{instime}, #{updatetime},
+		  #{havAmount},#{managerAmount},#{managerHeight},#{activeHeight},#{spJointime},#{spHeight},#{spHash},#{entrustRate},#{managerAddr}
+		) 
+		ON DUPLICATE KEY UPDATE instime = values(instime),updatetime = values(updatetime)
+    </insert>
+    <update id="updateSpaceToSp" parameterType="com.imooc.pojo.StorageSpace" >
+    update storage_space  set sp_hash=null ,sp_height=null   where sp_hash = #{spHash}
+      
+    </update>
+    <update id="updateSpace" parameterType="com.imooc.pojo.StorageSpace" >
+      update storage_space 
+		set device_addr = #{deviceAddr}, pledge_addr = #{pledgeAddr}, revenue_addr = #{revenueAddr}, pledge_status = #{pledgeStatus}, pledge_number = #{pledgeNumber},
+		  pledge_amount = #{pledgeAmount},  pensate_amount = #{pensateAmount}, declare_space = #{declareSpace}, free_space = #{freeSpace}, rent_price = #{rentPrice}, rent_num = #{rentNum}, 
+		  total_amount = #{totalAmount}, storage_amount = #{storageAmount}, rent_amount = #{rentAmount}, valid_number = #{validNumber}, succ_number = #{succNumber}, fail_count = #{failCount}, 
+		  bw_size = #{bwSize}, bw_ratio = #{bwRatio}, reward_ratio = #{rewardRatio}, instime = #{instime}, updatetime = #{updatetime} ,
+		  hav_amount=#{havAmount},manager_amount=#{managerAmount},manager_height=#{managerHeight},active_height=#{activeHeight},
+		  <if test="item.spJointime!=null">
+            sp_jointime=#{item.spJointime},
+            </if>
+           sp_height=#{spHeight},
+		  sp_hash=#{spHash},entrust_rate=#{entrustRate},manager_addr=#{managerAddr}
+		where storageid = #{storageid} 
+    </update>
+    
+    <update id="updateVaildNumber" parameterType="com.imooc.pojo.StorageSpace" >
+      update storage_space set pledge_status = #{pledgeStatus}, free_space = #{freeSpace}, valid_number = #{validNumber}, succ_number = #{succNumber},
+        vaild24_status = #{vaild24Status}, fail_count = #{failCount}, fail_days = #{failDays}, rent_num = #{rentNum}
+       where storageid = #{storageid} 
+    </update>
+    
+    <update id="batchUpdatePledge" parameterType="java.util.List">
+       <foreach collection="list" item="item" index="index" open="" close=""  separator=";"> 
+        update storage_space set pledge_status = #{item.pledgeStatus}, free_space = #{item.freeSpace}, valid_number = #{item.validNumber}, succ_number = #{item.succNumber},
+            vaild24_status = #{item.vaild24Status}, fail_count = #{item.failCount}, fail_days = #{item.failDays}, rent_num = #{item.rentNum},
+            hav_amount = #{item.havAmount},manager_amount=#{item.managerAmount},manager_height=#{item.managerHeight},active_height=#{item.activeHeight},
+            <if test="item.spJointime!=null">
+            sp_jointime=#{item.spJointime},
+            </if>
+            sp_height=#{item.spHeight}, sp_hash=#{item.spHash},entrust_rate=#{item.entrustRate},manager_addr=#{item.managerAddr}
+        where storageid = #{item.storageid} 
+       </foreach>
+    </update>
+    
+    <update id="updateVaildStatus" parameterType="com.imooc.pojo.StorageSpace" >
+      update storage_space set vaild_time = #{vaildTime}
+      <if test="vaildStatus!=null">
+        ,vaild_status = #{vaildStatus}
+      </if>
+       where storageid = #{storageid} 
+    </update>
+    
+    
+    <update id="updateVaildProgress" parameterType="com.imooc.pojo.StorageSpace" >
+      update storage_space set vaild_progress = #{vaildProgress}, updatetime = #{updatetime} where storageid = #{storageid}
+    </update>
+    
+    <update id="cleanVaildStatus" >
+      update storage_space set vaild_status = 1,vaild_progress = null
+    </update>    
+       
+    
+    <update id="updatePledgeStatus" parameterType="com.imooc.pojo.StorageSpace" >
+      update storage_space set pledge_status = #{pledgeStatus}, updatetime = #{updatetime} where storageid = #{storageid} 
+    </update>
+    
+    <update id="updateRentPrice" parameterType="com.imooc.pojo.StorageSpace" >
+      update storage_space set rent_price = #{rentPrice}, updatetime = #{updatetime} where storageid = #{storageid} 
+    </update>
+    
+    <update id="updateRevenueAddr" parameterType="com.imooc.pojo.StorageSpace" >
+      update storage_space set revenue_addr = #{revenueAddr}, updatetime = #{updatetime} where storageid = #{storageid} 
+    </update>
+    
+    <update id="updateBandwidth" parameterType="com.imooc.pojo.StorageSpace" >
+      update storage_space set bw_size = #{bwSize}, bw_ratio = #{bwRatio}, reward_ratio = #{rewardRatio},
+       pledge_amount = #{pledgeAmount}, prepledge_Amount= #{prepledgeAmount}, bw_changed= #{bwChanged}, updatetime = #{updatetime} 
+      where storageid = #{storageid} 
+    </update>
+    
+    <update id="updateRentSpace" parameterType="com.imooc.pojo.StorageSpace" >
+      update storage_space set free_space = #{freeSpace}, rent_num = #{rentNum},  updatetime = #{updatetime} where storageid = #{storageid} 
+    </update>
+       
+     
+        
+    <select id="getSpaceInfo" resultMap="BaseResultMap">
+      select t.*,case when t.sn_ratio is null then t1.ratio else sn_ratio end ratio,t1.capacity  ,p.fee_rate
+       from storage_space t 
+       left join storage_revenue t1 on t.revenue_addr = t1.revenue_addr 
+       left join storage_pool p on p.hash=t.sp_hash
+      where t.device_addr = #{device_addr}      
+      order by t.storageid desc limit 1
+    </select>
+    
+    <select id="getSpaceById" resultMap="BaseResultMap">
+      select t.*,case when t.sn_ratio is null then t1.ratio else sn_ratio end ratio,t1.capacity,p.fee_rate 
+       from storage_space t 
+       left join storage_revenue t1 on t.revenue_addr = t1.revenue_addr 
+       left join storage_pool p on p.hash=t.sp_hash
+      where t.device_addr = #{device_addr}
+        and t.storageid = #{id}        
+      order by t.storageid desc limit 1
+    </select>
+    
+    
+   <select id="getList" resultMap="BaseResultMap">
+       select storageid, device_addr, pledge_addr, t.revenue_addr, pledge_status, pledge_number, pledge_amount, prepledge_amount, pensate_amount, t.declare_space, t.free_space, rent_price, rent_num,
+        total_amount, t.storage_amount, t.storage_release, t.storage_burnt, t.rent_amount, t.rent_release, t.rent_burnt, t.bw_size, t.bw_ratio, t.reward_ratio, t.bw_changed, 
+        valid_number, succ_number, fail_count, vaild_status, vaild24_status, vaild_time, vaild_progress, fail_days, t.instime, t.updatetime, attach_text, attach_picmd5, attach_time,t1.ratio,t1.capacity
+        ,hav_amount,manager_amount,manager_height,active_height,sp_jointime,sp_height,sp_hash,entrust_rate,manager_addr
+        from storage_space t 
+        left join storage_revenue t1 on t.revenue_addr = t1.revenue_addr 
+        <where>
+            <if test="device_addr!=null and device_addr!=''">
+                  and t.device_addr=#{device_addr}
+            </if>
+            <if test="revenue_addr!=null and revenue_addr!=''">
+                  and t.revenue_addr=#{revenue_addr}
+            </if>
+            <if test="status!=null and status!=''">
+                  and t.pledge_status=#{status}
+            </if>
+        </where>
+        order by t.storageid desc
+    </select>
+     
+    <select id="getPageList" resultMap="BaseResultMap">
+       select t.*,t1.ratio,t1.capacity 
+        from storage_space t 
+        left join storage_revenue t1 on t.revenue_addr = t1.revenue_addr 
+        <where>
+            <if test="storageQueryForm.device_addr!=null and storageQueryForm.device_addr!=''">
+                  and t.device_addr=#{storageQueryForm.device_addr}
+            </if>
+            <if test="storageQueryForm.pledge_addr!=null and storageQueryForm.pledge_addr!=''">
+                  and t.pledge_addr=#{storageQueryForm.pledge_addr}
+            </if>
+            <if test="storageQueryForm.revenue_addr!=null and storageQueryForm.revenue_addr!=''">
+                  and t.revenue_addr=#{storageQueryForm.revenue_addr}
+            </if>
+            <if test="storageQueryForm.addr!=null and storageQueryForm.addr!=''">
+                  and (t.manager_addr=#{storageQueryForm.addr} or t.device_addr=#{storageQueryForm.addr} or t.revenue_addr=#{storageQueryForm.addr})
+            </if>
+            <if test="storageQueryForm.managerAddr!=null and storageQueryForm.managerAddr!=''">
+                  and t.manager_addr=#{storageQueryForm.managerAddr}
+            </if>
+            <if test="storageQueryForm.status!=null">
+                  and t.pledge_status=#{storageQueryForm.status}
+            </if>
+            <if test="storageQueryForm.vaild24_status!=null and storageQueryForm.vaild24_status!=-1">
+                and t.vaild24_status=#{storageQueryForm.vaild24_status}
+            </if>
+            <if test="storageQueryForm.vaild24_status==-1">
+                and (t.vaild24_status is null)
+            </if>
+            <if test="storageQueryForm.statusList!=null and storageQueryForm.statusList.length>0">
+                and t.pledge_status in 
+                <foreach collection="storageQueryForm.statusList" item="item" index="index" open="(" separator="," close=")">
+                #{item}
+             </foreach>
+            </if>
+        </where>
+        order by (case t.pledge_status when -1 then 101 else t.pledge_status end),  t.storageid DESC limit #{storageQueryForm.current}, #{storageQueryForm.size}
+    </select>
+
+    <select id="getTotal" resultType="java.lang.Long">
+        select count(*) from storage_space t
+        <where>
+            <if test="storageQueryForm.device_addr!=null and storageQueryForm.device_addr!=''">
+                  and t.device_addr=#{storageQueryForm.device_addr}
+            </if>
+            <if test="storageQueryForm.pledge_addr!=null and storageQueryForm.pledge_addr!=''">
+                  and t.pledge_addr=#{storageQueryForm.pledge_addr}
+            </if>
+            <if test="storageQueryForm.revenue_addr!=null and storageQueryForm.revenue_addr!=''">
+                  and t.revenue_addr=#{storageQueryForm.revenue_addr}
+            </if>
+            <if test="storageQueryForm.addr!=null and storageQueryForm.addr!=''">
+                 and (t.manager_addr=#{storageQueryForm.addr} or t.device_addr=#{storageQueryForm.addr} or t.revenue_addr=#{storageQueryForm.addr})
+            </if>
+            <if test="storageQueryForm.status!=null">
+                  and t.pledge_status=#{storageQueryForm.status}
+            </if>
+            <if test="storageQueryForm.vaild24_status!=null and storageQueryForm.vaild24_status!=-1">
+                and t.vaild24_status=#{storageQueryForm.vaild24_status}
+            </if>
+            <if test="storageQueryForm.vaild24_status==-1">
+                and (t.vaild24_status is null)
+            </if>         
+            <if test="storageQueryForm.statusList!=null and storageQueryForm.statusList.length>0">
+                and t.pledge_status in 
+                <foreach collection="storageQueryForm.statusList" item="item" index="index" open="(" separator="," close=")">
+                #{item}
+             </foreach>
+            </if>   
+        </where>
+    </select>
+        
+    <select id="getStat" resultMap="BaseResultMap">
+        select ifnull(sum(pledge_amount),0) pledge_amount,ifnull(sum(declare_space),0) declare_space,ifnull(sum(free_space),0) free_space,
+               ifnull(sum(total_amount),0) total_amount,ifnull(sum(storage_amount),0) storage_amount,ifnull(sum(rent_amount),0) rent_amount,ifnull(sum(bw_size),0) bw_size
+        from storage_space t
+        <where>
+            <if test="storageQueryForm.device_addr!=null and storageQueryForm.device_addr!=''">
+                  and t.device_addr=#{storageQueryForm.device_addr}
+            </if>
+            <if test="storageQueryForm.pledge_addr!=null and storageQueryForm.pledge_addr!=''">
+                  and t.pledge_addr=#{storageQueryForm.pledge_addr}
+            </if>
+            <if test="storageQueryForm.revenue_addr!=null and storageQueryForm.revenue_addr!=''">
+                  and t.revenue_addr=#{storageQueryForm.revenue_addr}
+            </if>
+            <if test="storageQueryForm.addr!=null and storageQueryForm.addr!=''">
+                  and (t.device_addr=#{storageQueryForm.addr} or t.revenue_addr=#{storageQueryForm.addr})
+            </if>
+            <if test="storageQueryForm.status!=null">
+                  and t.pledge_status=#{storageQueryForm.status}
+            </if>
+            <if test="storageQueryForm.vaild24_status!=null and storageQueryForm.vaild24_status!=-1">
+                and t.vaild24_status=#{storageQueryForm.vaild24_status}
+            </if>
+            <if test="storageQueryForm.vaild24_status==-1">
+                and (t.vaild24_status is null)
+            </if>            
+        </where>
+    </select>
+        
+    <select id="getAmountStat" resultType="map">
+       select t.*,t2.storageamount,t3.rentamount
+		 from storage_space t 
+		left join (select sum(totalamount) storageamount,address from transfer_miner where type=9 group by address ) t2 on t.device_addr = t2.address
+		left join (select sum(totalamount) rentamount,address from transfer_miner where type=5 group by address ) t3 on t.device_addr = t3.address
+		order by t.storageid desc
+    </select>
+    
+    <update id="updateAmount" parameterType="com.imooc.pojo.StorageSpace" >
+      update storage_space set total_amount = #{totalAmount}, storage_amount = #{storageAmount}, rent_amount = #{rentAmount} where storageid = #{storageid} 
+    </update>
+     <update id="updateSpToSnTransfer" parameterType="com.imooc.pojo.StorageSpace" >
+      update storage_space set hav_amount = #{havAmount} where storageid = #{storageid} 
+    </update>
+    <update id="updateStorageAmount">
+        update storage_space t
+		left join (select address,ifnull(sum(totalamount),0) storage_amount,ifnull(sum(releaseamount),0) storage_release,ifnull(sum(burntamount),0) storage_burnt from transfer_miner where type=9 group by address ) t2 
+		  on t.device_addr = t2.address
+		left join (select address,ifnull(sum(totalamount),0) rent_amount,ifnull(sum(releaseamount),0) rent_release,ifnull(sum(burntamount),0) rent_burnt from transfer_miner where type=5 group by address ) t3 
+		  on t.device_addr = t3.address
+		set t.storage_amount=t2.storage_amount,
+		 t.storage_release=t2.storage_release,
+		 t.storage_burnt=t2.storage_burnt,
+		 t.rent_amount=t3.rent_amount,
+		 t.rent_release=t3.rent_release,
+		 t.rent_burnt=t3.rent_burnt,
+		 t.total_amount=ifnull(t2.storage_amount,0)+ifnull(t3.rent_amount,0)
+		 where t.storageid in ( select * from ( select max(storageid) storageid  from storage_space group by device_addr) t0 )
+    </update>
+    <!-- 
+    <select id ="getVaildTx" resultType="map">
+        select param1,blocknumber from transaction where ufooperator = 'stProof' and param2=#{device_addr} and (param5='' or param5 is null) order by blocknumber desc limit 1
+    </select>
+     -->
+    <select id="getPledgeNodeList" resultType="map">
+        select * from (
+	        select node_address address,1 type,total_amount pledge_amount,join_time from utg_node_miner where node_type in (1,2)
+	        <if test="pledgeQueryForm.address!=null and pledgeQueryForm.address!=''">
+	            and node_address=#{pledgeQueryForm.address}
+	        </if>
+	        <if test="pledgeQueryForm.type!=null and pledgeQueryForm.type!=1">
+                and 1=2
+            </if>
+	        union
+	        select device_addr address,2 type,pledge_amount,instime join_time from storage_space where pledge_status=0
+	        <if test="pledgeQueryForm.address!=null and pledgeQueryForm.address!=''">
+	            and device_addr=#{pledgeQueryForm.address}
+	        </if>
+	        <if test="pledgeQueryForm.type!=null and pledgeQueryForm.type!=2">
+                and 1=2
+            </if>
+        ) t
+        order by t.pledge_amount desc
+        limit #{pledgeQueryForm.current}, #{pledgeQueryForm.size}
+    </select>
+
+    <select id="getPledgeNodeTotal" resultType="long">
+        select count(*) from (
+            select node_address address,1 type,total_amount pledge_amount,join_time from utg_node_miner where node_type in (1,2)
+            <if test="pledgeQueryForm.address!=null and pledgeQueryForm.address!=''">
+                and node_address=#{pledgeQueryForm.address}
+            </if>
+            <if test="pledgeQueryForm.type!=null and pledgeQueryForm.type!=1">
+                and 1=2
+            </if>
+            union
+            select device_addr address,2 type,pledge_amount,instime join_time from storage_space where pledge_status=0
+            <if test="pledgeQueryForm.address!=null and pledgeQueryForm.address!=''">
+                and device_addr=#{pledgeQueryForm.address}
+            </if>
+            <if test="pledgeQueryForm.type!=null and pledgeQueryForm.type!=2">
+                and 1=2
+            </if>
+        ) t
+    </select>
+    
+    <select id="getPledgeNodeStat" resultType="map">
+        select t1.nodepledge+t2.storagepledge pledgeamount ,t1.nodepledge, t2.storagepledge from (
+            select ifnull(sum(total_amount),0) nodepledge  from utg_node_miner where node_type in (1,2)
+            <if test="pledgeQueryForm.address!=null and pledgeQueryForm.address!=''">
+                and node_address=#{pledgeQueryForm.address}
+            </if>
+            <if test="pledgeQueryForm.type!=null and pledgeQueryForm.type!=1">
+                and 1=2
+            </if>
+        ) t1, (
+            select ifnull(sum(pledge_amount),0) storagepledge  from storage_space where pledge_status=0
+            <if test="pledgeQueryForm.address!=null and pledgeQueryForm.address!=''">
+                and device_addr=#{pledgeQueryForm.address}
+            </if>
+            <if test="pledgeQueryForm.type!=null and pledgeQueryForm.type!=2">
+                and 1=2
+            </if>
+        ) t2        
+    </select>
+    
+    <update id="startBandwidthMakeup">
+        update storage_space set prepledge_amount = #{prepledgeAmount}, bw_size = #{bwSize}, bw_ratio = #{bwRatio}, reward_ratio = #{rewardRatio}
+        where device_addr = #{deviceAddr} and pledge_status = 0 
+    </update>
+    
+    <update id="updateBandwidthMakeup" parameterType="com.imooc.pojo.StorageSpace" >
+       update storage_space set pledge_amount = #{pledgeAmount}, prepledge_amount = null, updatetime = #{updatetime} where storageid = #{storageid} 
+    </update>
+
+    <update id="finishBandwidthMakeup"  parameterType="com.imooc.pojo.StorageSpace">
+        update storage_space set prepledge_amount = #{prepledgeAmount}, bw_size = #{bwSize}, bw_ratio = #{bwRatio}, reward_ratio = #{rewardRatio}
+        where storageid = #{storageid}
+    </update>  
+    
+          
+    <update id="updateSpaceAttach" parameterType="com.imooc.pojo.StorageSpace" >
+      update storage_space set attach_text = #{attachText} , attach_pic = #{attachPic}, attach_picmd5 = #{attachPicmd5}, attach_time = #{attachTime}  where storageid = #{storageid} 
+    </update>
+    <select id="getSnListBySpHash" resultType="map">
+     select case when p.total_capacity = 0 then 0 else round(s.declare_space*100/p.total_capacity,4) end spaceRate ,s.device_addr,s.declare_space,
+     s.sp_height,case when p.active_status>=2 then 0 else 1 end joinState,s.sp_jointime,s.sp_hash,s.pledge_status  from storage_space  s
+       ,storage_pool  p  where s.sp_hash=p.hash  and p.hash=#{spHash} 
+       <if test="pledgeStatus!=null">
+        and  pledge_status in (0,7)
+       </if>
+       <if test="pledgeStatus!=null">
+        and pledge_status=#{pledgeStatus!=null}
+       </if> 
+     </select>
+     <select id="getSnListBySpHashCount" resultType="long">
+     select count(1)  from storage_space  s
+       ,storage_pool  p  where s.sp_hash=p.hash and p.hash=#{spHash}
+     </select>
+     <update id="updateSpaceSpStatus" parameterType="com.imooc.pojo.StorageSpace" >
+      update storage_space set sp_hash = null ,sp_height=null ,sp_jointime=null where
+      
+       <if test="storageid !=null and storageid >0">
+      storageid=#{storageid}
+      </if>
+      <if test="storageid == null">
+      device_addr = #{deviceAddr} and pledge_status=#{pledgeStatus}
+      </if>
+    </update>
+    
+    <update id="updateSpaceNew" parameterType="com.imooc.pojo.StorageSpace" >
+      update storage_space set 
+      <if test="managerAddr !=null and managerAddr!=''">
+          manager_addr=#{managerAddr},
+      </if>
+      <if test="spHash !=null and spHash !=''">
+          sp_hash=#{spHash},
+      </if>
+      <if test="spHeight !=null and spHeight !=''">
+          sp_height=#{spHeight},
+      </if>
+      <if test="spJointime !=null">
+          sp_jointime=#{spJointime},
+      </if>
+      <if test="entrustRate !=null">
+          entrust_rate=#{entrustRate},
+      </if>
+      <if test="havAmount !=null">
+          hav_amount=#{havAmount},
+      </if>
+      <if test="managerAmount !=null">
+          manager_amount=#{managerAmount},
+      </if>
+      <if test="managerHeight !=null">
+          manager_height=#{managerHeight},
+      </if>
+      updatetime=NOW()
+      where 
+      <if test="storageid !=null and storageid >0">
+      storageid=#{storageid}
+      </if>
+      <if test="storageid == null">
+      device_addr = #{deviceAddr} and pledge_status=#{pledgeStatus}
+      </if>
+      
+    </update>
+    <update id="updateSpaceDelSpStatus"  >
+     update storage_space set  sp_hash=null, sp_height=null, 
+     sp_jointime=null where  pledge_status = 6
+    </update>
+     <update id="batchUpdateSpaceRatioBySpHash"  >
+     <foreach collection="list" item="item" index="index" open="" close=""  separator=";"> 
+        update storage_space set sn_ratio=#{item.ratio}
+        where sp_hash = #{item.spHash}
+       </foreach>
+     </update>
+    <update id="batchUpdateSpaceRatio" parameterType="java.util.List">
+       <foreach collection="list" item="item" index="index" open="" close=""  separator=";"> 
+        update storage_space set sn_ratio=#{item.ratio}
+        where storageid = #{item.storageid} 
+       </foreach>
+    </update>
+</mapper>

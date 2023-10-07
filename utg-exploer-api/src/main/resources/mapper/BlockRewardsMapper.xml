@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.imooc.mapper.BlockRewardsMapper">
+    <resultMap id="BaseResultMapAccount" type="com.imooc.pojo.BlockRewards">
+        <result column="id"  property="id" jdbcType="BIGINT"/>
+        <result column="blockhash"  property="blockHash" jdbcType="VARCHAR"/>
+        <result column="blocknumber"  property="blockNumber" jdbcType="BIGINT"/>
+        <result column="istrunk"  property="isTrunk" jdbcType="INTEGER"/>
+        <result column="address"  property="address" jdbcType="VARCHAR"/>
+        <result column="rewardtype"  property="rewardType" jdbcType="VARCHAR"/>
+        <result column="rewardhash"  property="rewardHash" jdbcType="VARCHAR"/>
+        <result column="reward"  property="reward" jdbcType="DECIMAL"/>
+        <result column="timestamp"  property="timeStamp" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <select id="getRewadInfoByAddress" resultMap="BaseResultMapAccount">
+	  SELECT * from blockrewards a  where a.address =#{address}order  by a.id DESC  LIMIT #{pageCurrent}, #{pageSize}
+	</select>
+
+    <select id="getBlockRewardByBlockNo" resultMap="BaseResultMapAccount">
+	  SELECT * from blockrewards a  where a.blocknumber =#{blockNumber}
+	</select>
+
+    <insert id="insertOrUpdate">
+      insert  into block_rewards
+        (
+         blockhash,blocknumber,istrunk,address,rewardtype,rewardhash,reward,timestamp
+        ) values
+     (
+     #{reward.blockHash},#{reward.blockNumber},#{reward.isTrunk},#{reward.address},#{reward.rewardType},#{reward.rewardHash},#{reward.reward},#{reward.timeStamp}
+     )
+      ON DUPLICATE KEY UPDATE
+      blocknumber=values(blockNumber),
+      blockhash=VALUES(blockHash),
+      address=VALUES(address)
+     </insert>
+
+</mapper>

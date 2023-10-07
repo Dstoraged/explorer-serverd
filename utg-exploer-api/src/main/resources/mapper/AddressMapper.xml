@@ -1,0 +1,240 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.imooc.mapper.AccountMapper">
+    <resultMap id="BaseResultMapAccount" type="com.imooc.pojo.Addresses">
+        <result column="id"  property="id" jdbcType="BIGINT"/>
+        <result column="address"  property="address" jdbcType="VARCHAR"/>
+        <result column="contract"  property="contract" jdbcType="VARCHAR"/>
+        <result column="balance"  property="balance" jdbcType="DECIMAL"/>
+        <result column="nonce"  property="nonce" jdbcType="INTEGER"/>
+        <result column="blockNumber"  property="blockNumber" jdbcType="BIGINT"/>
+        <result column="balance_block"  property="balance_block" jdbcType="BIGINT"/>
+        <result column="srt_balance"  property="srt_balance" jdbcType="DECIMAL"/>
+        <result column="srt_nonce"  property="srt_nonce" jdbcType="INTEGER"/>
+        <result column="srt_block"  property="srt_block" jdbcType="BIGINT"/>
+        <result column="isstorage"  property="isstorage" jdbcType="INTEGER"/>
+        <result column="isrevenue"  property="isrevenue" jdbcType="INTEGER"/>
+        <result column="isminer"    property="isminer" jdbcType="INTEGER"/>
+        <result column="iscontract" property="iscontract" jdbcType="INTEGER"/>
+    </resultMap>
+
+    <resultMap id="BaseAddressAccount" type="com.imooc.pojo.vo.AddressVo">
+        <result column="id"  property="id" jdbcType="BIGINT"/>
+        <result column="address"  property="address" jdbcType="VARCHAR"/>
+        <result column="contract"  property="contract" jdbcType="VARCHAR"/>
+        <result column="balance"  property="balance" jdbcType="DECIMAL"/>
+        <result column="nonce"  property="nonce" jdbcType="INTEGER"/>
+        <result column="blockNumber"  property="blockNumber" jdbcType="BIGINT"/>
+        <result column="balance_block"  property="balance_block" jdbcType="BIGINT"/>
+        <result column="srt_balance"  property="srt_balance" jdbcType="DECIMAL"/>
+        <result column="srt_nonce"  property="srt_nonce" jdbcType="INTEGER"/>
+        <result column="srt_block"  property="srt_block" jdbcType="BIGINT"/>
+        <result column="isstorage"  property="isstorage" jdbcType="INTEGER"/>
+        <result column="isrevenue"  property="isrevenue" jdbcType="INTEGER"/>
+        <result column="isminer"    property="isminer" jdbcType="INTEGER"/>
+        <result column="iscontract" property="iscontract" jdbcType="INTEGER"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+		id,address,contract,balance,nonce,blockNumber,srt_balance,srt_nonce
+	</sql>
+
+    <insert id="update">
+        insert into addresses
+        (
+        fetched_coin_balance, fetched_coin_balance_block_number, hash, contract_code,inserted_at,updated_at,nonce,decompiled,verified
+        ) values
+        <foreach collection='addresses' item='i' separator=', '>
+            (
+            #{i.fetchedCoinBalance}, #{i.fetchedCoinBalanceNumber}, #{i.hash}, #{i.contractCode},#{i.insertedAt},#{i.updatedAt},
+            #{i.nonce},#{i.decompiled},#{i.verified}
+            )
+        </foreach>
+        on duplicate key update
+        fetched_coin_balance = values(fetched_coin_balance), nonce = values(nonce)
+    </insert>
+
+    <select id="selectSingleAddress" parameterType="java.lang.String"
+            resultMap="BaseResultMapAccount">
+        SELECT
+        <include refid="Base_Column_List" />
+        from addresses
+        WHERE
+        address= #{address}
+    </select>
+
+
+    <select id="getMultipleByHash" parameterType="java.util.List" resultMap="BaseResultMapAccount">
+        SELECT a.* from addresses a
+        WHERE
+        a.address IN
+        <foreach collection="hashParams" item="item" index="index"
+                 open="(" close=")" separator=",">
+            #{item}
+        </foreach>
+    </select>
+
+    <select id="getPageList" resultMap="BaseAddressAccount">
+     select * from addresses a
+     <where>
+        <if test="address !=null and address!=''">
+            and a.address = #{address}
+        </if>    
+    </where>
+     order by a.balance desc,a.id desc LIMIT #{pageCurrent}, #{pageSize}
+	</select>
+
+    <insert id="saveOrUpdata">
+      insert  into addresses
+        (
+         address,contract,balance,nonce,blocknumber,inserted_time,balance_block
+        ) values
+     (
+     #{accounts.address},#{accounts.contract},#{accounts.balance},#{accounts.nonce},#{accounts.blockNumber},#{accounts.insertedTime},#{accounts.balance_block}
+     )
+      ON DUPLICATE KEY UPDATE
+      blocknumber=values(blockNumber),
+      balance=VALUES(balance),
+      nonce=VALUES(nonce),
+      balance_block=values(balance_block)
+     </insert>
+
+
+    <insert id="saveOrUpdataToken">
+      insert  into addresses_token
+        (
+         address,contract,balance,nonce,blocknumber,inserted_time
+        ) values
+     (
+     #{accounts.address},#{accounts.contract},#{accounts.balance},#{accounts.nonce},#{accounts.blockNumber},#{accounts.insertedTime}
+     )
+      ON DUPLICATE KEY UPDATE
+      blocknumber=values(blockNumber),
+      balance=VALUES(balance),
+      nonce=VALUES(nonce)
+     </insert>
+    <!--and a.address !=#{paramMap.mineraddress1}-->
+    <select id="getAllAddressFoBalance" resultMap="BaseResultMapAccount">
+        select * from addresses a  where a.address !=#{paramMap.contractaddress1} and a.address!=#{paramMap.contractaddress2}
+        and a.address !=#{paramMap.contractaddress3}  and a.address !=#{paramMap.mineraddress2}
+        and a.address !=#{paramMap.addresspool} and a.address !=#{paramMap.mineraddress1}
+    </select>
+
+    <select id="getTotal"  resultType="java.lang.Long">
+	   select IFNULL(count(id),0) from `addresses` a
+	   <where>
+        <if test="address !=null and address!=''">
+            and a.address = #{address}
+        </if>    
+    </where>
+	</select>
+
+    <select id="getNewAddress" resultType="java.lang.Long">
+        select IFNULL(count(id),0) from `addresses` a
+        <where>
+            <if test="param.startTime !=null and param.startTime!=''">
+                <![CDATA[ and a.inserted_time>=#{param.startTime} ]]>
+            </if>
+            <if test="param.endTime !=null and param.endTime !=''">
+                <![CDATA[ and a.inserted_time<=#{param.endTime} ]]>
+            </if>
+        </where>
+    </select>
+
+    <select id="getContractTokenCount" resultType="java.lang.Long">
+      select IFNULL(count(id),0) from `addresses_token` a where a.contract=#{contractAddress}
+    </select>
+
+
+    <select id="getContractPageTokenList" resultMap="BaseResultMapAccount">
+      select * from `addresses_token` a where a.contract=#{blockQueryForm.address} order by a.id desc limit #{blockQueryForm.current}, #{blockQueryForm.size}
+    </select>
+
+
+    <update id="updateHaslock">
+        update addresses a set haslock=1 where a.address=#{address}
+    </update>
+
+    <select id="getAllAddress" resultMap="BaseAddressAccount">
+        select * from addresses a where address=contract order by a.balance desc,a.id desc
+    </select>
+
+    <select id="getAddressVoByaddress" resultMap="BaseAddressAccount">
+        select address,balance,ifnull(srt_balance,0) srt_balance from addresses a where address=contract and a.address=#{address}
+    </select>
+    
+    <select id="getAddressInfo" resultMap="BaseResultMapAccount">
+        select * from addresses a where address=contract and a.address=#{address}
+    </select>
+    
+    <select id="getLeasetSrtBlock" resultType="Long">
+        select max(srt_block) srt_block from addresses
+    </select>
+    
+    <insert id="saveOrUpdateSrt">
+        insert into addresses (
+         address,contract,balance,nonce,blocknumber,inserted_time,srt_balance,srt_nonce,srt_block
+        ) values (
+        #{accounts.address},#{accounts.contract},0,0,#{accounts.blockNumber},#{accounts.insertedTime},#{accounts.srt_balance},#{accounts.srt_nonce},#{accounts.srt_block}
+        ) ON DUPLICATE KEY UPDATE
+        srt_balance=#{accounts.srt_balance},srt_nonce=#{accounts.srt_nonce},srt_block=#{accounts.srt_block}
+    </insert>
+
+    <update id="updateSrt">
+        update addresses a set srt_balance=#{accounts.srt_balance},srt_nonce=#{accounts.srt_nonce}
+        where a.address=#{accounts.address} and a.contract=#{accounts.contract}
+    </update>
+
+    <insert id="saveOrUpdataHaslock">
+      insert  into addresses
+        (
+         address,contract,balance,nonce,blocknumber,inserted_time,haslock
+        ) values
+     (
+     #{accounts.address},#{accounts.contract},#{accounts.balance},#{accounts.nonce},#{accounts.blockNumber},#{accounts.insertedTime},#{accounts.haslock}
+     )
+      ON DUPLICATE KEY UPDATE
+      haslock=values(haslock)
+     </insert>
+
+    <insert id="setAsStorage">
+		insert  into addresses (
+		  address,contract,balance,nonce,blocknumber,inserted_time,balance_block,isstorage
+		) values(
+		  #{address},#{address},0,0,#{blockNumber},now(),#{blockNumber},1
+		)
+		on duplicate key update
+		isstorage=values(isstorage)
+    </insert>
+    
+    <insert id="setAsRevenue">
+        insert  into addresses (
+          address,contract,balance,nonce,blocknumber,inserted_time,balance_block,isrevenue
+        ) values(
+          #{address},#{address},0,0,#{blockNumber},now(),#{blockNumber},1
+        )
+        on duplicate key update
+        isrevenue=values(isrevenue)
+    </insert>
+    
+    <insert id="setAsMiner">
+        insert  into addresses (
+          address,contract,balance,nonce,blocknumber,inserted_time,balance_block,isminer
+        ) values(
+          #{address},#{address},0,0,#{blockNumber},now(),#{blockNumber},1
+        )
+        on duplicate key update
+        isminer=values(isminer)
+    </insert>
+    
+    <insert id="setAsContract">
+        insert  into addresses (
+          address,contract,balance,nonce,blocknumber,inserted_time,balance_block,iscontract
+        ) values(
+          #{address},#{address},0,0,#{blockNumber},now(),#{blockNumber},1
+        )
+        on duplicate key update
+        iscontract=values(iscontract)
+    </insert>
+    
+</mapper>

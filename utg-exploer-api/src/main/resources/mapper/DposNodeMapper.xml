@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.imooc.mapper.DposNodeMapper">
+    <resultMap id="BaseAddrMapAccount" type="com.imooc.pojo.DposNode">
+        <result column="id"  property="id" jdbcType="BIGINT"/>
+        <result column="voter"  property="voter" jdbcType="VARCHAR"/>
+        <result column="stake"  property="stake" jdbcType="DECIMAL"/>
+        <result column="round"  property="round" jdbcType="BIGINT"/>
+        <result column="type"  property="type" jdbcType="BIGINT"/>
+        <result column="blocknumber"  property="blockNumber" jdbcType="BIGINT"/>
+    </resultMap>
+
+    <insert id="saveNodeDpos">
+      insert  into dposnode
+        (
+         voter,stake,blocknumber,round,type
+        ) values
+     (
+     #{item.voter},#{item.stake},#{item.blockNumber},#{item.round},#{item.type}
+     )
+      ON DUPLICATE KEY UPDATE
+      stake=VALUES(stake),
+      voter=VALUES(voter),
+      blocknumber=VALUES(blocknumber)
+     </insert>
+
+    <select id="selectVoterNodeInfo" resultMap="BaseAddrMapAccount">
+        select * from dposnode a where a.round=#{round} order by a.stake desc limit #{pageCurrent},#{pageSize}
+    </select>
+
+    <select id="getTotalCountForRound" resultType="java.lang.Long">
+        select count(*) from dposnode a where a.round=#{round}
+    </select>
+
+    <select id="getHistoryNodeInfo" resultMap="BaseAddrMapAccount">
+        select * from dposnode a where a.round=#{round} and a.voter=#{address} order by a.stake desc limit #{pageCurrent},#{pageSize}
+    </select>
+
+
+    <select id="getHistoryNodeTotal" resultType="java.lang.Long">
+        select count(*) from dposnode a where a.round=#{round} and a.voter=#{address}
+    </select>
+
+    <select id="selectVoterNodeByBlocknumber" resultMap="BaseAddrMapAccount">
+        select * from dposnode a where a.blocknumber=#{blocknumber}
+    </select>
+</mapper>

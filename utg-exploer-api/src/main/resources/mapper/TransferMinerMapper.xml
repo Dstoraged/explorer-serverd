@@ -1,0 +1,756 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.imooc.mapper.TransferMinerMapper">
+    <resultMap id="BaseResultMapAccount" type="com.imooc.pojo.TransferMiner">
+        <result column="id"  property="id" jdbcType="BIGINT"/>
+        <result column="txhash"  property="txHash" jdbcType="VARCHAR"/>
+        <result column="logindex"  property="logIndex" jdbcType="VARCHAR"/>
+        <result column="type"  property="type" jdbcType="VARCHAR"/>
+        <result column="address"  property="address" jdbcType="VARCHAR"/>
+        <result column="value"  property="value" jdbcType="DECIMAL"/>
+        <result column="blockhash"  property="blockHash" jdbcType="VARCHAR"/>
+        <result column="blocknumber"  property="blockNumber" jdbcType="BIGINT"/>
+        <result column="starttime"  property="startTime" jdbcType="TIMESTAMP"/>
+        <result column="totalamount"  property="totalAmount" jdbcType="DECIMAL"/>
+        <result column="leftamount"  property="leftAmount" jdbcType="DECIMAL"/>
+        <result column="status"  property="status" jdbcType="INTEGER"/>
+        <result column="gasused"  property="gasUsed" jdbcType="BIGINT"/>
+        <result column="gaslimit"  property="gasLimit" jdbcType="BIGINT"/>
+        <result column="gasprice"  property="gasPrice" jdbcType="BIGINT"/>
+        <result column="unlocknumber"  property="unLockNumber" jdbcType="BIGINT"/>
+        <result column="loglength"  property="logLength" jdbcType="BIGINT"/>
+        <result column="nodenumber"  property="nodeNumber" jdbcType="VARCHAR"/>
+        <result column="presentamount"  property="presentAmount" jdbcType="DECIMAL"/>
+        <result column="locknumheigth"  property="lockNumHeight" jdbcType="BIGINT"/>
+        <result column="pledgeamount"  property="pledgeAmount" jdbcType="DECIMAL"/>
+        <result column="pledgeaddress"  property="pledgeAddress" jdbcType="VARCHAR"/>
+        <result column="punilshamount"  property="punilshAmount" jdbcType="DECIMAL"/>
+        <result column="receiveaddress"  property="receiveaddress" jdbcType="VARCHAR"/>
+        <result column="releaseheigth"  property="releaseHeigth" jdbcType="BIGINT"/>
+        <result column="releaseinterval"  property="releaseInterval" jdbcType="BIGINT"/>
+        <result column="pledgetotalamount"  property="pledgeTotalAmount" jdbcType="DECIMAL"/>
+        <result column="curtime"  property="curtime" jdbcType="TIMESTAMP"/>
+        <result column="releaseamount"  property="releaseamount" jdbcType="DECIMAL"/>
+        <result column="revenueaddress"  property="revenueaddress" jdbcType="VARCHAR"/>
+        
+        <result column="burntratio"  property="burntratio" jdbcType="DECIMAL"/>
+        <result column="burntaddress"  property="burntaddress" jdbcType="VARCHAR"/>
+        <result column="burntamount"  property="burntamount" jdbcType="DECIMAL"/>
+    </resultMap>
+
+    <resultMap id="BaseBlockAndMinerVo" type="com.imooc.pojo.vo.BlockAndMinerVo">
+        <result column="blocknumber"  property="blockNumber" jdbcType="BIGINT"/>
+        <result column="address"  property="address" jdbcType="VARCHAR"/>
+        <result column="types"  property="types" jdbcType="VARCHAR"/>
+        <result column="value"  property="value" jdbcType="DECIMAL"/>
+         <result column="timestamp"  property="timeStamp" jdbcType="TIMESTAMP"/>
+
+    </resultMap>
+
+    <resultMap id="BaseResultMinerInfo" type="com.imooc.pojo.vo.TransferMinerVo">
+        <result column="id"  property="id" jdbcType="BIGINT"/>
+        <result column="txhash"  property="txHash" jdbcType="VARCHAR"/>
+        <result column="logindex"  property="logIndex" jdbcType="VARCHAR"/>
+        <result column="type"  property="type" jdbcType="VARCHAR"/>
+        <result column="address"  property="address" jdbcType="VARCHAR"/>
+        <result column="value"  property="value" jdbcType="DECIMAL"/>
+        <result column="blockhash"  property="blockHash" jdbcType="VARCHAR"/>
+        <result column="blocknumber"  property="blockNumber" jdbcType="BIGINT"/>
+        <result column="starttime"  property="startTime" jdbcType="TIMESTAMP"/>
+        <result column="totalamount"  property="totalAmount" jdbcType="DECIMAL"/>
+        <result column="leftamount"  property="leftAmount" jdbcType="DECIMAL"/>
+        <result column="avgBlockTime" property="avgBlockTime" jdbcType="BIGINT"/>
+        <result column="lockNumber" property="lockNumber" jdbcType="BIGINT"/>
+        <result column="gasused"  property="gasUsed" jdbcType="BIGINT"/>
+        <result column="gaslimit"  property="gasLimit" jdbcType="BIGINT"/>
+        <result column="gasprice"  property="gasPrice" jdbcType="BIGINT"/>
+        <result column="unlocknumber"  property="unLockNumber" jdbcType="BIGINT"/>
+        <result column="loglength"  property="logLength" jdbcType="BIGINT"/>
+        <result column="nodenumber"  property="nodeNumber" jdbcType="VARCHAR"/>
+        <result column="presentamount"  property="presentAmount" jdbcType="DECIMAL"/>
+        <result column="locknumheigth"  property="lockNumHeight" jdbcType="BIGINT"/>
+        <result column="pledgeamount"  property="pledgeAmount" jdbcType="DECIMAL"/>
+        <result column="pledgeaddress"  property="pledgeAddress" jdbcType="VARCHAR"/>
+        <result column="punilshamount"  property="punilshAmount" jdbcType="DECIMAL"/>
+        <result column="receiveaddress"  property="receiveaddress" jdbcType="VARCHAR"/>
+        <result column="releaseheigth"  property="releaseHeigth" jdbcType="BIGINT"/>
+        <result column="releaseinterval"  property="releaseInterval" jdbcType="BIGINT"/>
+        <result column="revenue_address"  property="revenue_address" jdbcType="VARCHAR"/>
+        <result column="pledge_amount"  property="pledge_amount" jdbcType="DECIMAL"/>
+        <result column="nstatus"  property="nstatus" jdbcType="INTEGER"/>
+        <result column="curtime"  property="curtime" jdbcType="TIMESTAMP"/>
+        <result column="releaseamount"  property="releaseamount" jdbcType="DECIMAL"/>
+        <result column="revenueaddress"  property="revenueaddress" jdbcType="VARCHAR"/>
+        
+        <result column="burntratio"  property="burntratio" jdbcType="DECIMAL"/>
+        <result column="burntaddress"  property="burntaddress" jdbcType="VARCHAR"/>
+        <result column="burntamount"  property="burntamount" jdbcType="DECIMAL"/>
+    </resultMap>
+
+    <insert id="insertOrUpdateMiner">
+      insert into transfer_miner
+        (
+         starttime,txhash,type,logindex,address,value,blockhash,blocknumber,totalamount,leftamount,status,gasprice,gaslimit,gasused,unlocknumber,loglength
+         ,nodenumber,presentamount,locknumheigth,pledgeamount,pledgeaddress,punilshamount,receiveaddress,releaseheigth,releaseinterval,pledgetotalamount
+         ,curtime,releaseamount,revenueaddress  ,burntratio,burntaddress,burntamount
+        ) values
+     (
+     #{transaction.startTime},#{transaction.txHash},#{transaction.type},#{transaction.logIndex},#{transaction.address}
+     ,#{transaction.value},#{transaction.blockHash},#{transaction.blockNumber},#{transaction.totalAmount},#{transaction.leftAmount},#{transaction.status},#{transaction.gasPrice},#{transaction.gasLimit},#{transaction.gasUsed},#{transaction.unLockNumber},#{transaction.logLength}
+     ,#{transaction.nodeNumber},#{transaction.presentAmount},#{transaction.lockNumHeight},#{transaction.pledgeAmount},#{transaction.pledgeAddress},#{transaction.punilshAmount},#{transaction.receiveaddress},#{transaction.releaseHeigth},#{transaction.releaseInterval},#{transaction.pledgeTotalAmount}
+     ,#{transaction.curtime},#{transaction.releaseamount},#{transaction.revenueaddress}  ,#{transaction.burntratio},#{transaction.burntaddress},#{transaction.burntamount}
+      )
+     </insert>
+
+    <insert id="insertBatch"  parameterType="java.util.List">
+        insert into transfer_miner
+        (
+            starttime,txhash,type,logindex,address,value,blockhash,blocknumber,totalamount,leftamount,status,gasprice,gaslimit,gasused,unlocknumber,loglength
+        ,nodenumber,presentamount,locknumheigth,pledgeamount,pledgeaddress,punilshamount,receiveaddress,releaseheigth,releaseinterval,pledgetotalamount
+        ,curtime,releaseamount,revenueaddress  ,burntratio,burntaddress,burntamount
+        ) values
+        <foreach collection="list" item="transaction" index="index" separator=",">
+            (
+                #{transaction.startTime},#{transaction.txHash},#{transaction.type},#{transaction.logIndex},#{transaction.address}
+            ,#{transaction.value},#{transaction.blockHash},#{transaction.blockNumber},#{transaction.totalAmount},#{transaction.leftAmount},#{transaction.status},#{transaction.gasPrice},#{transaction.gasLimit},#{transaction.gasUsed},#{transaction.unLockNumber},#{transaction.logLength}
+            ,#{transaction.nodeNumber},#{transaction.presentAmount},#{transaction.lockNumHeight},#{transaction.pledgeAmount},#{transaction.pledgeAddress},#{transaction.punilshAmount},#{transaction.receiveaddress},#{transaction.releaseHeigth},#{transaction.releaseInterval},#{transaction.pledgeTotalAmount}
+            ,#{transaction.curtime},#{transaction.releaseamount},#{transaction.revenueaddress}  ,#{transaction.burntratio},#{transaction.burntaddress},#{transaction.burntamount}
+            )
+        </foreach>
+    </insert>
+        
+    <insert id="insertReleaseBatch"  parameterType="java.util.List">
+        insert into transfer_miner_release
+        (
+            starttime,txhash,type,logindex,address,value,blockhash,blocknumber,totalamount,leftamount,status,gasprice,gaslimit,gasused,unlocknumber,loglength
+        ,nodenumber,presentamount,locknumheigth,pledgeamount,pledgeaddress,punilshamount,receiveaddress,releaseheigth,releaseinterval,pledgetotalamount
+        ,curtime,releaseamount,revenueaddress  ,burntratio,burntaddress,burntamount
+        ) values
+        <foreach collection="list" item="transaction" index="index" separator=",">
+            (
+                #{transaction.startTime},#{transaction.txHash},#{transaction.type},#{transaction.logIndex},#{transaction.address}
+            ,#{transaction.value},#{transaction.blockHash},#{transaction.blockNumber},#{transaction.totalAmount},#{transaction.leftAmount},#{transaction.status},#{transaction.gasPrice},#{transaction.gasLimit},#{transaction.gasUsed},#{transaction.unLockNumber},#{transaction.logLength}
+            ,#{transaction.nodeNumber},#{transaction.presentAmount},#{transaction.lockNumHeight},#{transaction.pledgeAmount},#{transaction.pledgeAddress},#{transaction.punilshAmount},#{transaction.receiveaddress},#{transaction.releaseHeigth},#{transaction.releaseInterval},#{transaction.pledgeTotalAmount}
+            ,#{transaction.curtime},#{transaction.releaseamount},#{transaction.revenueaddress}  ,#{transaction.burntratio},#{transaction.burntaddress},#{transaction.burntamount}
+            )
+        </foreach>
+    </insert>
+
+    <select id="getAllMinerInfo" resultMap="BaseResultMapAccount">
+         select * from transfer_miner a
+            <where>
+                <if test="address!=null">
+            and a.address=#{address}
+               </if>
+            and a.type in
+      <foreach collection="types" item="item" index="index" open="("
+               separator="," close=")">
+          #{item}
+      </foreach>
+             </where>
+    </select>
+
+
+    <select id="getAllMinerForInfo" resultMap="BaseResultMapAccount">
+        select * from transfer_miner a
+        <where>
+            <if test="id!=null " >
+                and a.id>#{id}
+            </if>
+            and a.type in
+            <foreach collection="types" item="item" index="index" open="("
+                     separator="," close=")">
+                #{item}
+            </foreach>
+        </where>
+    </select>
+
+    <select id="getReward" resultType="java.math.BigDecimal">
+        SELECT IFNULL(SUM(value),0) FROM transfer_miner a
+        <where>
+            and a.type in
+            <foreach collection="types" item="item" index="index" open="("
+                     separator="," close=")">
+                #{item}
+            </foreach>
+        </where>
+    </select>
+
+  <select id="getPledgeInfos" resultMap="BaseResultMapAccount">
+      select * from transfer_miner a
+      <where>
+          <if test="paramMap.type!=null">
+              and a.type=#{paramMap.type}
+          </if>
+      </where>
+  </select>
+
+    <select id="getPledgeInfo" parameterType="com.imooc.pojo.Form.LockUpTransferForm" resultMap="BaseResultMapAccount">
+        select * from transfer_miner a
+        <where>
+            <if test="lockUpTransferForm.type!=null and lockUpTransferForm.type!='' ">
+                and a.type=#{lockUpTransferForm.type}
+            </if>
+            <if test="lockUpTransferForm.address!=null and lockUpTransferForm.address!='' ">
+                and a.address like concat('%',#{lockUpTransferForm.address},'%')
+            </if>
+        </where>
+        ORDER BY a.blocknumber DESC limit #{lockUpTransferForm.current}, #{lockUpTransferForm.size}
+    </select>
+
+    <select id="getBlockAndMinerInfo" resultMap="BaseBlockAndMinerVo">
+     select * from (select a.address ,a.starttime as timeStamp,a.value,a.blocknumber,"2" as types  from transfer_miner a where a.type=5
+       union
+     select b.address,b.`timestamp` as timeStamp,b.reward as value,b.blocknumber,"1"as types from block_rewards b where b.rewardtype="BlockReward") c 
+     order by c.blocknumber desc limit #{current},#{size}
+    </select>
+
+    <select id="getTotalMinerInfo"  resultType="java.lang.Long">
+	 select count(*) from (select * from (select a.address ,a.value,a.blocknumber,"2" as types  from transfer_miner a where a.type=5
+          union
+     select b.address,b.reward as value,b.blocknumber,"1"as types from block_rewards b where b.rewardtype="BlockReward") c order by c.value)c
+	</select>
+
+    <select id="getMinerInfoUtg" resultMap="BaseResultMinerInfo">
+     select * from  transfer_miner a where a.type=1 or a.type=5 order by blocknumber  desc limit #{current},#{size}
+    </select>
+
+    <select id="getTotalMiner" resultType="java.lang.Long">
+        SELECT count(*) FROM transfer_miner a WHERE a.type = 1 OR a.type = 5
+    </select>
+
+    <!--union all select * from transfer_miner a where a.type=5-->
+    <select id="getMinerInfoUtgMap" resultMap="BaseResultMinerInfo">
+     select * from  transfer_miner a where a.type=1 or a.type=5 order by blocknumber  desc limit #{current},#{size}
+    </select>
+
+
+    <select id="getPledgeInfoCount" resultType="java.lang.Long">
+        select count(*)  from transfer_miner a
+        <where>
+            <if test="lockUpTransferForm.type!=null and lockUpTransferForm.type!='' ">
+                and a.type=#{lockUpTransferForm.type}
+            </if>
+            <if test="lockUpTransferForm.address!=null and lockUpTransferForm.address!='' ">
+                and a.address like concat('%',#{lockUpTransferForm.address},'%')
+            </if>
+        </where>
+
+    </select>
+
+    <!-- and a.address=#{blockQueryForm.address}-->
+    <select id="getOverData" parameterType="com.imooc.pojo.Form.BlockQueryForm" resultMap="BaseResultMapAccount">
+        select a.* from transfer_miner a
+        <where>
+            <if test="blockQueryForm.type!=null and blockQueryForm.type!='' ">
+                and a.type=#{blockQueryForm.type}
+            </if>
+            <if test="blockQueryForm.address!=null and blockQueryForm.address!='' ">
+                and a.address like concat('%',#{blockQueryForm.address},'%')
+            </if>
+        </where>
+        group by a.txhash ORDER BY a.blocknumber DESC limit #{blockQueryForm.current}, #{blockQueryForm.size}
+    </select>
+
+    <select id="getTotalInfo" parameterType="com.imooc.pojo.Form.BlockQueryForm" resultType="java.lang.Long">
+       select count(DISTINCT txhash) from transfer_miner a
+            <where>
+            <if test="blockQueryForm.type!=null and blockQueryForm.type!='' ">
+                and a.type=#{blockQueryForm.type}
+            </if>
+            <if test="blockQueryForm.address!=null and blockQueryForm.address!='' ">
+                and a.address like concat('%',#{blockQueryForm.address},'%')
+            </if>
+            </where>
+    </select>
+
+    <select id="getLockUtgMinersByRevAddress" resultMap="BaseResultMinerInfo">
+        select a.address,sum(totalamount) totalamount,sum(releaseamount) releaseamount,sum(burntamount) burntamount,
+               (sum(totalamount)-sum(releaseamount)) leftamount
+        from transfer_miner a 
+        where  IFNULL(a.revenueaddress,'')=#{blockQueryForm.revenueAddress}        
+        <if test="blockQueryForm.type!=null"> 
+         and a.type=#{blockQueryForm.type}
+        </if>
+        <if test="blockQueryForm.types !=null and blockQueryForm.types.length>0">
+            and a.type in
+            <foreach collection="blockQueryForm.types" item="item" index="index" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>        
+        GROUP BY a.address ORDER BY totalamount desc
+            limit #{blockQueryForm.current},#{blockQueryForm.size}
+    </select>
+
+    <select id="getTotalLockUtgMinersByRevAddress" resultType="java.lang.Long">
+        select count(1) from (
+            select a.address  from transfer_miner a
+            where  IFNULL(a.revenueaddress,'')=#{blockQueryForm.revenueAddress}	        
+	        <if test="blockQueryForm.type!=111"> 
+	         and a.type=#{blockQueryForm.type}
+	        </if>
+	        <if test="blockQueryForm.types !=null and blockQueryForm.types.length>0">
+	            and a.type in
+	            <foreach collection="blockQueryForm.types" item="item" index="index" open="(" separator="," close=")">
+	                #{item}
+	            </foreach>
+	        </if>
+	         GROUP BY a.address
+        ) t
+    </select>
+
+    <select id="getLockSummaryByRevAddress" resultMap="BaseResultMinerInfo">
+        select  sum(totalamount) totalamount,sum(releaseamount) releaseamount,sum(burntamount) burntamount,
+                (sum(totalamount)-sum(releaseamount)) leftamount
+        from transfer_miner a
+        where a.type=#{blockQueryForm.type}
+        <if test="blockQueryForm.address !=null and blockQueryForm.address!=''">
+            and a.address = #{blockQueryForm.address}
+        </if>
+        <if test="blockQueryForm.revenueAddress !=null and blockQueryForm.revenueAddress!=''">
+            and IFNULL(a.revenueaddress,'')=#{blockQueryForm.revenueAddress}
+        </if>
+    </select>
+
+    <select id="getTotalRealease" resultType="java.lang.Long">
+        select count(1) from transfer_miner a
+        where  IFNULL(a.revenueaddress,'')=#{blockQueryForm.revenueAddress}
+          and a.type=#{blockQueryForm.type}
+    </select>
+
+    <select id="getMinerInfoForUtg" resultMap="BaseResultMinerInfo">
+        <choose>
+            <when test="blockQueryForm.type !=null and blockQueryForm.type==3" >
+                select a.*,a.revenueaddress  revenue_address,b.pledge_amount,b.node_type nstatus from  transfer_miner a left  join utg_node_miner b on a.address = b.node_address
+            </when>
+            <otherwise>
+                select a.*,a.revenueaddress  revenue_address,b.pledge_amount,b.miner_status  nstatus from  transfer_miner a left  join utg_storage_miner b on a.address = b.miner_addr
+            </otherwise>
+        </choose>
+        where 1=1
+        <if test="blockQueryForm.type!=null and blockQueryForm.type!=''">
+            and a.type = #{blockQueryForm.type}
+        </if>
+        <if test="blockQueryForm.type!=null and blockQueryForm.type==0">
+            and a.type in (2,4)
+        </if>
+        <if test="blockQueryForm.address !=null and blockQueryForm.address!=''">
+            and a.address = #{blockQueryForm.address}
+        </if>
+        <if test="blockQueryForm.revenueAddress !=null and blockQueryForm.revenueAddress!=''">
+            and a.revenueaddress = #{blockQueryForm.revenueAddress}
+        </if>
+        <if test="blockQueryForm.blockNumber !=null and blockQueryForm.blockNumber!=''">
+            and a.blocknumber = #{blockQueryForm.blockNumber}
+        </if>
+        <if test="blockQueryForm.burned !=null and blockQueryForm.burned==true">
+            <![CDATA[ and a.burntamount>0 ]]>
+        </if>
+        order by blocknumber desc,curtime  desc limit #{blockQueryForm.current},#{blockQueryForm.size}
+    </select>
+
+    <select id="getTotalMinerForUtg" resultType="java.lang.Long">
+        SELECT count(*) FROM transfer_miner a
+        where 1=1
+        <if test="blockQueryForm.type!=null and blockQueryForm.type!=''">
+            and a.type = #{blockQueryForm.type}
+        </if>
+        <if test="blockQueryForm.type!=null and blockQueryForm.type==0">
+            and a.type in (2,4)
+        </if>
+        <if test="blockQueryForm.address !=null and blockQueryForm.address!=''">
+            and a.address=#{blockQueryForm.address}
+        </if>
+        <if test="blockQueryForm.revenueAddress !=null and blockQueryForm.revenueAddress!=''">
+            and a.revenueaddress = #{blockQueryForm.revenueAddress}
+        </if>
+        <if test="blockQueryForm.blockNumber !=null and blockQueryForm.blockNumber!=''">
+            and a.blocknumber = #{blockQueryForm.blockNumber}
+        </if>
+        <if test="blockQueryForm.burned !=null and blockQueryForm.burned==true">
+            <![CDATA[ and a.burntamount>0 ]]>
+        </if>
+    </select>
+
+
+    <select id="getAllTotalForReceive" resultType="java.math.BigDecimal">
+        select IFNULL(sum(value),0) from `transfer_miner` a where a.address=#{address} and a.type=6
+    </select>
+
+    <select id="getMinerInfoUtgSerachForWallet" resultMap="BaseResultMinerInfo">
+        select * from  (select * from  transfer_miner a where a.address=#{blockQueryForm.address}) b
+        where  b.type=5
+        <if test="blockQueryForm.startTime !=null and blockQueryForm.startTime!=''">
+            <![CDATA[ and b.starttime>=#{blockQueryForm.startTime} ]]>
+        </if>
+        <if test="blockQueryForm.endTime !=null and blockQueryForm.endTime !=''">
+            <![CDATA[ and b.starttime<=#{blockQueryForm.endTime} ]]>
+        </if>
+        order by blocknumber  desc limit #{blockQueryForm.current},#{blockQueryForm.size}
+    </select>
+
+    <select id="getTotalMinerSerachForWallet" resultType="java.lang.Long">
+        select count(*) from  (select * from  transfer_miner a where a.address=#{blockQueryForm.address}) b
+        where  b.type=5
+        <if test="blockQueryForm.startTime !=null and blockQueryForm.startTime!=''">
+            <![CDATA[ and b.starttime>=#{blockQueryForm.startTime} ]]>
+        </if>
+        <if test="blockQueryForm.endTime !=null and blockQueryForm.endTime !=''">
+            <![CDATA[ and b.starttime<=#{blockQueryForm.endTime} ]]>
+        </if>
+    </select>
+
+    <select id="getTotalValueForTxHash" resultType="java.math.BigDecimal">
+        select IFNULL(sum(value),0) from `transfer_miner` a where a.txhash=#{txHash} and a.type=6
+    </select>
+
+
+    <select id="getMinerInfoForUtgTotal" resultMap="BaseResultMinerInfo">
+        select * from  transfer_miner a where  a.type =1 or a.type=5
+        <if test="blockQueryForm.startTime !=null and blockQueryForm.startTime!=''">
+            <![CDATA[ and a.starttime>=#{blockQueryForm.startTime} ]]>
+        </if>
+        <if test="blockQueryForm.endTime !=null and blockQueryForm.endTime !=''">
+            <![CDATA[ and a.starttime<=#{blockQueryForm.endTime} ]]>
+        </if>
+        order by blocknumber  desc
+    </select>
+
+
+    <select id="pagePledgeInfoList" resultMap="BaseResultMapAccount">
+        select * from transfer_miner a
+        <where>
+            <if test="address!=null">
+                and a.address=#{address}
+            </if>
+            <if test="types !=null and types.length>0">
+            and a.type in
+            <foreach collection="types" item="item" index="index" open="("
+                     separator="," close=")">
+                #{item}
+            </foreach>
+            </if>
+        </where>
+        order by starttime  desc limit #{current},#{size}
+    </select>
+
+    <select id="getMaxBlockNumberTransfer" resultType="java.lang.Long">
+        select IFNULL(max(blocknumber),0)as blockNumber from transfer_miner
+             where  address=#{address}  and type in (1,5,9)
+    </select>
+
+    <select id="getMaxBlockNumberTransferGroupByAddress" resultMap="BaseResultMapAccount">
+        select address ,IFNULL(max(blocknumber),0)as blockNumber from transfer_miner
+        where  type=9   group by address
+    </select>
+
+
+    <select id="getTransferAdd" resultMap="BaseResultMapAccount">
+        select * from transfer_miner a
+        where totalamount!=releaseamount
+        <if test="type==0">
+            and type in (3,5,7,9)
+        </if>
+        <if test="type==1">
+            and type=1
+        </if>
+        <![CDATA[ and #{blocknumber}>=unlocknumber+releaseheigth ]]>
+    </select>
+
+    <update id="updateMiner">
+        UPDATE transfer_miner SET releaseamount =#{transferMiner.releaseamount} ,burntratio =#{transferMiner.burntratio}, burntaddress=#{transferMiner.burntaddress}, burntamount=#{transferMiner.burntamount}
+        where id = #{transferMiner.id}
+    </update>
+
+    <update id="updateMinerTransfRelaseBatch"  parameterType="java.util.List">
+        <foreach collection="list" item="transferMiner" index="index" open="" close=""  separator=";">
+            update transfer_miner
+            <set>
+                releaseamount =#{transferMiner.releaseamount} ,burntratio =#{transferMiner.burntratio}, burntaddress=#{transferMiner.burntaddress}, burntamount=#{transferMiner.burntamount}
+            </set>
+            where id = #{transferMiner.id}
+        </foreach>
+    </update>
+
+    <select id="getMinerInfoAddress" resultMap="BaseResultMapAccount">
+        select * from transfer_miner a
+        where 1=1
+        <if test="transferMiner.type!='' and transferMiner.type!=null">
+            and a.type=#{transferMiner.type}
+        </if>
+        <if test="transferMiner.blockNumber!='' and transferMiner.blockNumber!=null">
+            and a.blocknumber=#{transferMiner.blockNumber}
+        </if>
+        <if test="transferMiner.address!='' and transferMiner.address!=null">
+            and a.address=#{transferMiner.address}
+        </if> order by blocknumber desc limit 1
+    </select>
+
+    <select id="getTransferMinerList" resultMap="BaseResultMapAccount">
+        select * from transfer_miner a
+        where 1=1
+        <if test="transferMiner.type!='' and transferMiner.type!=null">
+            and a.type=#{transferMiner.type}
+        </if>
+        <if test="transferMiner.blockNumber!='' and transferMiner.blockNumber!=null">
+            and a.blocknumber=#{transferMiner.blockNumber}
+        </if>
+        <if test="transferMiner.address!='' and transferMiner.address!=null">
+            and a.address=#{transferMiner.address}
+        </if>
+    </select>
+
+
+    <select id="getReleaseamountByAddress" resultMap="BaseResultMapAccount">
+        select address,ifnull(sum(releaseamount),0) releaseamount,ifnull(sum(totalamount),0) totalamount,ifnull(sum(burntamount),0) burntamount  from transfer_miner
+        where type in (5,7,9) and address = #{address}
+    </select>
+
+    <select id="getReleaseamountGroupByAddress" resultMap="BaseResultMapAccount">
+        select address,ifnull(sum(releaseamount),0) releaseamount, ifnull(sum(totalamount),0) totalamount,ifnull(sum(burntamount),0) burntamount  from transfer_miner
+        where type in (5,7,9) group by address
+    </select>
+
+    <select id="getLockByType" resultMap="BaseResultMapAccount">
+        select *  from transfer_miner b,
+        ( select address,max(blocknumber)blocknumber
+            from transfer_miner a
+               where a.type = #{transferMiner.type} GROUP BY address) a
+        where b.address = a.address and b.blocknumber = a.blocknumber and b.type=#{transferMiner.type}
+    </select>
+
+    <select id="getReleaseamountGroupByAddressAndType" resultMap="BaseResultMapAccount">
+        select address,ifnull(sum(releaseamount),0) releaseamount, ifnull(sum(totalamount),0) totalamount,ifnull(sum(burntamount),0) burntamount from transfer_miner
+        where type=#{type} group by address
+    </select>
+
+
+    <select id="getMinerSum" resultMap="BaseResultMinerInfo">
+        select sum(totalamount)totalAmount,sum(releaseamount) releaseamount,sum(burntamount) burntamount from transfer_miner a
+        where 1=1
+        <if test="blockQueryForm.type!=null and blockQueryForm.type!=''">
+            and a.type = #{blockQueryForm.type}
+        </if>
+        <if test="blockQueryForm.types !=null and blockQueryForm.types.length>0">
+            and a.type in
+            <foreach collection="blockQueryForm.types" item="item" index="index" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+        <if test="blockQueryForm.address !=null and blockQueryForm.address!=''">
+            and a.address = #{blockQueryForm.address}
+        </if>
+        <if test="blockQueryForm.revenueAddress !=null and blockQueryForm.revenueAddress!=''">
+            and a.revenueaddress = #{blockQueryForm.revenueAddress}
+        </if>
+        <if test="blockQueryForm.pledgeaddress !=null and blockQueryForm.pledgeaddress!=''">
+            and a.pledgeaddress = #{blockQueryForm.pledgeaddress}
+        </if>
+        <if test="blockQueryForm.addr !=null and blockQueryForm.addr!=''">
+            and (a.address=#{blockQueryForm.addr} or a.revenueaddress = #{blockQueryForm.addr})
+        </if>
+        <if test="blockQueryForm.blockNumber !=null and blockQueryForm.blockNumber!=''">
+            and a.blocknumber = #{blockQueryForm.blockNumber}
+        </if>
+        <if test="blockQueryForm.startBlock !=null">
+            <![CDATA[ and a.blocknumber>=#{blockQueryForm.startBlock} ]]>
+        </if>
+        <if test="blockQueryForm.endBlock !=null">
+            <![CDATA[ and a.blocknumber<#{blockQueryForm.endBlock} ]]>
+        </if>
+        <if test="blockQueryForm.burned !=null and blockQueryForm.burned==true">
+            <![CDATA[ and a.burntamount>0 ]]>
+        </if>
+    </select>
+    
+    <select id="getMinerTypeSum" resultMap="BaseResultMinerInfo">
+        select type,sum(totalamount)totalAmount,sum(releaseamount) releaseamount,sum(burntamount) burntamount from transfer_miner a
+        where 1=1
+        <if test="blockQueryForm.type!=null and blockQueryForm.type!=''">
+            and a.type = #{blockQueryForm.type}
+        </if>
+        <if test="blockQueryForm.types !=null and blockQueryForm.types.length>0">
+            and a.type in
+            <foreach collection="blockQueryForm.types" item="item" index="index" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+        <if test="blockQueryForm.address !=null and blockQueryForm.address!=''">
+            and a.address = #{blockQueryForm.address}
+        </if>
+        <if test="blockQueryForm.revenueAddress !=null and blockQueryForm.revenueAddress!=''">
+            and a.revenueaddress = #{blockQueryForm.revenueAddress}
+        </if>
+        <if test="blockQueryForm.pledgeaddress !=null and blockQueryForm.pledgeaddress!=''">
+            and a.pledgeaddress = #{blockQueryForm.pledgeaddress}
+        </if>
+        <if test="blockQueryForm.addr !=null and blockQueryForm.addr!=''">
+            and (a.address=#{blockQueryForm.addr} or a.revenueaddress = #{blockQueryForm.addr})
+        </if>
+        <if test="blockQueryForm.blockNumber !=null and blockQueryForm.blockNumber!=''">
+            and a.blocknumber = #{blockQueryForm.blockNumber}
+        </if>
+        <if test="blockQueryForm.startBlock !=null">
+            <![CDATA[ and a.blocknumber>=#{blockQueryForm.startBlock} ]]>
+        </if>
+        <if test="blockQueryForm.endBlock !=null">
+            <![CDATA[ and a.blocknumber<#{blockQueryForm.endBlock} ]]>
+        </if>
+        <if test="blockQueryForm.burned !=null and blockQueryForm.burned==true">
+            <![CDATA[ and a.burntamount>0 ]]>
+        </if>
+        group by a.type
+    </select>
+    
+    
+    
+    <select id="getStorageRewardList" resultMap="BaseResultMinerInfo">
+        select a.*
+         from  ${blockQueryForm.table} a          
+        where 1=1
+        <if test="blockQueryForm.type!=null and blockQueryForm.type!=''">
+            and a.type = #{blockQueryForm.type}
+        </if>
+        <if test="blockQueryForm.types !=null and blockQueryForm.types.length>0">
+            and a.type in
+            <foreach collection="blockQueryForm.types" item="item" index="index" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+        <if test="blockQueryForm.address !=null and blockQueryForm.address!=''">
+            and a.address = #{blockQueryForm.address}
+        </if>
+        <if test="blockQueryForm.revenueAddress !=null and blockQueryForm.revenueAddress!=''">
+            and a.revenueaddress = #{blockQueryForm.revenueAddress}
+        </if>
+        <if test="blockQueryForm.pledgeaddress !=null and blockQueryForm.pledgeaddress!=''">
+            and a.pledgeaddress = #{blockQueryForm.pledgeaddress}
+        </if>
+        <if test="blockQueryForm.addr !=null and blockQueryForm.addr!=''">
+            and (a.address=#{blockQueryForm.addr} or a.revenueaddress = #{blockQueryForm.addr})
+        </if>
+        <if test="blockQueryForm.blockNumber !=null and blockQueryForm.blockNumber!=''">
+            and a.blocknumber = #{blockQueryForm.blockNumber}
+        </if>
+        <if test="blockQueryForm.startBlock !=null">
+            <![CDATA[ and a.blocknumber>=#{blockQueryForm.startBlock} ]]>
+        </if>
+        <if test="blockQueryForm.endBlock !=null">
+            <![CDATA[ and a.blocknumber<#{blockQueryForm.endBlock} ]]>
+        </if>
+        <if test="blockQueryForm.burned !=null and blockQueryForm.burned==true">
+            <![CDATA[ and a.burntamount>0 ]]>
+        </if>
+        order by blocknumber desc,curtime  desc 
+        limit #{blockQueryForm.current},#{blockQueryForm.size}
+    </select>
+
+    <select id="getStorageRewardTotal" resultType="java.lang.Long">
+        SELECT count(*) FROM ${blockQueryForm.table} a
+        where 1=1        
+        <if test="blockQueryForm.type!=null and blockQueryForm.type!=''">
+            and a.type = #{blockQueryForm.type}
+        </if>
+        <if test="blockQueryForm.types !=null and blockQueryForm.types.length>0">
+            and a.type in
+            <foreach collection="blockQueryForm.types" item="item" index="index" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>        
+        <if test="blockQueryForm.address !=null and blockQueryForm.address!=''">
+            and a.address=#{blockQueryForm.address}
+        </if>
+        <if test="blockQueryForm.revenueAddress !=null and blockQueryForm.revenueAddress!=''">
+            and a.revenueaddress = #{blockQueryForm.revenueAddress}
+        </if>
+        <if test="blockQueryForm.pledgeaddress !=null and blockQueryForm.pledgeaddress!=''">
+            and a.pledgeaddress = #{blockQueryForm.pledgeaddress}
+        </if>
+        <if test="blockQueryForm.addr !=null and blockQueryForm.addr!=''">
+            and (a.address=#{blockQueryForm.addr} or a.revenueaddress = #{blockQueryForm.addr})
+        </if>
+        <if test="blockQueryForm.blockNumber !=null and blockQueryForm.blockNumber!=''">
+            and a.blocknumber = #{blockQueryForm.blockNumber}
+        </if>
+        <if test="blockQueryForm.startBlock !=null">
+            <![CDATA[ and a.blocknumber>=#{blockQueryForm.startBlock} ]]>
+        </if>
+        <if test="blockQueryForm.endBlock !=null">
+            <![CDATA[ and a.blocknumber<#{blockQueryForm.endBlock} ]]>
+        </if>
+        <if test="blockQueryForm.burned !=null and blockQueryForm.burned==true">
+            <![CDATA[ and a.burntamount>0 ]]>
+        </if>
+    </select>
+    
+    
+    <select id="getTransferMinerData" resultMap="BaseResultMinerInfo">
+        select * from transfer_miner a  where id = #{id} limit 1
+    </select>
+    
+        
+    <select id="getRevenueListDaterange" resultMap="BaseResultMapAccount">
+        select a.*
+         from  transfer_miner a
+        where 1=1               
+        <if test="type!=null">
+            and a.type = #{type}
+        </if>
+        <if test="revenueaddress !=null and revenueaddress!=''">
+            and a.revenueaddress = #{revenueaddress}
+        </if>
+        <if test="starttime !=null">
+            <![CDATA[ and a.curtime>=#{starttime} ]]>
+        </if>
+        <if test="endtime !=null">
+            <![CDATA[ and a.curtime<#{endtime} ]]>
+        </if>
+        order by address,blocknumber,curtime  desc 
+    </select>
+        
+    <select id="getReleaseList" resultMap="BaseResultMapAccount">
+        select a.address,a.revenueaddress,ifnull(sum(totalamount),0) totalamount,ifnull(sum(releaseamount),0) releaseamount,ifnull(sum(burntamount),0) burntamount
+         from  transfer_miner a
+        where 1=1               
+        <if test="type!=null">
+            and a.type = #{type}
+        </if>
+        <if test="revenueaddress !=null and revenueaddress!=''">
+            and a.revenueaddress = #{revenueaddress}
+        </if>
+        group by a.address,a.revenueaddress
+        order by a.revenueaddress,releaseamount desc
+    </select>
+    
+    
+    <select id="getRevenueListBlockrange" resultMap="BaseResultMapAccount">
+        select a.*
+         from  transfer_miner a
+        where 1=1               
+        <if test="type!=null">
+            and a.type = #{type}
+        </if>
+        <if test="revenueaddress !=null and revenueaddress!=''">
+            and a.revenueaddress = #{revenueaddress}
+        </if>
+        <if test="startblock !=null">
+            <![CDATA[ and a.blocknumber>=#{startblock} ]]>
+        </if>
+        <if test="endblock !=null">
+            <![CDATA[ and a.blocknumber<#{endblock} ]]>
+        </if>
+        order by address,blocknumber,curtime  desc 
+    </select>
+    
+    <select id ="getRevenueaddressExclude" resultType="string">
+        select revenueaddress from transfer_revenueaddress_exclude
+    </select>
+    
+    <select id="getLockedRewardByTypeAddressBlock" resultMap="BaseResultMapAccount">
+        select * from  transfer_miner a where type=#{type} and address=#{address} and blocknumber=#{blocknumber}        
+    </select>
+    
+    <select id="queryByType" resultMap="BaseResultMapAccount" resultSetType="FORWARD_ONLY" fetchSize="-2147483648" >
+        select * from transfer_miner a  where a.type=#{type}
+    </select>
+</mapper>

@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.imooc.mapper.ContractMapper">
+    <resultMap id="BaseResultMapAccount" type="com.imooc.pojo.Contract">
+        <result column="contract"  property="contract" jdbcType="VARCHAR"/>
+        <result column="contractname"  property="contractname" jdbcType="VARCHAR"/>
+        <result column="name"  property="name" jdbcType="VARCHAR"/>
+        <result column="symbol"  property="symbol" jdbcType="VARCHAR"/>        
+        <result column="txhash"  property="txhash" jdbcType="VARCHAR"/>
+        <result column="author"  property="author" jdbcType="VARCHAR"/>
+        <result column="blocknumber"  property="blocknumber" jdbcType="BIGINT"/>
+        <result column="verified"  property="verified" jdbcType="INTEGER"/>
+        <result column="version"  property="version" jdbcType="VARCHAR"/>
+        <result column="verifydate"  property="verifydate" jdbcType="TIMESTAMP"/>
+        <result column="istoken"  property="istoken" jdbcType="INTEGER"/>        
+        <result column="type"  property="type" jdbcType="VARCHAR"/>              
+        <result column="admin1"  property="admin1" jdbcType="VARCHAR"/>
+        <result column="admin2"  property="admin2" jdbcType="VARCHAR"/>        
+        <result column="lockupstart"  property="lockupstart" jdbcType="BIGINT"/>
+        <result column="lockupperiod"  property="lockupperiod" jdbcType="BIGINT"/>
+        <result column="releaseperiod"  property="releaseperiod" jdbcType="BIGINT"/>
+        <result column="releaseinterval"  property="releaseinterval" jdbcType="BIGINT"/>
+        <result column="createtime"  property="createtime" jdbcType="TIMESTAMP"/>
+        <result column="updatetime"  property="updatetime" jdbcType="TIMESTAMP"/>
+        
+        <result column="balance"  property="balance" jdbcType="DECIMAL"/>
+        <result column="txcount"  property="txcount" jdbcType="BIGINT"/>
+        <result column="vername"  property="vername" jdbcType="VARCHAR"/>
+        <result column="input"    property="input"   jdbcType="VARCHAR"/>        
+    </resultMap>
+
+
+    <select id="getContract" parameterType="java.lang.String" resultType="com.imooc.pojo.Contract">
+        select t.*,t1.balance,t3.vername,t4.input from contract t
+        left join addresses t1 on t.contract=t1.address
+        left join contract_version t3 on t.version=t3.version 
+        left join transaction t4 on t.txhash=t4.hash
+         where t.contract = #{contract}
+    </select>
+
+
+    <insert id="saveOrUpdate">
+      insert into contract
+        (
+         contract,name,symbol,txhash,author,blocknumber,verified,istoken,type,admin1,admin2,lockupstart,lockupperiod,releaseperiod,releaseinterval,createtime
+        ) values(
+        #{contract.contract},#{contract.name},#{contract.symbol},#{contract.txhash},#{contract.author},#{contract.blocknumber},0,#{contract.istoken},#{contract.type},
+        #{contract.admin1},#{contract.admin2},#{contract.lockupstart},#{contract.lockupperiod},#{contract.releaseperiod},#{contract.releaseinterval},#{contract.createtime}
+       )
+        on duplicate key update
+      name=values(name),symbol=values(symbol),admin1=values(admin1),admin2=values(admin2),updatetime=values(updatetime)
+     </insert>
+     
+     <update id="updateVerify">
+        update contract set contractname=#{contract.contractname}, verified = #{contract.verified}, version = #{contract.version}, verifydate = #{contract.verifydate} 
+        where contract= #{contract.contract}
+     </update>
+     
+
+    <select id="getPageList" parameterType="com.imooc.pojo.Form.BlockQueryForm" resultMap="BaseResultMapAccount">
+        select a.*,t1.balance,t3.vername from contract a
+        left join addresses t1 on a.contract=t1.address 
+        left join contract_version t3 on a.version=t3.version  
+        <where>
+            <if test="blockQueryForm.contract!=null ">
+                and a.contract=#{blockQueryForm.contract}
+            </if>
+            <if test="blockQueryForm.type!=null ">
+                and a.type=#{blockQueryForm.type}
+            </if>
+        </where>
+        ORDER BY a.createtime desc 
+        limit #{blockQueryForm.current}, #{blockQueryForm.size}
+    </select>
+
+    <select id="getTotal" parameterType="com.imooc.pojo.Form.BlockQueryForm" resultType="java.lang.Long">
+        select count(*) from contract a
+        <where>
+            <if test="blockQueryForm.contract!=null ">
+                and a.contract=#{blockQueryForm.contract}
+            </if>
+            <if test="blockQueryForm.type!=null">
+                and a.type=#{blockQueryForm.type}
+            </if>
+        </where>
+    </select>
+    
+    
+    <select id="getAuthorizedContracts" parameterType="java.lang.String" resultType="com.imooc.pojo.Contract">
+        select t.* from contract t 
+        left join (select contract,address,count(1) count from contract_lockup where address=#{address} group by contract,address) t1 on t.contract=t1.contract
+        where 1=1
+        and (t.admin1=#{address} or t.admin2=#{address} or t1.count>0)        
+    </select>
+    
+    <select id="getAuthorizedContracts2" parameterType="java.lang.String" resultType="com.imooc.pojo.Contract">
+        select t.* from contract t 
+        where 1=1
+        and (t.admin1=#{address} or t.admin2=#{address})        
+    </select>
+    
+    <select id="getAuthorizedContract" resultType="com.imooc.pojo.Contract">
+        select t.* from contract t 
+        left join (select contract,address,count(1) count from contract_lockup where address=#{address} group by contract,address) t1 on t.contract=t1.contract
+        where t.contract = #{contract}
+        and (t.admin1=#{address} or t.admin2=#{address} or t1.count>0)        
+    </select>
+        
+</mapper>

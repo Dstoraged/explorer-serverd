@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.imooc.mapper.PunishedMapper">
+    <resultMap id="BaseResultMapPunished" type="com.imooc.pojo.Punished">
+        <result column="id"  property="id" jdbcType="BIGINT"/>
+        <result column="address"  property="address" jdbcType="VARCHAR"/>
+        <result column="type"  property="type" jdbcType="INTEGER"/>
+        <result column="blocknumber"  property="blockNumber" jdbcType="BIGINT"/>
+        <result column="fractions"  property="fractions" jdbcType="BIGINT"/>
+        <result column="round"  property="round" jdbcType="INTEGER"/>
+        <result column="addressname"  property="addressName" jdbcType="VARCHAR"/>
+        <result column="pledgeamount"  property="pledgeAmount" jdbcType="DECIMAL"/>
+        <result column="timestamp"  property="timeStamp" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <select id="getPageList" resultMap="BaseResultMapPunished">
+        select  * from punished a
+        <where>
+            <if test="blockQueryForm.address!=null and blockQueryForm.address!=''">
+                and a.address=#{blockQueryForm.address}
+            </if>
+            <if test="blockQueryForm.blockNumber!=null and blockQueryForm.blockNumber!=''">
+                and a.blocknumber=#{blockQueryForm.blockNumber}
+            </if>
+        </where>
+        ORDER BY a.timestamp DESC limit #{blockQueryForm.current}, #{blockQueryForm.size}
+    </select>
+
+    <select id="getTotal" resultType="java.lang.Long">
+       select count(*) from punished a
+        <where>
+            <if test="blockQueryForm.address!=null and blockQueryForm.address!=''">
+                  and a.address=#{blockQueryForm.address}
+            </if>
+            <if test="blockQueryForm.blockNumber!=null and blockQueryForm.blockNumber!=''">
+                and a.blocknumber=#{blockQueryForm.blockNumber}
+            </if>
+        </where>
+    </select>
+
+</mapper>

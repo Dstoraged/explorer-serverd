@@ -1,0 +1,464 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.imooc.mapper.UtgStorageMinerMapper">
+
+    <select id="getPageList" resultType="com.imooc.pojo.UtgStorageMiner" parameterType="com.imooc.pojo.Form.UtgStorageMinerQueryForm">
+        select a.*,b.srt_balance surplussrt from utg_storage_miner  a left  join addresses b on a.revenue_address=b.address
+        <where>
+            <choose>
+                <when test="UtgStorageMinerQueryForm.isLike == true" >
+                    <if test="UtgStorageMinerQueryForm.revenue_address!=null and UtgStorageMinerQueryForm.revenue_address!=''">
+                        and a.revenue_address like concat('%',#{UtgStorageMinerQueryForm.revenue_address},'%')
+                    </if>
+                    <if test="UtgStorageMinerQueryForm.miner_addr!=null and UtgStorageMinerQueryForm.miner_addr!=''">
+                        and a.miner_addr  like concat('%',#{UtgStorageMinerQueryForm.miner_addr},'%')
+                    </if>
+                </when>
+                <otherwise>
+                    <if test="UtgStorageMinerQueryForm.revenue_address!=null and UtgStorageMinerQueryForm.revenue_address!=''">
+                        and (a.revenue_address=#{UtgStorageMinerQueryForm.revenue_address}
+                         or a.miner_addr=#{UtgStorageMinerQueryForm.revenue_address} )
+                    </if>
+                    <if test="UtgStorageMinerQueryForm.miner_addr!=null and UtgStorageMinerQueryForm.miner_addr!=''">
+                        and a.miner_addr=#{UtgStorageMinerQueryForm.miner_addr}
+                    </if>
+                </otherwise>
+            </choose>
+            <if test="UtgStorageMinerQueryForm.blocknumber!=null">
+                <![CDATA[ and a.blocknumber >= #{UtgStorageMinerQueryForm.blocknumber} ]]>
+            </if>
+        </where>
+        <choose>
+            <when test="UtgStorageMinerQueryForm.sortSql!=null and UtgStorageMinerQueryForm.sortSql!=''" >
+               ${UtgStorageMinerQueryForm.sortSql}
+            </when>
+            <otherwise>
+                ORDER BY a.join_time DESC
+            </otherwise>
+        </choose>
+
+        limit #{UtgStorageMinerQueryForm.current}, #{UtgStorageMinerQueryForm.size}
+    </select>
+
+    <select id="getTotal" resultType="java.lang.Long" parameterType="com.imooc.pojo.Form.UtgStorageMinerQueryForm">
+        select count(1) from utg_storage_miner a
+        <where>
+            <choose>
+                <when test="UtgStorageMinerQueryForm.isLike == true" >
+                    <if test="UtgStorageMinerQueryForm.revenue_address!=null and UtgStorageMinerQueryForm.revenue_address!=''">
+                        and a.revenue_address like concat('%',#{UtgStorageMinerQueryForm.revenue_address},'%')
+                    </if>
+                    <if test="UtgStorageMinerQueryForm.miner_addr!=null and UtgStorageMinerQueryForm.miner_addr!=''">
+                        and a.miner_addr  like concat('%',#{UtgStorageMinerQueryForm.miner_addr},'%')
+                    </if>
+                </when>
+                <otherwise>
+                    <if test="UtgStorageMinerQueryForm.revenue_address!=null and UtgStorageMinerQueryForm.revenue_address!=''">
+                        and ( a.revenue_address=#{UtgStorageMinerQueryForm.revenue_address}
+                        or a.miner_addr=#{UtgStorageMinerQueryForm.revenue_address} )
+                    </if>
+                    <if test="UtgStorageMinerQueryForm.miner_addr!=null and UtgStorageMinerQueryForm.miner_addr!=''">
+                        and a.miner_addr=#{UtgStorageMinerQueryForm.miner_addr}
+                    </if>
+                </otherwise>
+            </choose>
+            <if test="UtgStorageMinerQueryForm.blocknumber!=null">
+                <![CDATA[ and a.blocknumber >= #{UtgStorageMinerQueryForm.blocknumber} ]]>
+            </if>
+        </where>
+    </select>
+
+    <select id="getUtgStorageMinerDetail" resultType="com.imooc.pojo.UtgStorageMiner" parameterType="com.imooc.pojo.Form.UtgStorageMinerQueryForm">
+        select a.*,b.srt_balance surplussrt from utg_storage_miner  a left  join addresses b on a.revenue_address=b.address
+               where miner_addr = #{UtgStorageMinerQueryForm.miner_addr}
+    </select>
+
+    <select id="getMinerDayStatislist" resultType="com.imooc.pojo.vo.UtgStorageMinerDayVo" parameterType="com.imooc.pojo.Form.UtgStorageMinerQueryForm">
+        select fwflag,m.miner_addr,m.revenue_address,ifnull(m.bandwidth,0) bandwidth,ifnull(n.minerstorage,0)minerstorage , report_time time,n.ctime, srtnum,profitamount   from utg_storage_miner m  INNER JOIN
+           (select fwflag,report_time,en_address, sum(storage_value) minerstorage,sum(profitamount) profitamount,sum(srtnum) srtnum,max(report_time) ctime from utg_clt_storagedata_day
+            <where>
+                <if test="UtgStorageMinerQueryForm.miner_addr!=null and UtgStorageMinerQueryForm.miner_addr!=''">
+                    and en_address=#{UtgStorageMinerQueryForm.miner_addr}
+                </if>
+                <if test="UtgStorageMinerQueryForm.time!=null and UtgStorageMinerQueryForm.time!=''">
+                    <choose>
+                        <when test="UtgStorageMinerQueryForm.timeEqual == true" >
+                            and LEFT(report_time,10)=#{UtgStorageMinerQueryForm.time}
+                        </when>
+                        <otherwise>
+                            <![CDATA[ and LEFT(report_time,10)>=#{UtgStorageMinerQueryForm.time} ]]>
+                        </otherwise>
+                    </choose>
+
+                </if>
+            </where>
+            GROUP BY en_address, LEFT(report_time,10),fwflag )n
+           on m.miner_addr = n.en_address
+        <where>
+            <if test="UtgStorageMinerQueryForm.miner_addr!=null and UtgStorageMinerQueryForm.miner_addr!=''">
+                and m.miner_addr=#{UtgStorageMinerQueryForm.miner_addr}
+            </if>
+        </where>
+    </select>
+
+    <select id="getMinerDayStatisCount" resultType="java.lang.Long" parameterType="com.imooc.pojo.Form.UtgStorageMinerQueryForm">
+        select count(1)   from utg_storage_miner m  INNER JOIN
+        (select report_time,en_address, sum(storage_value) minerstorage,max(report_time) ctime from utg_clt_storagedata_day
+        <where>
+            <if test="UtgStorageMinerQueryForm.miner_addr!=null and UtgStorageMinerQueryForm.miner_addr!=''">
+                and en_address=#{UtgStorageMinerQueryForm.miner_addr}
+            </if>
+            <if test="UtgStorageMinerQueryForm.time!=null and UtgStorageMinerQueryForm.time!=''">
+                <choose>
+                    <when test="UtgStorageMinerQueryForm.timeEqual == true" >
+                        and LEFT(report_time,10)=#{UtgStorageMinerQueryForm.time}
+                    </when>
+                    <otherwise>
+                        <![CDATA[ and LEFT(report_time,10)>=#{UtgStorageMinerQueryForm.time} ]]>
+                    </otherwise>
+                </choose>
+
+            </if>
+        </where>
+        GROUP BY en_address,LEFT(report_time,10),fwflag )n
+        on m.miner_addr = n.en_address
+        <where>
+            <if test="UtgStorageMinerQueryForm.miner_addr!=null and UtgStorageMinerQueryForm.miner_addr!=''">
+                and m.miner_addr=#{UtgStorageMinerQueryForm.miner_addr}
+            </if>
+        </where>
+    </select>
+
+    <select id="getNodeCount" resultType="java.lang.Long" parameterType="com.imooc.pojo.Form.UtgStorageMinerQueryForm">
+        select count(1) nodeCount from utg_node_miner
+        where  ifnull(node_type,1)!=3
+        <if test="UtgStorageMinerQueryForm.revenue_address!=null and UtgStorageMinerQueryForm.revenue_address!=''">
+            and revenue_address=#{UtgStorageMinerQueryForm.revenue_address}
+        </if>
+    </select>
+
+    <select id="getStatisByReAddress" resultType="com.imooc.pojo.UtgStorageMiner" parameterType="com.imooc.pojo.Form.UtgStorageMinerQueryForm">
+        select IFNULL(sum(paysrt),0) paysrt ,ifnull(sum(revenue_amount),0) revenue_amount
+        from utg_storage_miner a where a.revenue_address=#{UtgStorageMinerQueryForm.revenue_address}
+    </select>
+
+
+
+    <select id="getUtgCltPageList" resultType="com.imooc.pojo.UtgCltStoragedata" parameterType="com.imooc.pojo.Form.UtgStorageMinerQueryForm">
+        select b.*,a.bandwidth,b.lockamount lock_amount,b.releaseamount release_amount,a.revenue_address
+            from utg_clt_storagedata_day  b , utg_storage_miner a where b.en_address=a.miner_addr
+            <choose>
+                <when test="UtgStorageMinerQueryForm.isLike == true" >
+                    <if test="UtgStorageMinerQueryForm.revenue_address!=null and UtgStorageMinerQueryForm.revenue_address!=''">
+                        and a.revenue_address like concat('%',#{UtgStorageMinerQueryForm.revenue_address},'%')
+                    </if>
+                    <if test="UtgStorageMinerQueryForm.miner_addr!=null and UtgStorageMinerQueryForm.miner_addr!=''">
+                        and a.miner_addr  like concat('%',#{UtgStorageMinerQueryForm.miner_addr},'%')
+                    </if>
+                </when>
+                <otherwise>
+                    <if test="UtgStorageMinerQueryForm.revenue_address!=null and UtgStorageMinerQueryForm.revenue_address!=''">
+                        and a.revenue_address=#{UtgStorageMinerQueryForm.revenue_address}
+                    </if>
+                    <if test="UtgStorageMinerQueryForm.miner_addr!=null and UtgStorageMinerQueryForm.miner_addr!=''">
+                        and a.miner_addr=#{UtgStorageMinerQueryForm.miner_addr}
+                    </if>
+                </otherwise>
+            </choose>
+        ORDER BY b.instime DESC limit #{UtgStorageMinerQueryForm.current}, #{UtgStorageMinerQueryForm.size}
+    </select>
+
+    <select id="getUtgCltTotal" resultType="java.lang.Long" parameterType="com.imooc.pojo.Form.UtgStorageMinerQueryForm">
+        select count(1)  from utg_clt_storagedata_day  b , utg_storage_miner a where b.en_address=a.miner_addr
+        <choose>
+            <when test="UtgStorageMinerQueryForm.isLike == true" >
+                <if test="UtgStorageMinerQueryForm.revenue_address!=null and UtgStorageMinerQueryForm.revenue_address!=''">
+                    and a.revenue_address like concat('%',#{UtgStorageMinerQueryForm.revenue_address},'%')
+                </if>
+                <if test="UtgStorageMinerQueryForm.miner_addr!=null and UtgStorageMinerQueryForm.miner_addr!=''">
+                    and a.miner_addr  like concat('%',#{UtgStorageMinerQueryForm.miner_addr},'%')
+                </if>
+            </when>
+            <otherwise>
+                <if test="UtgStorageMinerQueryForm.revenue_address!=null and UtgStorageMinerQueryForm.revenue_address!=''">
+                    and a.revenue_address=#{UtgStorageMinerQueryForm.revenue_address}
+                </if>
+                <if test="UtgStorageMinerQueryForm.miner_addr!=null and UtgStorageMinerQueryForm.miner_addr!=''">
+                    and a.miner_addr=#{UtgStorageMinerQueryForm.miner_addr}
+                </if>
+            </otherwise>
+        </choose>
+    </select>
+
+    <insert id="saveOrUpdata">
+        insert  into utg_storage_miner
+        (
+            miner_addr,revenue_address,miner_status,blocknumber,sync_time
+        ) values
+            (
+                #{UtgStorageMiner.miner_addr},#{UtgStorageMiner.revenue_address},
+                 #{UtgStorageMiner.miner_status},#{UtgStorageMiner.blocknumber},#{UtgStorageMiner.sync_time}
+            )
+            ON DUPLICATE KEY UPDATE
+                                 revenue_address=values(revenue_address),
+                                 miner_status=VALUES(miner_status),
+                                 blocknumber=VALUES(blocknumber),
+                                 sync_time=VALUES(sync_time)
+    </insert>
+    <update id="updateStorageMiner">
+         update utg_storage_miner set sync_time=#{UtgStorageMiner.sync_time}
+        <if test="UtgStorageMiner.revenue_address!=null">
+            , revenue_address = #{UtgStorageMiner.revenue_address}
+        </if>
+        <if test="UtgStorageMiner.line_type!=null">
+           , line_type = #{UtgStorageMiner.line_type}
+        </if>
+        <if test="UtgStorageMiner.miner_status!=null">
+            , miner_status = #{UtgStorageMiner.miner_status}
+        </if>
+        <if test="UtgStorageMiner.addpool!=null">
+            , addpool = #{UtgStorageMiner.addpool}
+        </if>
+        <if test="UtgStorageMiner.bandwidth!=null">
+            , bandwidth =  #{UtgStorageMiner.bandwidth}
+        </if>
+        <if test="UtgStorageMiner.pledge_amount!=null">
+            , pledge_amount = #{UtgStorageMiner.pledge_amount}
+        </if>
+        <if test="UtgStorageMiner.miner_storage!=null">
+            , miner_storage = #{UtgStorageMiner.miner_storage}
+        </if>
+        <if test="UtgStorageMiner.paysrt!=null">
+            , paysrt = #{UtgStorageMiner.paysrt}
+        </if>
+        <if test="UtgStorageMiner.revenue_amount!=null">
+            , revenue_amount = #{UtgStorageMiner.revenue_amount}
+        </if>
+        <if test="UtgStorageMiner.release_amount!=null">
+            , release_amount = #{UtgStorageMiner.release_amount}
+        </if>
+        <if test="UtgStorageMiner.blocknumber!=null">
+            , blocknumber = #{UtgStorageMiner.blocknumber}
+        </if>
+        <if test="UtgStorageMiner.join_time!=null">
+            , join_time = #{UtgStorageMiner.join_time}
+        </if>
+        where miner_addr=#{UtgStorageMiner.miner_addr}
+    </update>
+
+    <update id="updateStorageMinerBatch" parameterType="java.util.List">
+        <foreach collection="list" item="UtgStorageMiner" index="index" open="" close=""  separator=";">
+            update utg_storage_miner
+            <set>
+            <if test="UtgStorageMiner.miner_storage!=null">
+                miner_storage = #{UtgStorageMiner.miner_storage},
+            </if>
+            <if test="UtgStorageMiner.paysrt!=null">
+                 paysrt = #{UtgStorageMiner.paysrt},
+            </if>
+            <if test="UtgStorageMiner.revenue_amount!=null">
+                revenue_amount = #{UtgStorageMiner.revenue_amount},
+            </if>
+            <if test="UtgStorageMiner.release_amount!=null">
+                release_amount = #{UtgStorageMiner.release_amount},
+            </if>
+            <if test="UtgStorageMiner.lock_amount!=null">
+                lock_amount = #{UtgStorageMiner.lock_amount},
+            </if>
+                sync_time=#{UtgStorageMiner.sync_time}
+            </set>
+            where miner_addr=#{UtgStorageMiner.miner_addr}
+        </foreach>
+    </update>
+
+    <select id="getSingleMiner" resultType="com.imooc.pojo.UtgStorageMiner">
+           select * from utg_storage_miner where miner_addr=#{miner_addr}
+    </select>
+
+    <select id="getBandwidthConfig" resultType="com.imooc.pojo.UtgBandwidthConfig">
+        select * from utg_bandwidth_config order by min
+    </select>
+
+    <select id="getMinerSum1" resultType="com.imooc.pojo.UtgStorageMiner">
+        select IFNULL(sum(bandwidth),0) bandwidth,IFNULL(sum(revenue_amount),0)revenue_amount from utg_storage_miner where miner_status!=3
+    </select>
+    
+    <select id="getMinerSum" resultType="com.imooc.pojo.UtgStorageMiner">
+        select * from (select ifnull(sum(declare_space),0) bandwidth from storage_space where pledge_status = 0)t1,
+            (select ifnull(sum(storage_amount),0) revenue_amount from storage_space )t2 
+    </select>
+
+    <select id="getAuthCfgByAppid" resultType="com.imooc.pojo.vo.AuthCfg">
+        select  *  from tj_wallet_server.utg_pool_authcfg WHERE appid=#{appid}
+    </select>
+
+    <select id="getArea" resultType="com.imooc.pojo.vo.Area">
+        select  *  from tj_wallet_server.tj_area
+    </select>
+
+    <select id="getOperatorConfig" resultType="com.imooc.pojo.vo.OperatorConfig">
+        select  id,operator_code,operator_name  from tj_wallet_server.tj_operator_config
+    </select>
+
+    <insert id="saveOrUpdataFlwData">
+        insert  into utg_clt_storagedata
+        (
+            en_address,report_time,storage_value,srtnum,profitamount,router_address,from_addr,to_addr,
+            trans_hash,instime,blocknumber
+        ) values
+            (
+                #{UtgCltStoragedata.en_address},#{UtgCltStoragedata.report_time},
+                #{UtgCltStoragedata.storage_value},#{UtgCltStoragedata.srtnum},#{UtgCltStoragedata.profitamount},
+                #{UtgCltStoragedata.router_address},#{UtgCltStoragedata.from_addr},#{UtgCltStoragedata.to_addr},
+                #{UtgCltStoragedata.trans_hash},#{UtgCltStoragedata.instime},
+                #{UtgCltStoragedata.blocknumber}
+            )
+            ON DUPLICATE KEY UPDATE
+                                 storage_value=values(storage_value),
+                                 srtnum=VALUES(srtnum),
+                                 profitamount=VALUES(profitamount),
+                                 instime=VALUES(instime),
+                                 blocknumber = VALUES(blocknumber)
+    </insert>
+
+    <insert id="saveOrUpdataFlwDataDay">
+        insert  into utg_clt_storagedata_day
+        (
+            en_address,report_time,storage_value,srtnum,profitamount,instime,blocknumber,fwflag
+        ) values
+            (
+                #{UtgCltStoragedata.en_address},#{UtgCltStoragedata.report_time},
+                #{UtgCltStoragedata.storage_value},#{UtgCltStoragedata.srtnum},#{UtgCltStoragedata.profitamount},#{UtgCltStoragedata.instime},
+                #{UtgCltStoragedata.blocknumber},#{UtgCltStoragedata.fwflag}
+            )
+            ON DUPLICATE KEY UPDATE
+                                 storage_value=values(storage_value),
+                                 srtnum=VALUES(srtnum),
+                                 profitamount=VALUES(profitamount),
+                                 instime=VALUES(instime),
+                                 blocknumber = VALUES(blocknumber)
+    </insert>
+
+    <insert id="batchSaveStorageDataDay"  parameterType="java.util.List">
+        insert  into utg_clt_storagedata_day
+        (
+        en_address,report_time,storage_value,srtnum,profitamount,instime,blocknumber,fwflag
+        ) values
+        <foreach collection="list" item="UtgCltStoragedata" index="index" separator=",">
+            (
+            #{UtgCltStoragedata.en_address},#{UtgCltStoragedata.report_time},
+            #{UtgCltStoragedata.storage_value},#{UtgCltStoragedata.srtnum},#{UtgCltStoragedata.profitamount},#{UtgCltStoragedata.instime},
+            #{UtgCltStoragedata.blocknumber},#{UtgCltStoragedata.fwflag}
+            )
+        </foreach>
+    </insert>
+
+    <insert id="insertUtgNetStatics">
+        insert into utg_net_statics
+        (
+            ctime,utg_gbrate,total_utg,total_bw,incre_bw
+        ) values
+            (
+                #{nns.ctime},#{nns.utg_gbrate},#{nns.total_utg}
+            ,#{nns.total_bw},#{nns.incre_bw}
+            ) ON DUPLICATE KEY UPDATE
+                 utg_gbrate=values(utg_gbrate),
+                 total_utg=VALUES(total_utg),
+                total_bw=VALUES(total_bw),
+                incre_bw=VALUES(incre_bw)
+    </insert>
+
+    <select id="queryUtgNetStaticsByCtime" resultType="com.imooc.pojo.UtgNetStatics">
+           select * from utg_net_statics where  LEFT(ctime,10)=#{ctime}
+    </select>
+
+    <select id="queryUtgNetStaticsBetwentime" resultType="com.imooc.pojo.UtgNetStatics">
+        select * from utg_net_statics
+        where  <![CDATA[ LEFT(ctime,10)>=#{startTime} and LEFT(ctime,10)<=#{endTime} ]]>
+    </select>
+
+    <select id="queryUtgCltStoragedataDayByTime" resultType="com.imooc.pojo.UtgCltStoragedata">
+        select (t1.profitamount+t2.reward) profitamount from (
+            select ifnull(SUM(profitamount),0) profitamount
+            from utg_clt_storagedata_day where fwflag=1 and LEFT(report_time,10) = #{ctime}
+        )t1,(
+        <![CDATA[ select ifnull(sum(reward),0) reward from block_rewards where reward>0 and timestamp<date_sub(now(),interval 1 day) ]]>
+        )t2
+    </select>
+
+    <select id="queryUtgCltStoragedataDayByAddress" resultType="com.imooc.pojo.UtgCltStoragedata">
+        select ifnull(sum(storage_value),0) storage_value,ifnull(SUM(profitamount),0) profitamount,
+               ifnull(SUM(srtnum),0) srtnum
+        from utg_clt_storagedata_day where  en_address = #{address}
+    </select>
+
+    <select id="queryUtgCltStoragedataDayGroupBYAddress" resultType="com.imooc.pojo.UtgCltStoragedata">
+        select en_address,ifnull(sum(storage_value),0) storage_value,ifnull(SUM(profitamount),0) profitamount,
+               ifnull(SUM(srtnum),0) srtnum
+        from utg_clt_storagedata_day group by en_address
+    </select>
+
+    <select id="getAllMinerAddress" resultType="com.imooc.pojo.UtgStorageMiner">
+        select miner_addr from utg_storage_miner
+    </select>
+
+    <select id="getNetServiceRankTotal" resultType="java.lang.Long" parameterType="com.imooc.pojo.Form.UtgStorageMinerQueryForm">
+        SELECT count(1) from (
+                             select m.revenue_address
+                             from  (SELECT en_address,sum(d.storage_value) storage_value,SUM(d.profitamount) profitamount from  utg_clt_storagedata_day d where d.fwflag=0 and left(d.report_time,10)=#{UtgStorageMinerQueryForm.time} GROUP BY en_address)d,
+                                  utg_storage_miner m
+                             where d.en_address=m.miner_addr and miner_status!=3
+                             GROUP BY m.revenue_address
+                         ) t
+    </select>
+
+    <select id="getNetServiceRankList" resultType="com.imooc.pojo.vo.NetRankVo" parameterType="com.imooc.pojo.Form.UtgStorageMinerQueryForm">
+        SELECT * from (
+         select m.revenue_address,sum(d.storage_value)storage_value,
+                (case when sum(d.storage_value)=0 then 0 else  round(SUM(d.profitamount)*1024/1000000000000000000/sum(d.storage_value),8) end ) outEfficiency,
+                (case when #{UtgStorageMinerQueryForm.bandwidth}=0 then 0 else round(sum(m.bandwidth)/#{UtgStorageMinerQueryForm.bandwidth},2) end)perComPower
+         from
+             (SELECT en_address,sum(d.storage_value) storage_value,SUM(d.profitamount) profitamount from  utg_clt_storagedata_day d where d.fwflag=0 and left(d.report_time,10)=#{UtgStorageMinerQueryForm.time} GROUP BY en_address)d
+              ,utg_storage_miner m
+         where d.en_address=m.miner_addr and miner_status!=3
+         GROUP BY m.revenue_address
+                             ) t
+          order by outEfficiency desc limit #{UtgStorageMinerQueryForm.current}, #{UtgStorageMinerQueryForm.size}
+    </select>
+
+    <insert id="batchSaveFlwDataDay"  parameterType="java.util.List">
+        insert  into utg_clt_storagedata_day
+        (
+        en_address,report_time,storage_value,srtnum,profitamount,instime,blocknumber,fwflag
+        ) values
+        <foreach collection="list" item="UtgCltStoragedata" index="index" separator=",">
+            (
+            #{UtgCltStoragedata.en_address},#{UtgCltStoragedata.report_time},
+            #{UtgCltStoragedata.storage_value},#{UtgCltStoragedata.srtnum},#{UtgCltStoragedata.profitamount},#{UtgCltStoragedata.instime},
+            #{UtgCltStoragedata.blocknumber},#{UtgCltStoragedata.fwflag}
+            )
+        </foreach>
+    </insert>
+
+    <update id="batchUpdateFlwDataDay" parameterType="java.util.List">
+        <foreach collection="list" item="UtgCltStoragedata" index="index" open="" close=""  separator=";">
+            update utg_clt_storagedata_day
+            <set>
+                lockamount=#{UtgCltStoragedata.lockamount},
+                releaseamount=#{UtgCltStoragedata.releaseamount},
+            </set>
+            where id=#{UtgCltStoragedata.id}
+        </foreach>
+    </update>
+
+    <select id="getAllBlockReward" resultType="java.math.BigDecimal" >
+        select IFNULL(SUM(reward),0) from block_rewards where rewardtype='BlockReward'
+    </select>
+    <select id="getAllBandWidthReward" resultType="java.math.BigDecimal" >
+        select IFNULL(SUM(profitamount),0) from utg_clt_storagedata_day
+    </select>
+
+    <select id="getFlwDataDayListByReportTime" resultType="com.imooc.pojo.UtgCltStoragedata">
+        select id,en_address,IFNULL(fwflag,0)fwflag  from utg_clt_storagedata_day where LEFT(report_time,10) = #{ctime}
+    </select>
+</mapper>

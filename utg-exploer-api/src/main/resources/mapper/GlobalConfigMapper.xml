@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.imooc.mapper.GlobalConfigMapper">
+    
+
+    <select id="getList" resultType="com.imooc.pojo.GlobalConfig">
+        select * from global_config 
+    </select>
+    
+    <select id="getTypeValue" resultType="string">
+        select value from global_config where type=#{type} 
+    </select>
+    
+    <insert id="saveOrUpdate">
+      insert into global_config (
+         type, value, txhash, blocknumber, updatetime
+      ) values (     
+        #{data.type}, #{data.value}, #{data.txhash}, #{data.blocknumber}, #{data.updatetime}
+     ) ON DUPLICATE KEY UPDATE
+      value=VALUES(value),
+      txhash=VALUES(txhash),
+      blocknumber=VALUES(blocknumber),
+      updatetime=VALUES(updatetime)
+     </insert>
+
+</mapper>

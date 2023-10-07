@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.imooc.mapper.DposVoterWalletMapper">
+    <resultMap id="BaseAddrMapAccount" type="com.imooc.pojo.DposVotesWallet">
+        <result column="id"  property="id" jdbcType="BIGINT"/>
+        <result column="loopstarttime"  property="loopStartTime" jdbcType="TIMESTAMP"/>
+        <result column="candidate"  property="candiDate" jdbcType="VARCHAR"/>
+        <result column="voter"  property="voter" jdbcType="VARCHAR"/>
+        <result column="stake"  property="stake" jdbcType="DECIMAL"/>
+        <result column="blocknumber"  property="blockNumber" jdbcType="BIGINT"/>
+        <result column="round"  property="round" jdbcType="BIGINT"/>
+        <result column="isexit"  property="isExit" jdbcType="BIGINT"/>
+        <result column="exitblocknumber"  property="exitBlockNumber" jdbcType="BIGINT"/>
+        <result column="txhash"  property="txHash" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <insert id="saveOrUpdate">
+      insert  into dposvoteswallet
+        (
+         loopstarttime,candidate,voter,stake,blocknumber,round,isexit,exitblocknumber,txhash
+        ) values
+     (
+     #{item.loopStartTime},#{item.candiDate},#{item.voter},#{item.stake},#{item.blockNumber},#{item.round},#{item.isExit},#{item.exitBlockNumber},#{item.txHash}
+     )
+      ON DUPLICATE KEY UPDATE
+      loopstarttime=values(loopStartTime),
+      candidate=VALUES(candiDate),
+      voter=VALUES(voter),
+      txhash=VALUES(txHash)
+     </insert>
+
+    <select id="getPageList" parameterType="com.imooc.pojo.Form.BlockQueryForm" resultMap="BaseAddrMapAccount">
+        select * from dposvoteswallet a
+        <where>
+            <if test="blockQueryForm.round!=null and blockQueryForm.round!='' ">
+                and a.round=#{blockQueryForm.round}
+            </if>
+            <if test="blockQueryForm.address!=null and blockQueryForm.address!='' ">
+                and a.voter=#{blockQueryForm.address}
+            </if>
+            <if test="blockQueryForm.candidate!=null and blockQueryForm.candidate!='' ">
+                and a.candidate=#{blockQueryForm.candidate}
+            </if>
+        </where>
+        ORDER BY a.blocknumber DESC limit #{blockQueryForm.current}, #{blockQueryForm.size}
+    </select>
+
+    <select id="getTotal" parameterType="com.imooc.pojo.Form.BlockQueryForm"  resultType="java.lang.Long">
+        select count(*) from dposvoteswallet a
+        <where>
+            <if test="blockQueryForm.round!=null and blockQueryForm.round!='' ">
+                and a.round=#{blockQueryForm.round}
+            </if>
+            <if test="blockQueryForm.address!=null and blockQueryForm.address!='' ">
+                and a.voter=#{blockQueryForm.address}
+            </if>
+            <if test="blockQueryForm.candidate!=null and blockQueryForm.candidate!='' ">
+                and a.candidate=#{blockQueryForm.candidate}
+            </if>
+        </where>
+    </select>
+
+    <select id="getVoterInfoPageList" parameterType="com.imooc.pojo.Form.DposVoterQueryForm" resultMap="BaseAddrMapAccount">
+        select * from dposvoteswallet a
+        <where>
+            <if test="dposVoterQueryForm.round!=null and dposVoterQueryForm.round!='' ">
+                and a.round=#{dposVoterQueryForm.round}
+            </if>
+            <if test="dposVoterQueryForm.stratBlockNumber!=null and dposVoterQueryForm.stratBlockNumber!='' ">
+                <![CDATA[ and a.blocknumber>=#{dposVoterQueryForm.stratBlockNumber}]]>
+            </if>
+            <if test="dposVoterQueryForm.endBlockNumber!=null and dposVoterQueryForm.endBlockNumber!='' ">
+                <![CDATA[  and a.blocknumber<=#{dposVoterQueryForm.endBlockNumber}]]>
+            </if>
+            <if test="dposVoterQueryForm.startTime!=null and dposVoterQueryForm.startTime!='' ">
+                <![CDATA[ and a.loopstarttime>=#{dposVoterQueryForm.startTime} ]]>
+            </if>
+            <if test="dposVoterQueryForm.endTime!=null and dposVoterQueryForm.endTime!='' ">
+                <![CDATA[ and a.loopstarttime<=#{dposVoterQueryForm.endTime} ]]>
+            </if>
+        </where>
+        ORDER BY a.blocknumber DESC
+    </select>
+
+    <select id="getTotalVoterInfo" parameterType="com.imooc.pojo.Form.DposVoterQueryForm"  resultType="java.lang.Long">
+        select count(*) from dposvoteswallet a
+        <where>
+            <if test="dposVoterQueryForm.round!=null and dposVoterQueryForm.round!='' ">
+                and a.round=#{dposVoterQueryForm.round}
+            </if>
+            <if test="dposVoterQueryForm.startTime!=null and dposVoterQueryForm.startTime!='' ">
+                <![CDATA[ and a.loopstarttime>=#{dposVoterQueryForm.startTime} ]]>
+            </if>
+            <if test="dposVoterQueryForm.endTime!=null and dposVoterQueryForm.endTime!='' ">
+                <![CDATA[ and a.loopstarttime<=#{dposVoterQueryForm.endTime} ]]>
+            </if>
+        </where>
+    </select>
+</mapper>

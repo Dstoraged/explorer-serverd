@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.imooc.mapper.StatisticMapper">
+    <!-- <resultMap id="BaseResultMap" type="com.imooc.pojo.StatGlobal">
+        <result column="id"             property="id" jdbcType="INTEGER"/>
+        <result column="blocknumber"    property="totalBlockNumber"  jdbcType="BIGINT"/>
+        <result column="tx_count"       property="totalTxCount"     jdbcType="BIGINT"/>
+        <result column="total_burnt"    property="destrNum"     jdbcType="DECIMAL"/>
+        <result column="total_pledge"   property="pledgeNum"    jdbcType="DECIMAL"/>
+        <result column="total_storage"  property="bandWidthSize"   jdbcType="DECIMAL"/> 
+        <result column="total_locked"    property="lockNum"  jdbcType="DECIMAL"/>
+        <result column="storage_amount"  property="utgToGb"    jdbcType="DECIMAL"/>
+        <result column="last_mintage"   property="utg24"   jdbcType="DECIMAL"/>
+        <result column="next_election" property="nextElectTime"   jdbcType="VARCHAR"/>        
+    </resultMap> -->
+        
+    <select id="getGlobalStat" resultType="com.imooc.pojo.StatGlobal">
+        select * from stat_global where id=0
+    </select>
+    
+    <select id="getIndexBlock" resultType="com.imooc.pojo.Blocks">
+        select * from blocks order by blocknumber desc limit 5
+    </select>
+    
+    <select id="getIndexTransaction" resultType="com.imooc.pojo.Transaction">
+        select * from transaction order by blocknumber desc limit 5
+    </select> 
+    
+    <select id="getTransactionCount" resultType="long">
+        select count(`hash`) from transaction
+    </select> 
+     
+    <select id="statGlobalData" resultType="com.imooc.pojo.StatGlobal">
+        select *,pladgenum+nodepledgenum total_pledge from (		  
+		  select ifnull(sum(balance),0) total_burnt from addresses where address='ux0000000000000000000000000000000000000000'
+		) a0,(
+		  select ifnull(sum(declare_space),0) total_storage,round(ifnull(sum(pledge_amount),0)/1000000000000000000,2) pladgenum from storage_space where pledge_status = 0
+		) st,(
+		 select round(ifnull(sum(t.total_amount),0)/1000000000000000000,2) nodepledgenum from utg_node_miner  t where t.node_type in (1,2)
+		) node,(
+		 select ifnull(sum(value),0) tx_burnt from transaction where toaddr='ux0000000000000000000000000000000000000000'
+		) tx_burnt,(
+		 select ifnull(sum(pledge_amount),0) pledge_burnt from node_pledge where unpledge_type=1
+		) pledge_burnt		
+    </select>
+    
+    <insert id="saveGlobalStat">
+        insert into stat_global (
+		  id, blocknumber, tx_count, total_burnt, total_pledge, total_storage,next_election,tx_burnt,pledge_burnt
+		) values (
+          0,#{data.blocknumber},#{data.tx_count},#{data.total_burnt},#{data.total_pledge},#{data.total_storage},#{data.next_election},#{data.tx_burnt},#{data.pledge_burnt}
+        )on duplicate key update
+          blocknumber = values(blocknumber),          
+          tx_count = values(tx_count),
+          total_burnt = values(total_burnt),
+          total_pledge = values(total_pledge),
+          total_storage = values(total_storage),
+          next_election = values(next_election),
+          tx_burnt = values(tx_burnt),
+          pledge_burnt = values(pledge_burnt)
+    </insert>
+    
+    <update id="updateGlobalReward">
+        update stat_global t
+		left join (
+		  select * from (
+		  SELECT
+	ifnull( sum( t.reward_amount ), 0 ) last_mintage  FROM node_reward t 
+               WHERE t.block_number >= #{blocknumber}
+		    ) latest,(
+		    select ifnull(sum(t.totalamount),0) total_amount,ifnull(sum(t.releaseamount),0) total_release,ifnull(sum(t.burntamount),0) reward_burnt from transfer_miner t where t.type in (1,3,5,7,9,17,11,21,23)
+		  ) total,(
+		    select ifnull(sum(t.totalamount),0) block_amount,ifnull(sum(t.releaseamount),0) block_release,ifnull(sum(t.burntamount),0) block_burnt from transfer_miner t where t.type=1
+		  ) block,(
+		    select ifnull(sum(t.totalamount),0) storage_amount,ifnull(sum(t.releaseamount),0) storage_release,ifnull(sum(t.burntamount),0) storage_burnt from transfer_miner t where t.type=9
+		  ) st,(
+		   select ifnull(sum(t.totalamount),0) rent_amount,ifnull(sum(t.releaseamount),0) rent_release,ifnull(sum(t.burntamount),0) rent_burnt from transfer_miner t where t.type=5
+		  ) rent,(
+		   select ifnull(sum(reward)*0.5,0) fee_burnt from block_rewards where rewardtype='FeeReward'
+		  ) fee_burnt,
+		  (
+		   select ifnull(sum(t.totalamount),0) sp_amount,ifnull(sum(t.releaseamount),0) sp_release,ifnull(sum(t.burntamount),0) sp_burnt from transfer_miner t where t.type=21
+		  ) pool
+		  ) t1 on 1=1
+		set t.total_locked=t1.total_amount-t1.total_release,
+		t.last_mintage=t1.last_mintage,
+		t.total_amount=t1.total_amount,
+		t.total_release=t1.total_release,
+		t.reward_burnt=t1.reward_burnt,
+		t.block_amount=t1.block_amount,
+		t.block_release=t1.block_release,
+		t.block_burnt=t1.block_burnt,
+		t.storage_amount=t1.storage_amount,
+		t.storage_release=t1.storage_release,
+		t.storage_burnt=t1.storage_burnt,
+		t.rent_amount=t1.rent_amount,
+		t.rent_release=t1.rent_release,
+		t.rent_burnt=t1.rent_burnt,
+		t.fee_burnt=t1.fee_burnt,
+		t.sp_amount=t1.sp_amount,
+		t.sp_release=t1.sp_release,
+		t.sp_burnt=t1.sp_burnt
+		where t.id=0            
+    </update>
+	<update id="updateGlobalRelease">
+	update stat_global t set t.lease_his=#{lease_his}  where t.id=0
+	</update>
+</mapper>

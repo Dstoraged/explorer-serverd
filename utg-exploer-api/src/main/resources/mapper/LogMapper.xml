@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.imooc.mapper.LogMapper">
+    <resultMap id="BaseResultMapAccount" type="com.imooc.pojo.TransLogs">
+        <result column="id"  property="id" jdbcType="BIGINT"/>
+        <result column="transhash"  property="transHash" jdbcType="VARCHAR"/>
+        <result column="logindex"  property="logIndex" jdbcType="VARCHAR"/>
+        <result column="type"  property="type" jdbcType="VARCHAR"/>
+        <result column="address"  property="address" jdbcType="VARCHAR"/>
+        <result column="firsttopic"  property="firstTopic" jdbcType="VARCHAR"/>
+        <result column="secondtopic"  property="secondTopic" jdbcType="VARCHAR"/>
+        <result column="thirdtopic"  property="thirdTopic" jdbcType="VARCHAR"/>
+        <result column="fourthTopic"  property="fourthTopic" jdbcType="VARCHAR"/>
+        <result column="data"  property="data" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <select id="getLogs" resultMap="BaseResultMapAccount">
+        select * from trans_logs a where a.address=#{address} and a.firsttopic=#{topic}
+    </select>
+
+    <insert id="saveOrUpdate">
+      insert  into trans_logs
+        (
+         transhash,logindex,type,address,firsttopic,secondtopic,thirdtopic,fourthtopic,data
+        ) values
+     (
+     #{tranlog.transHash},#{tranlog.logIndex},#{tranlog.type},#{tranlog.address},#{tranlog.firstTopic},#{tranlog.secondTopic},#{tranlog.thirdTopic},#{tranlog.fourthTopic},#{tranlog.data}
+     )
+      ON DUPLICATE KEY UPDATE
+      transhash=VALUES(transHash)
+     </insert>
+
+
+
+</mapper>

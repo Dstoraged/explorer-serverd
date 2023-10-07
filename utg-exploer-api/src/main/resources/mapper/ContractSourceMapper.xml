@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.imooc.mapper.ContractSourceMapper">
+    <resultMap id="BaseResultMapAccount" type="com.imooc.pojo.ContractSource">
+        <result column="id"  property="id" jdbcType="BIGINT"/>
+        <result column="contract"  property="contract" jdbcType="VARCHAR"/>        
+        <result column="filename"  property="filename" jdbcType="VARCHAR"/>
+        <result column="sourcecode"  property="sourcecode" jdbcType="VARCHAR"/>
+        <result column="bin"  property="bin" jdbcType="VARCHAR"/>
+        <result column="abi"  property="abi" jdbcType="VARCHAR"/>
+        <result column="ord"  property="ord" jdbcType="INTEGER"/>        
+    </resultMap>
+
+
+    <select id="getContractSources" parameterType="java.lang.String" resultType="com.imooc.pojo.ContractSource">
+        select * from contract_source where contract =#{contract}  order by ord
+    </select>
+
+    <insert id="saveOrUpdate">
+      insert  into contract_source
+        (
+         contract,filename,sourcecode,bin,abi,ord
+        ) values(
+         #{data.contract},#{data.filename},#{data.sourcecode},#{data.bin},#{data.abi},#{data.ord}
+       )
+      on duplicate key update
+      filename =values(filename),sourcecode=values(sourcecode),bin=values(bin),abi=values(abi),ord=values(ord)
+     </insert>
+
+    <select id="getPageList" parameterType="com.imooc.pojo.Form.BlockQueryForm" resultMap="BaseResultMapAccount">
+        select * from contract_source a
+        <where>
+            <if test="blockQueryForm.contract!=null ">
+                and a.contract=#{blockQueryForm.contract}
+            </if>
+        </where>
+        ORDER BY ord desc 
+        limit #{blockQueryForm.current}, #{blockQueryForm.size}
+    </select>
+
+    <select id="getTotal" parameterType="com.imooc.pojo.Form.BlockQueryForm" resultType="java.lang.Long">
+        select count(*) from contract_source a
+        <where>
+            <if test="blockQueryForm.contract!=null ">
+                and a.contract=#{blockQueryForm.contract}
+            </if>            
+        </where>
+    </select>
+    
+    
+    
+        
+</mapper>

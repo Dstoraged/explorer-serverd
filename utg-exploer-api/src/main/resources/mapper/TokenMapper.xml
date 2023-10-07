@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.imooc.mapper.TokenMapper">
+    <resultMap id="BaseResultMapAccount" type="com.imooc.pojo.Tokens">
+        <result column="contract"  property="contract" jdbcType="VARCHAR"/>
+        <result column="type"  property="type" jdbcType="INTEGER"/>
+        <result column="name"  property="name" jdbcType="VARCHAR"/>
+        <result column="symbol"  property="symbol" jdbcType="VARCHAR"/>
+        <result column="decimals"  property="decimals" jdbcType="INTEGER"/>
+        <result column="totalsupply"  property="totalSupply" jdbcType="DECIMAL"/>
+        <result column="cataloged"  property="cataloged" jdbcType="INTEGER"/>
+        <result column="contractmanager"  property="contractManager" jdbcType="VARCHAR"/>
+        
+        <result column="balance"  property="balance" jdbcType="DECIMAL"/>
+        <result column="txcount"  property="txcount" jdbcType="BIGINT"/>
+    </resultMap>
+
+    <select id="getTokenSupply" parameterType="java.lang.String" resultMap="BaseResultMapAccount">
+        select * from tokens where contract =#{contractAddress}
+    </select>
+
+    <select id="getTokens" parameterType="java.lang.String" resultType="com.imooc.pojo.Tokens">
+        select t.*,t1.balance from tokens t
+        left join addresses t1 on t.contract=t1.address
+        where t.contract =#{contract}
+    </select>
+    
+    <select id="getAddressTokenList" parameterType="java.lang.String" resultType="com.imooc.pojo.Tokens">
+        select a.*,t.balance 
+         from tokens a, addresses_token t 
+        where a.contract=t.contract 
+         and t.address=#{address}
+         and t.balance>0
+        order by t.balance desc
+    </select>
+
+    <insert id="saveOrUpdate">
+      insert  into tokens
+        (
+         contract,type,name,symbol,decimals,totalsupply,cataloged,description,contractmanager
+        ) values
+     (
+     #{item.contract},#{item.type},#{item.name},#{item.symbol},#{item.decimals},#{item.totalSupply},#{item.cataloged},#{item.description},#{item.contractManager}
+     )
+      ON DUPLICATE KEY UPDATE
+      contract=values(contract)
+     </insert>
+
+    <select id="getTokenListInfo" parameterType="com.imooc.pojo.Form.BlockQueryForm" resultMap="BaseResultMapAccount">
+        select a.*,t1.balance,ifnull(t2.txcount,0) txcount,t3.accountTotal
+        from tokens a
+        left join contract t on a.contract = t.contract
+        left join addresses t1 on a.contract=t1.address
+        left join (select count(1) txcount,contract from trans_token group by contract) t2 on a.contract=t2.contract
+        left join (select count(1) accountTotal,contract from addresses_token group by contract) t3 on a.contract=t3.contract
+        <where>
+            <if test="blockQueryForm.type!=null ">
+                and a.type=#{blockQueryForm.type}
+            </if>
+            <if test="blockQueryForm.search!=null and blockQueryForm.search!=''">
+                and (a.contract=#{blockQueryForm.search} or a.name like concat('%',#{blockQueryForm.search},'%'))
+            </if>
+        </where>
+        ORDER BY t2.txcount desc limit #{blockQueryForm.current}, #{blockQueryForm.size}
+    </select>
+
+    <select id="getTotalTokens" parameterType="com.imooc.pojo.Form.BlockQueryForm" resultType="java.lang.Long">
+        select count(*) from tokens a
+        <where>
+            <if test="blockQueryForm.type!=null ">
+                and a.type=#{blockQueryForm.type}
+            </if>
+            <if test="blockQueryForm.search!=null and blockQueryForm.search!=''">
+                and (a.contract=#{blockQueryForm.search} or a.name like concat('%',#{blockQueryForm.search},'%'))
+            </if>
+        </where>
+    </select>
+
+    <!--select IFNULL(count(contract),0) from tokens a-->
+    <select id="getCountForExit"  resultType="java.lang.Long">
+        select count(*) from tokens a where   a.type=#{tokenQueryForm.type}
+        <if test="tokenQueryForm.name!=null and tokenQueryForm.name!='' ">
+            and a.name=#{tokenQueryForm.name}
+        </if>
+        <if test="tokenQueryForm.symbol!=null and tokenQueryForm.symbol!='' ">
+            and a.symbol=#{tokenQueryForm.symbol}
+        </if>
+    </select>
+        
+</mapper>

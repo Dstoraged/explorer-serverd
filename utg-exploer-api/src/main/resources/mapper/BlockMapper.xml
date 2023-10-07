@@ -1,0 +1,194 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.imooc.mapper.BlockMapper">
+    <resultMap id="BaseResultMapAccount" type="com.imooc.pojo.Blocks">
+        <result column="hash"  property="hash" jdbcType="VARCHAR"/>
+        <result column="blockNumber"  property="blockNumber" jdbcType="BIGINT"/>
+        <result column="istrunk"  property="isTrunk" jdbcType="INTEGER"/>
+        <result column="timestamp"  property="timeStamp" jdbcType="TIMESTAMP"/>
+        <result column="mineraddress"  property="minerAddress" jdbcType="VARCHAR"/>
+        <result column="blocksize"  property="blockSize" jdbcType="INTEGER"/>
+        <result column="gaslimit"  property="gasLimit" jdbcType="BIGINT"/>
+        <result column="gasused"  property="gasUsed" jdbcType="BIGINT"/>
+        <result column="reward"  property="reward" jdbcType="DECIMAL"/>
+        <result column="txscount"  property="txsCount" jdbcType="INTEGER"/>
+        <result column="nonce"  property="nonce" jdbcType="VARCHAR"/>
+        <result column="difficulty"  property="difficulty" jdbcType="BIGINT"/>
+        <result column="totaldifficulty"  property="totalDifficulty" jdbcType="BIGINT"/>
+        <result column="parenthash"  property="parentHash" jdbcType="VARCHAR"/>
+        <result column="round"  property="round" jdbcType="INTEGER"/>
+    </resultMap>
+
+    <resultMap id="BaseResultBlockVo" type="com.imooc.pojo.vo.BlocksVo">
+        <result column="hash"  property="hash" jdbcType="VARCHAR"/>
+        <result column="blockNumber"  property="blockNumber" jdbcType="BIGINT"/>
+        <result column="istrunk"  property="isTrunk" jdbcType="INTEGER"/>
+        <result column="timestamp"  property="timeStamp" jdbcType="TIMESTAMP"/>
+        <result column="mineraddress"  property="minerAddress" jdbcType="VARCHAR"/>
+        <result column="blocksize"  property="blockSize" jdbcType="INTEGER"/>
+        <result column="gaslimit"  property="gasLimit" jdbcType="BIGINT"/>
+        <result column="gasused"  property="gasUsed" jdbcType="BIGINT"/>
+        <result column="reward"  property="reward" jdbcType="DECIMAL"/>
+        <result column="txscount"  property="txsCount" jdbcType="INTEGER"/>
+        <result column="nonce"  property="nonce" jdbcType="VARCHAR"/>
+        <result column="difficulty"  property="difficulty" jdbcType="BIGINT"/>
+        <result column="totaldifficulty"  property="totalDifficulty" jdbcType="BIGINT"/>
+        <result column="parenthash"  property="parentHash" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <resultMap id="BaseResultReward" type="com.imooc.pojo.vo.BlockRewardVo">
+        <result column="mineraddress"  property="minerAddress" jdbcType="VARCHAR"/>
+        <result column="round"  property="round" jdbcType="INTEGER"/>
+        <result column="reward"  property="reward" jdbcType="DECIMAL"/>
+    </resultMap>
+
+    <select id="getBeforeBlocks" resultType="java.util.Map">
+        select * from blocks a
+        where 1=1
+            <![CDATA[ and a.timestamp>=#{timeStp}]]>
+    </select>
+
+    <select id="getAfterBlocks" resultType="java.util.Map">
+        select * from blocks a
+        where 1=1
+            <![CDATA[ and a.timestamp<=#{timeStp}]]>
+    </select>
+
+    <select id="getLeatestBlockNumber" resultType="java.lang.Long">
+		select IFNULL(max(blocknumber),0)as blockNumber from blocks
+	</select>
+
+    <select id= "pageList"   resultMap="BaseResultBlockVo">
+        SELECT   A.hash,A.blockNumber,A.istrunk,A.timestamp,A.mineraddress,A.blocksize,A.gaslimit,A.gasused,A.reward,A.nonce,A.difficulty,A.totaldifficulty,A.parenthash,A.txscount as blockTransactionCount
+        FROM blocks A
+        <if test="address!=null and address!=''"> 
+        left join utg_node_miner n on A.mineraddress = n.node_address
+        </if>
+        where A.blockNumber >=#{startNumber}
+        <if test="address!=null and address!=''">
+            and (A.mineraddress = #{address} or n.revenue_address=#{address})
+        </if>
+        <if test="mineraddress!=null and mineraddress!=''">
+            and A.mineraddress = #{mineraddress}
+        </if>
+        <if test="burnflag!=null and burnflag==1">
+            and A.gasused > 0
+        </if>
+        <if test="blockNumber!=null and blockNumber>0">
+            and A.blocknumber > #{blockNumber}
+        </if>
+        order BY  A.blockNumber  DESC  LIMIT #{pageCurrent}, #{pageSize}
+	</select>
+
+    <select id= "getBlockInfoByNumber"   resultMap="BaseResultBlockVo">
+        select * from blocks where blocknumber=#{blockNumber}
+	</select>
+
+    <select id="getTotalCount"  resultType="java.lang.Long">
+        select count(*) from blocks A
+        <if test="address!=null and address!=''">  
+        left join utg_node_miner n on A.mineraddress = n.node_address
+        </if>
+        where 1=1
+        <if test="address!=null and address!=''">
+            and (A.mineraddress = #{address} or n.revenue_address=#{address})
+        </if>
+        <if test="mineraddress!=null and mineraddress!=''">
+            and A.mineraddress = #{mineraddress}
+        </if>
+        <if test="burnflag!=null and burnflag==1">
+            and A.gasused > 0
+        </if>
+        <if test="blockNumber!=null and blockNumber>0">
+            and A.blocknumber > #{blockNumber}
+        </if>
+
+	</select>
+
+    <select id= "getminBlock"   resultType="com.imooc.pojo.Blocks">
+        select * from blocks where blocknumber=#{blockNumber}
+	</select>
+
+    <select id="getCountByThisYear"  resultType="java.lang.Long">
+        select IFNULL(count(blocknumber),0) from blocks a
+        <where>
+            <if test="dateTime!=null and dateTime!=''">
+                <![CDATA[ and a.timestamp>#{dateTime} ]]>
+            </if>
+        </where>
+	</select>
+
+    <insert id="insertOrUpdate">
+      insert  into blocks
+        (
+         hash,blocknumber,istrunk,timestamp,mineraddress,blocksize,gaslimit,gasused,reward,txscount,nonce,difficulty,totaldifficulty,parenthash,round
+        ) values
+     (
+     #{accounts.hash},#{accounts.blockNumber},#{accounts.isTrunk},#{accounts.timeStamp},#{accounts.minerAddress},#{accounts.blockSize},#{accounts.gasLimit},#{accounts.gasUsed},#{accounts.reward},#{accounts.txsCount},#{accounts.nonce},#{accounts.difficulty},#{accounts.totalDifficulty},#{accounts.parentHash},#{accounts.round})
+      ON DUPLICATE KEY UPDATE
+      blocknumber=values(blockNumber),
+      hash=VALUES(hash)
+     </insert>
+
+    <select id="getAllRewardForaddress" parameterType="com.imooc.pojo.Form.DposVoterQueryForm" resultMap="BaseResultReward">
+      SELECT sum(reward) AS rewardTotal,mineraddress,round FROM blocks a
+        <where>
+        <if test="dposVoterQueryForm.round!=null and dposVoterQueryForm.round!='' ">
+            and a.round=#{dposVoterQueryForm.round}
+        </if>
+        </where>
+        GROUP BY mineraddress ORDER BY rewardTotal DESC
+    </select>
+
+    <select id="getTotalRewardCount" resultType="java.lang.Long">
+      select count(1) from (select mineraddress from blocks a
+        <where>
+        <if test="dposVoterQueryForm.round!=null and dposVoterQueryForm.round!='' ">
+            and a.round=#{dposVoterQueryForm.round}
+        </if>
+        </where>
+        group by mineraddress)
+        count
+    </select>
+
+
+    <select id="getTimeBeforBlockNumber" resultType="long">
+        select blocknumber from blocks where timestamp &lt;=#{timestamp} order by blocknumber desc limit 1
+    </select>
+    
+    <select id="getTimeAfterBlockNumber" resultType="long">
+        select blocknumber from blocks where timestamp &gt;=#{timestamp} order by blocknumber  limit 1
+    </select>
+    
+    <select id="getBlocksAfter">
+        select * from blocks where blocknumber &gt;= #{blockNumber} order by blocknumber desc
+    </select>
+    <select id="getBlocksGasBurn" resultType="DECIMAL">
+    select sum(t.reward)*0.5 from block_rewards  t where t.rewardtype='FeeReward' and  t.blocknumber>=#{blockNumber}
+    </select>
+    <delete id="truncBlock">
+        delete from blocks where blocknumber &gt;= #{blockNumber}
+    </delete>    
+    <delete id="truncBlockFork">
+        delete from block_fork where nephewnumber &gt;= #{blockNumber}
+    </delete>
+    <delete id="truncBlockRewards">
+        delete from block_rewards where blocknumber &gt;= #{blockNumber}
+    </delete>
+    <delete id="truncPunished">
+        delete from punished where blocknumber &gt;= #{blockNumber}
+    </delete>
+    <delete id="truncTransaction">
+        delete from transaction where blocknumber &gt;= #{blockNumber}
+    </delete>
+    <delete id="truncStorageSpace">
+        delete from storage_space where pledge_number &gt;= #{blockNumber}
+    </delete>
+    <delete id="truncStorageRent">
+        delete from storage_rent where rent_number &gt;= #{blockNumber}
+    </delete>
+    <delete id="truncStorageRequest">
+        delete from storage_request where req_number &gt;= #{blockNumber}
+    </delete>
+    
+</mapper>

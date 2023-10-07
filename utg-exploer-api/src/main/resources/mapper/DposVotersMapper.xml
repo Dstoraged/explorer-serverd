@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.imooc.mapper.DposVotesMapper">
+    <resultMap id="BaseAddrMapAccount" type="com.imooc.pojo.DposVotes">
+        <result column="id"  property="id" jdbcType="BIGINT"/>
+        <result column="loopstarttime"  property="loopStartTime" jdbcType="TIMESTAMP"/>
+        <result column="candidate"  property="candiDate" jdbcType="VARCHAR"/>
+        <result column="voter"  property="voter" jdbcType="VARCHAR"/>
+        <result column="stake"  property="stake" jdbcType="DECIMAL"/>
+        <result column="blocknumber"  property="blockNumber" jdbcType="BIGINT"/>
+        <result column="round"  property="round" jdbcType="BIGINT"/>
+    </resultMap>
+
+    <resultMap id="BaseDposVoterVo" type="com.imooc.pojo.vo.DposVoterVo">
+        <result column="stake"  property="stake" jdbcType="DECIMAL"/>
+        <result column="maxBlock"  property="maxBlock" jdbcType="BIGINT"/>
+        <result column="minBlock"  property="minBlock" jdbcType="BIGINT"/>
+        <result column="round"  property="round" jdbcType="BIGINT"/>
+        <result column="voterCount"  property="voterCount" jdbcType="BIGINT"/>
+    </resultMap>
+
+
+    <insert id="saveOrUpdate">
+      insert  into dposvotes
+        (
+         loopstarttime,candidate,voter,stake,blocknumber,round
+        ) values
+     (
+     #{item.loopStartTime},#{item.candiDate},#{item.voter},#{item.stake},#{item.blockNumber},#{item.round}
+     )
+      ON DUPLICATE KEY UPDATE
+      loopstarttime=values(loopStartTime),
+      candidate=VALUES(candiDate),
+      voter=VALUES(voter)
+     </insert>
+
+    <select id="selectVoterInfo" resultMap="BaseAddrMapAccount">
+        select * from dposvotes a where a.round=#{round} order by a.blocknumber desc limit #{pageCurrent},#{pageSize}
+    </select>
+
+    <select id="getVoterInfo" resultType="com.imooc.pojo.vo.DposVoterVo">
+      SELECT count(voter)as voterCount,sum( stake )as voterTotal,max( blocknumber )as maxBlock,min( blocknumber )as minBlock, round FROM  dposvotes
+      where round=#{round}
+    </select>
+
+    <!--max(blocknumber) AS maxBlock,min(blocknumber) AS minBlock,limit #{pageCurrent},#{pageSize}-->
+    <select id="getVoterPageList" resultMap="BaseDposVoterVo">
+     SELECT sum(stake) AS voterTotal,min(blocknumber) AS minBlock,round  FROM dposvotes group by round desc
+    </select>
+
+    <select id="getVoterPageCount" resultType="java.lang.Long">
+        select COUNT(distinct(round)) from dposvotes;
+    </select>
+
+    <select id="getTotalCountForRound" resultType="java.lang.Long">
+        select count(*) from dposvotes a where a.round=#{round}
+    </select>
+
+    <!--   ORDER BY a.stake DESC limit #{blockQueryForm.current}, #{blockQueryForm.size}-->
+    <select id="selectVoterNodeAddress" parameterType="com.imooc.pojo.Form.BlockQueryForm" resultMap="BaseAddrMapAccount">
+        select * from dposvotes a
+        <where>
+            <if test="blockQueryForm.round!=null and blockQueryForm.round!='' ">
+                and a.round=#{blockQueryForm.round}
+            </if>
+            <if test="blockQueryForm.address!=null and blockQueryForm.address!='' ">
+                and a.voter=#{blockQueryForm.address}
+            </if>
+            <if test="blockQueryForm.candidate!=null and blockQueryForm.candidate!='' ">
+                and a.candidate=#{blockQueryForm.candidate}
+            </if>
+        </where>
+
+    </select>
+
+    <select id="getTotalStake" parameterType="com.imooc.pojo.Form.BlockQueryForm" resultType="java.math.BigDecimal">
+        SELECT IFNULL(SUM(stake),0) from dposvotes a
+        <where>
+            <if test="blockQueryForm.round!=null and blockQueryForm.round!='' ">
+                and a.round=#{blockQueryForm.round}
+            </if>
+            <if test="blockQueryForm.address!=null and blockQueryForm.address!='' ">
+                and a.voter=#{blockQueryForm.address}
+            </if>
+            <if test="blockQueryForm.candidate!=null and blockQueryForm.candidate!='' ">
+                and a.candidate=#{blockQueryForm.candidate}
+            </if>
+
+        </where>
+    </select>
+
+    <select id="getTotalForAddress" parameterType="com.imooc.pojo.Form.BlockQueryForm"  resultType="java.lang.Long">
+        select count(*) from dposvotes a
+        <where>
+            <if test="blockQueryForm.round!=null and blockQueryForm.round!='' ">
+                and a.round=#{blockQueryForm.round}
+            </if>
+            <if test="blockQueryForm.address!=null and blockQueryForm.address!='' ">
+                and a.voter=#{blockQueryForm.address}
+            </if>
+            <if test="blockQueryForm.candidate!=null and blockQueryForm.candidate!='' ">
+                and a.candidate=#{blockQueryForm.candidate}
+            </if>
+        </where>
+    </select>
+
+    <select id="getTotalVoterDisitint"  resultType="java.lang.Long">
+        select count(DISTINCT voter)from dposvotes a where a.round=#{round}
+    </select>
+</mapper>

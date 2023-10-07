@@ -1,0 +1,291 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.imooc.mapper.StoragePoolMapper">
+    <resultMap id="BaseResultMap" type="com.imooc.pojo.StoragePool">
+        <result column="hash"      property="hash"    jdbcType="VARCHAR"/>
+        <result column="sp_addr"    property="spAddr"   jdbcType="VARCHAR"/>
+        <result column="manager_addr"    property="managerAddr"   jdbcType="VARCHAR"/>
+        <result column="pledge_addr"   property="pledgeAddr"  jdbcType="VARCHAR"/>
+        <result column="revenue_addr"   property="revenueAddr"  jdbcType="VARCHAR"/>        
+        <result column="active_status"  property="activeStatus" jdbcType="INTEGER"/>
+        <result column="total_capacity"  property="totalCapacity" jdbcType="DECIMAL"/>
+       <result column="used_capacity"  property="usedCapacity" jdbcType="DECIMAL"/>
+       <result column="pledge_amount"  property="pledgeAmount" jdbcType="DECIMAL"/>
+       <result column="hav_amount"  property="havAmount" jdbcType="DECIMAL"/>
+       <result column="manager_amount"  property="managerAmount" jdbcType="DECIMAL"/>
+       <result column="sp_amount"  property="spAmount" jdbcType="DECIMAL"/>
+       <result column="sp_release"  property="spRelease" jdbcType="DECIMAL"/>
+       <result column="sp_burnt"  property="spBurnt" jdbcType="DECIMAL"/>
+       <result column="fee_rate"  property="feeRate" jdbcType="INTEGER"/>
+       <result column="entrust_rate"  property="entrustRate" jdbcType="INTEGER"/>
+       <result column="storage_ratio"  property="storageRatio" jdbcType="DECIMAL"/>
+       <result column="active_height"  property="activeHeight" jdbcType="BIGINT"/>
+       <result column="instime"  property="instime" jdbcType="TIMESTAMP"/>
+       <result column="updatetime"  property="updatetime" jdbcType="TIMESTAMP"/>
+       <result column="createtime"  property="createtime" jdbcType="TIMESTAMP"/>
+       <result column="sn_num"  property="snNum" jdbcType="INTEGER"/>
+    </resultMap>
+    <insert id="insertPool" parameterType="com.imooc.pojo.StoragePool" useGeneratedKeys="true" keyProperty="hash">
+        insert into storage_pool (
+		 hash,sp_addr,manager_addr,pledge_addr,revenue_addr,active_status,total_capacity,used_capacity,pledge_amount,
+         hav_amount,manager_amount,sp_amount,sp_release,sp_burnt,fee_rate,entrust_rate,storage_ratio,active_height,
+         instime,updatetime,createtime,sn_num ) values (    
+		   #{hash},#{spAddr},#{managerAddr},#{pledgeAddr},#{revenueAddr},#{activeStatus},#{totalCapacity},#{usedCapacity},#{pledgeAmount},
+		   #{havAmount},#{managerAmount},#{spAmount},#{spRelease},#{spBurnt},#{feeRate},#{entrustRate},#{storageRatio},#{activeHeight},
+		   NOW(),NOW(),#{createtime},#{snNum}
+         ) 
+         ON DUPLICATE KEY UPDATE active_status = values(active_status),total_capacity=values(total_capacity)
+         ,updatetime = values(updatetime),used_capacity=values(used_capacity),pledge_amount=values(pledge_amount)
+         ,hav_amount=values(hav_amount),manager_amount=values(manager_amount),fee_rate=values(fee_rate),entrust_rate=values(entrust_rate)
+         ,storage_ratio=values(storage_ratio),revenue_addr=values(revenue_addr)
+    </insert>
+      <update id="updatePoolPledge" parameterType="com.imooc.pojo.StoragePool" >
+      update storage_pool  set  hav_amount=hav_amount+#{pledgeAmount},pledge_amount=pledge_amount+#{pledgeAmount} 
+      <if test="isManagerPledge!=null and  isManagerPledge==1">
+      ,manager_amount=manager_amount+#{managerAmount}
+      </if>
+       <if test="activeStatus !=null">
+      ,active_status=#{activeStatus}
+      </if>
+       where  hash=#{hash}
+      </update>
+      <update id="batchUpdateSp" parameterType="java.util.List">
+       <foreach collection="list" item="item" index="index" open="" close=""  separator=";"> 
+         update storage_pool 
+		set 
+		   <if test="item.spAddr!=null and  item.spAddr !=''">
+		   sp_addr=#{item.spAddr},
+		   </if>
+		   <if test="item.managerAddr !=null and  item.managerAddr !=''">
+		   manager_addr=#{item.managerAddr},
+		   </if>
+		    <if test="item.pledgeAddr !=null and  item.pledgeAddr !=''">
+		   pledge_addr=#{item.pledgeAddr},
+		   </if>
+		   revenue_addr=#{item.revenueAddr},
+		   
+		   <if test="item.activeStatus !=null">
+		   active_status=#{item.activeStatus},
+		   </if>
+		   <if test="item.totalCapacity !=null">
+		   total_capacity=#{item.totalCapacity},
+		   </if>
+		   <if test="item.usedCapacity !=null">
+		   used_capacity=#{item.usedCapacity},
+		   </if>
+		   <if test="item.pledgeAmount !=null">
+		   pledge_amount=#{item.pledgeAmount},
+		   </if>
+		   <if test="item.havAmount !=null">
+		   hav_amount=#{item.havAmount},
+		   </if>
+		   <if test="item.managerAmount !=null">
+		   manager_amount=#{item.managerAmount},
+		   </if>
+		   <if test="item.spAmount !=null">
+		   sp_amount=#{item.spAmount},
+		   </if>
+		   <if test="item.spRelease !=null">
+		   sp_release=#{item.spRelease},
+		   </if>
+		   <if test="item.spBurnt !=null">
+		   sp_burnt=#{item.spBurnt},
+		   </if>
+		    <if test="item.feeRate !=null">
+		   fee_rate=#{item.feeRate},
+		   </if>
+		   <if test="item.entrustRate !=null">
+		   entrust_rate=#{item.entrustRate},
+		   </if>
+		   <if test="item.storageRatio !=null">
+		   storage_ratio=#{item.storageRatio},
+		   </if>
+		   <if test="item.activeHeight !=null">
+		   active_height=#{item.activeHeight},
+		   </if>
+		   <if test="item.snSpaceCapacity !=null">
+		   used_capacity=used_capacity-#{item.snSpaceCapacity},
+		   </if>
+		   
+		   updatetime=NOW() 
+		 
+		where hash = #{item.hash} 
+       </foreach>
+    </update>
+    <update id="updatePool" parameterType="com.imooc.pojo.StoragePool" >
+      update storage_pool 
+		set 
+		   <if test="snNum!=null and  snNum >=0">
+		   sn_num=#{snNum},
+		   </if>
+		   <if test="spAddr!=null and  spAddr !=''">
+		   sp_addr=#{spAddr},
+		   </if>
+		   <if test="managerAddr !=null and  managerAddr !=''">
+		   manager_addr=#{managerAddr},
+		   </if>
+		    <if test="pledgeAddr !=null and  pledgeAddr !=''">
+		   pledge_addr=#{pledgeAddr},
+		   </if>
+		   <if test="revenueAddr !=null and  revenueAddr !=''">
+		   revenue_addr=#{revenueAddr},
+		   </if>
+		   <if test="activeStatus !=null">
+		   active_status=#{activeStatus},
+		   </if>
+		   <if test="totalCapacity !=null">
+		   total_capacity=#{totalCapacity},
+		   </if>
+		   <if test="usedCapacity !=null">
+		   used_capacity=#{usedCapacity},
+		   </if>
+		   <if test="pledgeAmount !=null">
+		   pledge_amount=#{pledgeAmount},
+		   </if>
+		   <if test="havAmount !=null">
+		   hav_amount=#{havAmount},
+		   </if>
+		   <if test="managerAmount !=null">
+		   manager_amount=#{managerAmount},
+		   </if>
+		   <if test="spAmount !=null">
+		   sp_amount=#{spAmount},
+		   </if>
+		   <if test="spRelease !=null">
+		   sp_release=#{spRelease},
+		   </if>
+		   <if test="spBurnt !=null">
+		   sp_burnt=#{spBurnt},
+		   </if>
+		    <if test="feeRate !=null">
+		   fee_rate=#{feeRate},
+		   </if>
+		   <if test="entrustRate !=null">
+		   entrust_rate=#{entrustRate},
+		   </if>
+		   <if test="storageRatio !=null">
+		   storage_ratio=#{storageRatio},
+		   </if>
+		   <if test="activeHeight !=null">
+		   active_height=#{activeHeight},
+		   </if>
+		   <if test="snSpaceCapacity !=null">
+		   used_capacity=used_capacity-#{snSpaceCapacity},
+		   </if>
+		    <if test="unbind !=null">
+		   revenue_addr=null,
+		   </if>
+		   updatetime=NOW() 
+		 
+		where hash = #{hash} 
+    </update>
+    <select id="getStoragePoolList" resultMap="BaseResultMap">
+       select t.* 
+        from storage_pool t 
+        <where>
+            <if test="storagePoolForm.managerAddr !=null and storagePoolForm.managerAddr !=''">
+                  and t.manager_addr=#{storagePoolForm.managerAddr}
+            </if>
+            <if test="storagePoolForm.status !=null ">
+                  and t.active_status=#{storagePoolForm.status}
+            </if>
+            <if test="storagePoolForm.revenueAddr !=null and storagePoolForm.revenueAddr !=''">
+                  and t.revenue_addr=#{storagePoolForm.revenueAddr}
+            </if>
+           <if test="storagePoolForm.statusList !=null and storagePoolForm.statusList.length>0">
+             and t.active_status in 
+                <foreach collection="storagePoolForm.statusList" item="item" index="index" open="(" separator="," close=")">
+                #{item}
+             </foreach>
+            </if>
+        </where>
+    </select>
+    <select id="getPageList" resultMap="BaseResultMap">
+       select t.* 
+        from storage_pool t 
+        <where>
+            <if test="storagePoolForm.managerAddr !=null and storagePoolForm.managerAddr !=''">
+                  and t.manager_addr=#{storagePoolForm.managerAddr}
+            </if>
+            <if test="storagePoolForm.status !=null ">
+                  and t.active_status=#{storagePoolForm.status}
+            </if>
+            <if test="storagePoolForm.revenueAddr !=null and storagePoolForm.revenueAddr !=''">
+                  and t.revenue_addr=#{storagePoolForm.revenueAddr}
+            </if>
+            <if test="storagePoolForm.query !=null and storagePoolForm.query !=''">
+                  and (t.revenue_addr=#{storagePoolForm.query} or t.manager_addr=#{storagePoolForm.query}
+                  or t.hash=#{storagePoolForm.query} or t.sp_addr=#{storagePoolForm.query})
+            </if>
+            <if test="storagePoolForm.statusList !=null and storagePoolForm.statusList.length>0">
+             and t.active_status in 
+                <foreach collection="storagePoolForm.statusList" item="item" index="index" open="(" separator="," close=")">
+                #{item}
+             </foreach>
+            </if>
+           
+        </where>
+        order by t.active_status ASC,  t.active_height DESC limit #{storagePoolForm.current}, #{storagePoolForm.size}
+    </select>
+
+    <select id="getTotal" resultType="java.lang.Long">
+        select count(1) 
+        from storage_pool t 
+        <where>
+           <if test="storagePoolForm.managerAddr !=null and storagePoolForm.managerAddr !=''">
+                  and t.manager_addr=#{storagePoolForm.managerAddr}
+            </if>
+           <if test="storagePoolForm.status !=null ">
+                  and t.active_status=#{storagePoolForm.status}
+            </if>
+            <if test="storagePoolForm.revenueAddr !=null and storagePoolForm.revenueAddr !=''">
+                  and t.revenue_addr=#{storagePoolForm.revenueAddr}
+            </if>
+            <if test="storagePoolForm.query !=null and storagePoolForm.query !=''">
+                  and (t.revenue_addr=#{storagePoolForm.query} or t.manager_addr=#{storagePoolForm.query}
+                  or t.hash=#{storagePoolForm.query} or t.sp_addr=#{storagePoolForm.query})
+            </if>
+            <if test="storagePoolForm.statusList !=null and storagePoolForm.statusList.length>0">
+             and t.active_status in 
+                <foreach collection="storagePoolForm.statusList" item="item" index="index" open="(" separator="," close=")">
+                #{item}
+             </foreach>
+            </if>
+        </where>  
+    </select>
+    <select id="getPoolInfo" resultMap="BaseResultMap">
+      select t.*  
+       from storage_pool t
+      where t.hash = #{id}  or t.sp_addr=#{id}
+      
+      order by t.active_height desc limit 1
+    </select>
+    
+    <update id="updateStoragePoolAmount">
+        update storage_pool t
+		left join (select address,ifnull(sum(totalamount),0) sp_amount,ifnull(sum(releaseamount),0) sp_release,ifnull(sum(burntamount),0) sp_burnt from transfer_miner where type=21 group by address ) t2 
+		  on t.sp_addr = t2.address
+		set t.sp_amount=t2.sp_amount,
+		 t.sp_release=t2.sp_release,
+		 t.sp_burnt=t2.sp_burnt
+    </update>
+    <update id="updateStoragePoolSn">
+        update storage_pool t
+		left join (select spc.sp_hash,count(1) as snNum from  storage_space  spc  GROUP BY spc.sp_hash) t2 
+		  on t.hash = t2.sp_hash
+		set t.sn_num=t2.snNum
+    </update>
+    
+    <update id="batchUpdateSpSnNum" parameterType="java.util.Collection">
+       <foreach collection="list" item="item" index="index" open="" close=""  separator=";">
+      update storage_pool 
+		set 
+		   <if test="item.snNum !=null and  item.snNum !=''">
+		   sn_num=#{item.snNum},
+		   </if>
+		   updatetime=NOW() 
+		 
+		where hash = #{item.hash}
+		</foreach> 
+    </update>
+  </mapper>  

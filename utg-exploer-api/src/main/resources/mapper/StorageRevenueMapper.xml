@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.imooc.mapper.StorageRevenueMapper">
+    <resultMap id="BaseResultMap" type="com.imooc.pojo.StorageRevenue">
+        <result column="revenueid"      property="revenueid"    jdbcType="BIGINT"/>
+        <result column="revenue_addr"   property="revenueAddr"  jdbcType="VARCHAR"/>
+        <result column="ratio"          property="ratio"        jdbcType="DECIMAL"/>
+        <result column="capacity"       property="capacity"     jdbcType="DECIMAL"/>
+        <result column="updatetime"     property="updatetime"   jdbcType="TIMESTAMP"/>
+        
+        <result column="storage_amount" property="storage_amount"  jdbcType="DECIMAL"/>
+        <result column="storage_release" property="storage_release" jdbcType="DECIMAL"/>
+        <result column="storage_burnt"  property="storage_burnt" jdbcType="DECIMAL"/>
+        <result column="rent_amount"    property="rent_amount"  jdbcType="DECIMAL"/>
+        <result column="rent_release"   property="rent_release" jdbcType="DECIMAL"/>
+        <result column="rent_burnt"     property="rent_burnt"   jdbcType="DECIMAL"/>
+        
+        <result column="totalamount"    property="totalamount"  jdbcType="DECIMAL"/>
+        <result column="releaseamount"  property="releaseamount" jdbcType="DECIMAL"/>
+        <result column="burntamount"    property="burntamount" jdbcType="DECIMAL"/>        
+        <result column="declare_space"  property="declareSpace" jdbcType="DECIMAL"/>
+    </resultMap>
+    
+        
+    <select id="getRevenueInfo" resultMap="BaseResultMap">
+		select t.*,t2.declare_space,
+		(ifnull(t.storage_amount,0)+ifnull(t.rent_amount,0)) totalamount,
+		(ifnull(t.storage_release,0)+ifnull(t.rent_release,0)) releaseamount,
+		(ifnull(t.storage_burnt,0)+ifnull(t.rent_burnt,0)) burntamount		
+		from storage_revenue t
+		left join (select revenue_addr,sum(declare_space) declare_space from storage_space where pledge_status=0 group by revenue_addr) t2 on t.revenue_addr = t2.revenue_addr		
+		where t.revenue_addr = #{revenue_addr}
+    </select>
+    
+    <select id="getRevenueInfoTyped" resultMap="BaseResultMap">
+        select t.*,t1.totalamount,t1.releaseamount,t1.burntamount,t2.declare_space
+        from storage_revenue t
+        left join (select revenueaddress,sum(totalamount) totalamount,sum(releaseamount) releaseamount,ifnull(sum(burntamount),0) burntamount from transfer_miner where 1=1 and revenueaddress = #{revenue_addr}
+        <if test="type!=null">
+            and type=#{type}
+        </if>
+        <if test="types !=null and types.length>0">
+            and type in
+            <foreach collection="types" item="item" index="index" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+        ) t1 on t.revenue_addr = t1.revenueaddress
+        left join (select revenue_addr,sum(declare_space) declare_space from storage_space where pledge_status=0 group by revenue_addr) t2 on t.revenue_addr = t2.revenue_addr      
+        where t.revenue_addr = #{revenue_addr}
+    </select>
+    
+    <select id="getRevenueStat" resultMap="BaseResultMap">
+        select revenueaddress,sum(totalamount) totalamount,sum(releaseamount) releaseamount,sum(burntamount) burntamount from transfer_miner 
+        where 1=1 and revenueaddress = #{revenue_addr}
+        <if test="type!=null">
+            and type=#{type}
+        </if>
+        <if test="types !=null and types.length>0">
+            and type in
+            <foreach collection="types" item="item" index="index" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+    </select>    
+     
+    <select id="getPageList" resultMap="BaseResultMap">
+        select t.*,t2.declare_space,
+          (ifnull(t.storage_amount,0)+ifnull(t.rent_amount,0)) totalamount,
+          (ifnull(t.storage_release,0)+ifnull(t.rent_release,0)) releaseamount,
+          (ifnull(t.storage_burnt,0)+ifnull(t.rent_burnt,0)) burntamount
+        from storage_revenue t      
+        left join (select revenue_addr,sum(declare_space) declare_space from storage_space where pledge_status=0 group by revenue_addr) t2 on t.revenue_addr = t2.revenue_addr  
+        <where>
+            <if test="storageQueryForm.revenue_addr!=null and storageQueryForm.revenue_addr!=''">
+                  and t.revenue_addr=#{storageQueryForm.revenue_addr}
+            </if>            
+        </where>
+        ORDER BY totalamount DESC 
+        limit #{storageQueryForm.current}, #{storageQueryForm.size}
+    </select>
+
+    <select id="getTotal" resultType="java.lang.Long">
+        select count(*) from storage_revenue t
+        <where>
+            <if test="storageQueryForm.revenue_addr!=null and storageQueryForm.revenue_addr!=''">
+                  and t.revenue_addr=#{storageQueryForm.revenue_addr}
+            </if>            
+        </where>
+    </select>
+        
+    <select id="getAllList" resultMap="BaseResultMap">
+        select t.*,null totalamount,null releaseamount
+        from storage_revenue t                
+        order BY t.revenueid DESC
+    </select>
+    
+    <update id="updateRevenueAmount">
+        update storage_revenue t
+		left join (
+		  select revenueaddress,ifnull(sum(totalamount),0) storage_amount,ifnull(sum(releaseamount),0) storage_release,ifnull(sum(burntamount),0) storage_burnt from transfer_miner where type=9 group by revenueaddress 
+		) t2 on t.revenue_addr = t2.revenueaddress
+		left join (
+		  select revenueaddress,ifnull(sum(totalamount),0) rent_amount,ifnull(sum(releaseamount),0) rent_release,ifnull(sum(burntamount),0) rent_burnt from transfer_miner where type=5 group by revenueaddress 
+		) t3 on t.revenue_addr = t3.revenueaddress
+		set t.storage_amount=t2.storage_amount,
+		 t.storage_release=t2.storage_release,
+		 t.storage_burnt=t2.storage_burnt,
+		 t.rent_amount=t3.rent_amount,
+		 t.rent_release=t3.rent_release,
+		 t.rent_burnt=t3.rent_burnt        
+    </update>
+            
+</mapper>

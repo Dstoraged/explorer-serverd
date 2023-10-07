@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.imooc.mapper.NodeLjRewardMapper">
+    <resultMap id="BaseResultMap" type="com.imooc.pojo.NodeReward">
+        <result column="reward_id"      property="rewardId"    jdbcType="INTEGER"/>
+        <result column="target_address"    property="targetAddress"   jdbcType="VARCHAR"/>
+        <result column="node_address"    property="nodeAddress"   jdbcType="VARCHAR"/>
+        <result column="revenue_address"   property="revenueAddress"  jdbcType="VARCHAR"/>
+        <result column="node_type"   property="nodeType"  jdbcType="VARCHAR"/>        
+        <result column="reward_type"  property="rewardType" jdbcType="INTEGER"/>
+        <result column="leiji_amount"  property="leijiAmount" jdbcType="DECIMAL"/>
+       <result column="reward_amount"  property="rewardAmount" jdbcType="DECIMAL"/>
+       <result column="block_number"  property="blockNumber" jdbcType="BIGINT"/>
+       <result column="reward_time"  property="rewardTime" jdbcType="TIMESTAMP"/>
+       <result column="instime"  property="instime" jdbcType="TIMESTAMP"/>
+    </resultMap>
+    <insert id="insertNodeLjReward" parameterType="com.imooc.pojo.NodeReward" useGeneratedKeys="true" keyProperty="rewardId">
+        insert into node_reward (
+		 target_address,node_address,revenue_address,node_type
+         ,reward_type,leiji_amount,reward_amount,block_number,reward_time,instime
+         ) values 
+         <foreach collection="rewardList" item="reward" index="index" separator=",">
+         (    
+		   #{reward.targetAddress},#{reward.nodeAddress},#{reward.revenueAddress},#{reward.nodeType},#{reward.rewardType},#{reward.leijiAmount}
+		   ,#{reward.rewardAmount},#{reward.blockNumber},
+		   #{reward.rewardTime},NOW()
+         )
+         </foreach>
+         
+    </insert>
+    <update id="updateNodeLjReward" parameterType="com.imooc.pojo.NodeReward" >
+       <foreach collection="list" item="item" index="index" open="" close=""  separator=";"> 
+       update node_reward set leiji_amount=#{leijiAmount},reward_amount=#{rewardAmount}
+        where  reward_id=#{rewardId}
+       </foreach>
+       
+    </update>
+    <select id="getNodeRewardByBlock" resultMap="BaseResultMap">
+    select reward_id,CONCAT(target_address,node_address,reward_type,node_type)   target_address 
+    from node_reward t where block_number=#{blockNumber}
+    </select>
+    <select id="getNodeRewardStat" resultMap="BaseResultMap">
+     select t.node_type,t.reward_type,sum(t.reward_amount) reward_amount   
+     from node_reward t  where t.block_number>=#{blockNumber}  
+     GROUP BY  t.node_type,t.reward_type 
+    </select>
+    <select id="getPageList" resultMap="BaseResultMap">
+       select t.* 
+        from node_reward t 
+        <where>
+            <if test="ljForm.nodeAddress !=null and ljForm.nodeAddress !=''">
+                  and t.node_address=#{ljForm.nodeAddress}
+            </if>
+            <if test="ljForm.targetAddress !=null and ljForm.targetAddress !=''">
+                  and t.target_address=#{ljForm.targetAddress}
+            </if>
+            <if test="ljForm.revenueAddress !=null and ljForm.revenueAddress !=''">
+                  and t.revenue_address=#{ljForm.revenueAddress}
+            </if>
+            <if test="ljForm.nodeType !=null and ljForm.nodeType !=''">
+                  and t.node_type=#{ljForm.nodeType}
+            </if>
+            <if test="ljForm.rewardType !=null">
+                  and t.reward_type=#{ljForm.rewardType}
+            </if>
+           <if test="ljForm.blockNumber !=null and ljForm.blockNumber >0">
+                  and t.block_number>=#{ljForm.blockNumber}
+            </if>
+        </where>
+        order by t.block_number desc limit #{ljForm.current}, #{ljForm.size}
+    </select>
+
+    <select id="getTotal" resultType="java.lang.Long">
+       select count(1)
+        from node_reward t 
+        <where>
+           <if test="ljForm.nodeAddress !=null and ljForm.nodeAddress !=''">
+                  and t.node_address=#{ljForm.nodeAddress}
+            </if>
+            <if test="ljForm.targetAddress !=null and ljForm.targetAddress !=''">
+                  and t.target_address=#{ljForm.targetAddress}
+            </if>
+            <if test="ljForm.revenueAddress !=null and ljForm.revenueAddress !=''">
+                  and t.revenue_address=#{ljForm.revenueAddress}
+            </if>
+            <if test="ljForm.nodeType !=null and ljForm.nodeType !=''">
+                  and t.node_type=#{ljForm.nodeType}
+            </if>
+            <if test="ljForm.rewardType !=null">
+                  and t.reward_type=#{ljForm.rewardType}
+            </if>
+            <if test="ljForm.blockNumber !=null and ljForm.blockNumber >0">
+                  and t.block_number>=#{ljForm.blockNumber}
+            </if>
+        </where>  
+    </select>
+    </mapper>
+   

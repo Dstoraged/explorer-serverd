@@ -1,0 +1,634 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.imooc.mapper.NodeExitMapper">
+    <resultMap id="BaseResultMapPunished" type="com.imooc.pojo.NodeExit">
+        <result column="id"  property="id" jdbcType="BIGINT"/>
+        <result column="timestamp"  property="timeStamp" jdbcType="TIMESTAMP"/>
+        <result column="addressname"  property="addressName" jdbcType="VARCHAR"/>
+        <result column="pledgeamount"  property="pledgeAmount" jdbcType="DECIMAL"/>
+        <result column="deductionamount"  property="deductionAmount" jdbcType="DECIMAL"/>
+        <result column="tractamount"  property="tractAmount" jdbcType="DECIMAL"/>
+        <result column="lockstartnumber"  property="lockStartNumber" jdbcType="BIGINT"/>
+        <result column="locknumber"  property="lockNumber" jdbcType="BIGINT"/>
+        <result column="releasenumber"  property="releaseNumber" jdbcType="BIGINT"/>
+        <result column="releaseinterval"  property="releaseInterval" jdbcType="BIGINT"/>
+        <result column="sp_hash"  property="spHash" jdbcType="VARCHAR"/>
+        <result column="node_type"  property="nodeType" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <select id="getPageList" resultMap="BaseResultMapPunished">
+        select  * from node_exit a
+        <where>
+            <if test="blockQueryForm.toAddr!=null and blockQueryForm.toAddr!='' ">
+                and a.addressname=#{blockQueryForm.toAddr}
+            </if>
+        </where>
+        ORDER BY a.id DESC limit #{blockQueryForm.current}, #{blockQueryForm.size}
+    </select>
+
+    <select id="getTotal" resultType="java.lang.Long">
+       select count(*) from node_exit
+
+    </select>
+
+
+    <select id="getNodePageList" resultType="com.imooc.pojo.UtgNodeMiner" parameterType="com.imooc.pojo.Form.UtgNodeMinerQueryForm">
+        select a.* from utg_node_miner a               
+        <where>
+            <if test="UtgNodeMinerQueryForm.address!=null and UtgNodeMinerQueryForm.address!='' ">
+                and ( a.node_address=#{UtgNodeMinerQueryForm.address} or a.revenue_address=#{UtgNodeMinerQueryForm.address} or a.manage_address=#{UtgNodeMinerQueryForm.address} )
+            </if>
+            <if test="UtgNodeMinerQueryForm.node_address!=null and UtgNodeMinerQueryForm.node_address!='' ">
+                and a.node_address=#{UtgNodeMinerQueryForm.node_address}
+            </if>
+            <if test="UtgNodeMinerQueryForm.revenue_address!=null and UtgNodeMinerQueryForm.revenue_address!='' ">
+                and a.revenue_address=#{UtgNodeMinerQueryForm.revenue_address}
+            </if>
+            <if test="UtgNodeMinerQueryForm.manage_address!=null and UtgNodeMinerQueryForm.manage_address!='' ">
+                and a.manage_address=#{UtgNodeMinerQueryForm.manage_address}
+            </if>
+            <if test="UtgNodeMinerQueryForm.node_type!=null and UtgNodeMinerQueryForm.node_type!='' ">
+                and a.node_type=#{UtgNodeMinerQueryForm.node_type}
+            </if>
+             <if test="UtgNodeMinerQueryForm.types !=null and UtgNodeMinerQueryForm.types.length>0">
+              and a.node_type in 
+              <foreach collection="UtgNodeMinerQueryForm.types" item="item" index="index" open="(" separator="," close=")">
+                #{item}
+             </foreach>
+             </if>
+           
+        </where>
+        ORDER BY join_time DESC limit #{UtgNodeMinerQueryForm.current}, #{UtgNodeMinerQueryForm.size}
+    </select>
+    
+    
+    <select id="getNodeRewardList" resultType="com.imooc.pojo.UtgNodeMiner" parameterType="com.imooc.pojo.Form.UtgNodeMinerQueryForm">
+        select a.*,t1.totalamount,t1.releaseamount
+         from utg_node_miner a
+        left join (select address,sum(totalamount) totalamount,sum(releaseamount) releaseamount from transfer_miner where type in (1,3) group by address) t1 on a.node_address = t1.address         
+        <where>
+            <if test="UtgNodeMinerQueryForm.address!=null and UtgNodeMinerQueryForm.address!='' ">
+                and ( a.node_address=#{UtgNodeMinerQueryForm.address} or a.revenue_address=#{UtgNodeMinerQueryForm.address} or a.manage_address=#{UtgNodeMinerQueryForm.address} )
+            </if>
+            <if test="UtgNodeMinerQueryForm.node_address!=null and UtgNodeMinerQueryForm.node_address!='' ">
+                and a.node_address=#{UtgNodeMinerQueryForm.node_address}
+            </if>
+            <if test="UtgNodeMinerQueryForm.revenue_address!=null and UtgNodeMinerQueryForm.revenue_address!='' ">
+                and a.revenue_address=#{UtgNodeMinerQueryForm.revenue_address}
+            </if>
+            <if test="UtgNodeMinerQueryForm.manage_address!=null and UtgNodeMinerQueryForm.manage_address!='' ">
+                and a.manage_address=#{UtgNodeMinerQueryForm.manage_address}
+            </if>
+            <if test="UtgNodeMinerQueryForm.node_type!=null and UtgNodeMinerQueryForm.node_type!='' ">
+                and a.node_type=#{UtgNodeMinerQueryForm.node_type}
+            </if>
+            <if test="UtgNodeMinerQueryForm.types !=null and UtgNodeMinerQueryForm.types.length>0">
+              and a.node_type in 
+              <foreach collection="UtgNodeMinerQueryForm.types" item="item" index="index" open="(" separator="," close=")">
+                #{item}
+             </foreach>
+                   
+             </if>
+        </where>
+        ORDER BY join_time DESC limit #{UtgNodeMinerQueryForm.current}, #{UtgNodeMinerQueryForm.size}
+    </select>
+
+    <select id="getNodeTotal" resultType="java.lang.Long" parameterType="com.imooc.pojo.Form.UtgNodeMinerQueryForm">
+        select count(*) from utg_node_miner a
+        <where>
+            <if test="UtgNodeMinerQueryForm.address!=null and UtgNodeMinerQueryForm.address!='' ">
+                and ( a.node_address=#{UtgNodeMinerQueryForm.address} or a.revenue_address=#{UtgNodeMinerQueryForm.address} or a.manage_address=#{UtgNodeMinerQueryForm.address} )
+            </if>
+            <if test="UtgNodeMinerQueryForm.node_address!=null and UtgNodeMinerQueryForm.node_address!='' ">
+                and a.node_address=#{UtgNodeMinerQueryForm.node_address}
+            </if>
+            <if test="UtgNodeMinerQueryForm.revenue_address!=null and UtgNodeMinerQueryForm.revenue_address!='' ">
+                and a.revenue_address=#{UtgNodeMinerQueryForm.revenue_address}
+            </if>
+            <if test="UtgNodeMinerQueryForm.manage_address!=null and UtgNodeMinerQueryForm.manage_address!='' ">
+                and a.manage_address=#{UtgNodeMinerQueryForm.manage_address}
+            </if>
+            <if test="UtgNodeMinerQueryForm.node_type!=null and UtgNodeMinerQueryForm.node_type!='' ">
+                and a.node_type=#{UtgNodeMinerQueryForm.node_type}
+            </if>
+            <if test="UtgNodeMinerQueryForm.types !=null and UtgNodeMinerQueryForm.types.length>0">
+              and a.node_type in 
+              <foreach collection="UtgNodeMinerQueryForm.types" item="item" index="index" open="(" separator="," close=")">
+                #{item}
+             </foreach>
+                   
+             </if>
+        </where>
+    </select>
+
+    <select id="getNode" resultType="com.imooc.pojo.UtgNodeMiner" parameterType="com.imooc.pojo.Form.UtgNodeMinerQueryForm">
+        select  * from utg_node_miner a
+            where a.node_address=#{UtgNodeMinerQueryForm.node_address}
+    </select>
+
+    <select id="getNodeByRev" resultType="java.lang.Long"  parameterType="com.imooc.pojo.Form.UtgNodeMinerQueryForm">
+        select  count(1) from utg_node_miner a
+        where a.revenue_address=#{UtgNodeMinerQueryForm.revenue_address}
+    </select>
+
+    <select id="getNodeExistRealse" resultType="java.lang.Long">
+        select count(1) from transfer_miner where type=3
+                                              and address=#{address}
+         <![CDATA[ and   totalamount>releaseamount ]]>
+    </select>
+
+    <insert id="saveOrUpdateNodeMiner">
+        insert  into utg_node_miner
+        (
+            node_address,manage_address,node_type,rate,pledge_amount,total_amount,sync_time,join_time,blocknumber,punish_block,exit_type
+        ) values
+            (
+                #{UtgNodeMiner.node_address},#{UtgNodeMiner.manage_address},#{UtgNodeMiner.node_type},#{UtgNodeMiner.rate},#{UtgNodeMiner.pledge_amount},
+                #{UtgNodeMiner.total_amount},#{UtgNodeMiner.join_time},#{UtgNodeMiner.sync_time},#{UtgNodeMiner.blocknumber},#{UtgNodeMiner.punish_block},#{UtgNodeMiner.exit_type}
+            )ON DUPLICATE KEY UPDATE
+            node_type=values(node_type),
+            manage_address=VALUES(manage_address),
+            rate=VALUES(rate),
+            pledge_amount=VALUES(pledge_amount),
+            total_amount=VALUES(total_amount),
+            total_amount=VALUES(total_amount),
+            
+            join_time=VALUES(join_time),
+            punish_block=VALUES(punish_block),
+            exit_type=values(exit_type)
+    </insert>
+
+    <update id="updateNodeMiner">
+        update utg_node_miner set sync_time=#{UtgNodeMiner.sync_time}
+        <if test="UtgNodeMiner.node_type!=null">
+            , node_type = #{UtgNodeMiner.node_type}
+        </if>
+        <if test="UtgNodeMiner.revenue_address!=null">
+            , revenue_address = #{UtgNodeMiner.revenue_address}
+        </if>
+        <if test="UtgNodeMiner.manage_address!=null">
+            , manage_address = #{UtgNodeMiner.manage_address}
+        </if>
+        <if test="UtgNodeMiner.fractions!=null">
+            , fractions = #{UtgNodeMiner.fractions}
+        </if>
+        <if test="UtgNodeMiner.pledge_amount!=null">
+            , pledge_amount = #{UtgNodeMiner.pledge_amount}
+        </if>
+        <if test="UtgNodeMiner.blocknumber!=null">
+            , blocknumber = #{UtgNodeMiner.blocknumber}
+        </if>
+        <if test="UtgNodeMiner.join_time!=null">
+            , join_time = #{UtgNodeMiner.join_time}
+        </if>
+        <if test="UtgNodeMiner.total_amount!=null">
+            , total_amount = #{UtgNodeMiner.total_amount}
+        </if>
+        <if test="UtgNodeMiner.rate!=null">
+            , rate = #{UtgNodeMiner.rate}
+        </if>
+        <if test="UtgNodeMiner.punish_block!=null">
+            , punish_block = #{UtgNodeMiner.punish_block}
+        </if>        
+        <if test="UtgNodeMiner.exit_type!=null">
+            , exit_type = #{UtgNodeMiner.exit_type}
+        </if>
+        where node_address=#{UtgNodeMiner.node_address}
+    </update>
+
+    <select id="getNodeListNotExit" resultType="com.imooc.pojo.UtgNodeMiner">
+        select  * from utg_node_miner a where node_type in (1,2)
+    </select>
+
+    <update id="updateNodeStatus">
+        update utg_node_miner set node_type=#{UtgNodeMiner.node_type}, sync_time=#{UtgNodeMiner.sync_time}
+        where node_type in (1,2) and   node_address=#{UtgNodeMiner.node_address}
+    </update>
+
+
+    <update id="updateNodeBatch" parameterType="java.util.List">
+            update utg_node_miner
+               set fractions=0
+            where node_address not  in
+            <foreach item="item" index="index" collection="list" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+    </update>
+
+    <select id="getLeftamount" resultType="java.math.BigDecimal">
+        select totalamount-releaseamount from `transfer_miner` a
+        where a.address=#{address} and a.type=#{type} ORDER BY blocknumber desc limit 1
+    </select>
+    
+    
+    <select id="getNodeManagePledgeCount" resultType="long">
+       select count(*) from node_pledge t
+        join utg_node_miner t0 on t.node_address=t0.node_address and t.pledge_address=t0.manage_address
+        where t.node_address=#{node_address}
+    </select>
+    <select id="getNodePledgeListCache" resultType="com.imooc.pojo.NodePledge" parameterType="com.imooc.pojo.Form.UtgNodeMinerQueryForm">
+        select a.*  from node_pledge a 
+           
+        <where>
+            <if test="UtgNodeMinerQueryForm.node_address!=null and UtgNodeMinerQueryForm.node_address!='' ">
+                and a.node_address=#{UtgNodeMinerQueryForm.node_address}
+            </if>
+            <if test="UtgNodeMinerQueryForm.pledge_address!=null and UtgNodeMinerQueryForm.pledge_address!='' ">
+                and a.pledge_address=#{UtgNodeMinerQueryForm.pledge_address}
+            </if>
+            <if test="UtgNodeMinerQueryForm.address!=null and UtgNodeMinerQueryForm.address!='' ">
+                and (a.node_address=#{UtgNodeMinerQueryForm.address} or  a.pledge_address=#{UtgNodeMinerQueryForm.address} )
+            </if>
+            <if test="UtgNodeMinerQueryForm.pledge_status!=null ">
+                and a.pledge_status=#{UtgNodeMinerQueryForm.pledge_status}
+            </if>
+            <if test="UtgNodeMinerQueryForm.unpledge_type!=null ">
+                and a.unpledge_type=#{UtgNodeMinerQueryForm.unpledge_type}
+            </if>
+            <if test="UtgNodeMinerQueryForm.etType!=null ">
+                and a.node_type=#{UtgNodeMinerQueryForm.etType}
+            </if>
+        </where>
+        ORDER BY pledge_time DESC 
+    </select>
+    <select id="getNodePledgePageList" resultType="com.imooc.pojo.NodePledge" parameterType="com.imooc.pojo.Form.UtgNodeMinerQueryForm">
+        select * from (
+        select a.*
+        <if test="UtgNodeMinerQueryForm.etType!=null">
+         <if test="UtgNodeMinerQueryForm.etType=='PoS'">
+         ,t0.blocknumber node_number,t0.manage_address,t0.total_amount
+        </if>
+        <if test="UtgNodeMinerQueryForm.etType=='SP'">
+         ,t0.active_height node_number,t0.manager_addr manage_address,t0.pledge_amount totalAmount
+        </if>
+        <if test="UtgNodeMinerQueryForm.etType=='SN'">
+         ,t0.pledge_number node_number,t0.manager_addr manage_address,t0.hav_amount totalAmount
+        </if>
+        </if>
+        <if test="UtgNodeMinerQueryForm.etType==null">
+        ,case when a.node_type='PoS' then  t0.blocknumber 
+              when a.node_type='SP' then  t1.active_height
+              when a.node_type='SN' then  t2.pledge_number
+         end node_number,
+         case when a.node_type='PoS' then  t0.manage_address 
+              when a.node_type='SP' then  t1.manager_addr
+              when a.node_type='SN' then  t2.manager_addr
+         end manage_address
+         ,case when a.node_type='PoS' then  t0.total_amount 
+              when a.node_type='SP' then  t1.pledge_amount
+              when a.node_type='SN' then  t2.hav_amount
+         end totalAmount
+        </if>
+       
+         from node_pledge a
+         <if test="UtgNodeMinerQueryForm.etType!=null">
+         <if test="UtgNodeMinerQueryForm.etType!=null and UtgNodeMinerQueryForm.etType=='PoS'">
+        left join utg_node_miner  t0 on a.node_address = t0.node_address    and t0.node_type in (1,2)
+        </if>
+        <if test="UtgNodeMinerQueryForm.etType!=null and UtgNodeMinerQueryForm.etType=='SP'">
+         left join storage_pool  t0 on a.node_address = t0.hash   and t0.active_status=1
+         </if>
+         <if test="UtgNodeMinerQueryForm.etType!=null and UtgNodeMinerQueryForm.etType=='SN'">
+         left join storage_space  t0 on a.node_address = t0.device_addr    and t0.pledge_status!=6
+         </if>
+         </if>
+         <if test="UtgNodeMinerQueryForm.etType==null">
+        left join utg_node_miner  t0 on a.node_address = t0.node_address  and t0.node_type in (1,2)
+        left join storage_pool  t1 on a.node_address = t1.hash  and t1.active_status=1
+        left join storage_space  t2 on a.node_address = t2.device_addr     and t2.pledge_status!=6
+       
+        </if>
+          
+        <where>
+            <if test="UtgNodeMinerQueryForm.node_address!=null and UtgNodeMinerQueryForm.node_address!='' ">
+                and a.node_address=#{UtgNodeMinerQueryForm.node_address}
+            </if>
+            <if test="UtgNodeMinerQueryForm.pledge_address!=null and UtgNodeMinerQueryForm.pledge_address!='' ">
+                and a.pledge_address=#{UtgNodeMinerQueryForm.pledge_address}
+            </if>
+            <if test="UtgNodeMinerQueryForm.address!=null and UtgNodeMinerQueryForm.address!='' ">
+                and (a.node_address=#{UtgNodeMinerQueryForm.address} or  a.pledge_address=#{UtgNodeMinerQueryForm.address} )
+            </if>
+            <if test="UtgNodeMinerQueryForm.pledge_status!=null ">
+                and a.pledge_status=#{UtgNodeMinerQueryForm.pledge_status}
+            </if>
+            <if test="UtgNodeMinerQueryForm.unpledge_type!=null ">
+                and a.unpledge_type=#{UtgNodeMinerQueryForm.unpledge_type}
+            </if>
+            <if test="UtgNodeMinerQueryForm.etType!=null ">
+                and a.node_type=#{UtgNodeMinerQueryForm.etType}
+            </if>
+           
+            
+        </where>
+        ORDER BY pledge_time DESC limit #{UtgNodeMinerQueryForm.current}, #{UtgNodeMinerQueryForm.size}
+     ) m 
+      <if test="UtgNodeMinerQueryForm.isEt!=null and  UtgNodeMinerQueryForm.isEt== 1">
+               where ifnull(m.manage_address,'') != ifnull(m.pledge_address,'')
+            </if>
+     
+    </select>
+    
+    <select id="getNodePledgeList" resultType="com.imooc.pojo.NodePledge" parameterType="com.imooc.pojo.Form.UtgNodeMinerQueryForm">
+        select a.*
+         <if test="UtgNodeMinerQueryForm.etType!=null and UtgNodeMinerQueryForm.etType=='PoS'">
+         ,t0.total_amount
+         </if>
+         <if test="UtgNodeMinerQueryForm.etType!=null and UtgNodeMinerQueryForm.etType=='SP'">
+         ,t0.pledge_amount totalAmount
+         </if>
+         <if test="UtgNodeMinerQueryForm.etType!=null and UtgNodeMinerQueryForm.etType=='SN'">
+         ,t0.hav_amount totalAmount
+         </if>
+         from node_pledge a 
+        <if test="UtgNodeMinerQueryForm.etType!=null and UtgNodeMinerQueryForm.etType=='PoS'">
+        left join utg_node_miner  t0 on a.node_address = t0.node_address  
+        </if>
+        <if test="UtgNodeMinerQueryForm.etType!=null and UtgNodeMinerQueryForm.etType=='SP'">
+         left join storage_pool  t0 on a.node_address = t0.hash
+         </if>
+         <if test="UtgNodeMinerQueryForm.etType!=null and UtgNodeMinerQueryForm.etType=='SN'">
+         left join storage_space  t0 on a.node_address = t0.device_addr
+         </if>         
+        <where>
+            <if test="UtgNodeMinerQueryForm.node_address!=null and UtgNodeMinerQueryForm.node_address!='' ">
+                and a.node_address=#{UtgNodeMinerQueryForm.node_address}
+            </if>
+            <if test="UtgNodeMinerQueryForm.pledge_address!=null and UtgNodeMinerQueryForm.pledge_address!='' ">
+                and a.pledge_address=#{UtgNodeMinerQueryForm.pledge_address}
+            </if>
+            <if test="UtgNodeMinerQueryForm.address!=null and UtgNodeMinerQueryForm.address!='' ">
+                and (a.node_address=#{UtgNodeMinerQueryForm.address} or  a.pledge_address=#{UtgNodeMinerQueryForm.address} )
+            </if>
+            <if test="UtgNodeMinerQueryForm.pledge_status!=null ">
+                and a.pledge_status=#{UtgNodeMinerQueryForm.pledge_status}
+            </if>
+            <if test="UtgNodeMinerQueryForm.unpledge_type!=null ">
+                and a.unpledge_type=#{UtgNodeMinerQueryForm.unpledge_type}
+            </if>
+            <if test="UtgNodeMinerQueryForm.etType!=null ">
+                and a.node_type=#{UtgNodeMinerQueryForm.etType}
+            </if>
+        </where>
+        ORDER BY pledge_time DESC 
+    </select>
+    
+    <select id="getNodePledgeCount" resultType="long" parameterType="com.imooc.pojo.Form.UtgNodeMinerQueryForm">
+         select count(*) from (
+        select a.*
+        <if test="UtgNodeMinerQueryForm.etType!=null">
+         <if test="UtgNodeMinerQueryForm.etType=='PoS'">
+         ,t0.blocknumber node_number,t0.manage_address,t0.total_amount
+        </if>
+        <if test="UtgNodeMinerQueryForm.etType=='SP'">
+         ,t0.active_height node_number,t0.manager_addr manage_address,t0.pledge_amount totalAmount
+        </if>
+        <if test="UtgNodeMinerQueryForm.etType=='SN'">
+         ,t0.pledge_number node_number,t0.manager_addr manage_address,t0.hav_amount totalAmount
+        </if>
+        </if>
+        <if test="UtgNodeMinerQueryForm.etType==null">
+        ,case when a.node_type='PoS' then  t0.blocknumber 
+              when a.node_type='SP' then  t1.active_height
+              when a.node_type='SN' then  t2.pledge_number
+         end node_number,
+         case when a.node_type='PoS' then  t0.manage_address 
+              when a.node_type='SP' then  t1.manager_addr
+              when a.node_type='SN' then  t2.manager_addr
+         end manage_address
+         ,case when a.node_type='PoS' then  t0.total_amount 
+              when a.node_type='SP' then  t1.pledge_amount
+              when a.node_type='SN' then  t2.hav_amount
+         end totalAmount
+        </if>
+       
+         from node_pledge a
+         <if test="UtgNodeMinerQueryForm.etType!=null">
+         <if test="UtgNodeMinerQueryForm.etType!=null and UtgNodeMinerQueryForm.etType=='PoS'">
+        left join utg_node_miner  t0 on a.node_address = t0.node_address   and t0.node_type in (1,2)
+        </if>
+        <if test="UtgNodeMinerQueryForm.etType!=null and UtgNodeMinerQueryForm.etType=='SP'">
+         left join storage_pool  t0 on a.node_address = t0.hash and t0.active_status=1
+         </if>
+         <if test="UtgNodeMinerQueryForm.etType!=null and UtgNodeMinerQueryForm.etType=='SN'">
+         left join storage_space  t0 on a.node_address = t0.device_addr and t0.pledge_status!=6
+         </if>
+         </if>
+         <if test="UtgNodeMinerQueryForm.etType==null">
+               left join utg_node_miner  t0 on a.node_address = t0.node_address  and t0.node_type in (1,2)
+        left join storage_pool  t1 on a.node_address = t1.hash  and t1.active_status=1
+        left join storage_space  t2 on a.node_address = t2.device_addr     and t2.pledge_status!=6
+        </if>
+          
+        <where>
+            <if test="UtgNodeMinerQueryForm.node_address!=null and UtgNodeMinerQueryForm.node_address!='' ">
+                and a.node_address=#{UtgNodeMinerQueryForm.node_address}
+            </if>
+            <if test="UtgNodeMinerQueryForm.pledge_address!=null and UtgNodeMinerQueryForm.pledge_address!='' ">
+                and a.pledge_address=#{UtgNodeMinerQueryForm.pledge_address}
+            </if>
+            <if test="UtgNodeMinerQueryForm.address!=null and UtgNodeMinerQueryForm.address!='' ">
+                and (a.node_address=#{UtgNodeMinerQueryForm.address} or  a.pledge_address=#{UtgNodeMinerQueryForm.address} )
+            </if>
+            <if test="UtgNodeMinerQueryForm.pledge_status!=null ">
+                and a.pledge_status=#{UtgNodeMinerQueryForm.pledge_status}
+            </if>
+            <if test="UtgNodeMinerQueryForm.unpledge_type!=null ">
+                and a.unpledge_type=#{UtgNodeMinerQueryForm.unpledge_type}
+            </if>
+            <if test="UtgNodeMinerQueryForm.etType!=null ">
+                and a.node_type=#{UtgNodeMinerQueryForm.etType}
+            </if>
+           
+            
+        </where>
+        ) m 
+      <if test="UtgNodeMinerQueryForm.isEt!=null and  UtgNodeMinerQueryForm.isEt== 1">
+               where ifnull(m.manage_address,'') != ifnull(m.pledge_address,'')
+            </if>
+     
+    </select>
+    
+    <select id="getNodePledgeStat" resultType="bigdecimal" parameterType="com.imooc.pojo.Form.UtgNodeMinerQueryForm">
+        select ifnull(sum(m.pledge_amount),0) pledge_amount from (
+        select a.pledge_amount,a.pledge_address
+        <if test="UtgNodeMinerQueryForm.etType!=null">
+         <if test="UtgNodeMinerQueryForm.etType=='PoS'">
+         ,t0.manage_address
+        </if>
+        <if test="UtgNodeMinerQueryForm.etType=='SP'">
+         ,t0.manager_addr manage_address
+        </if>
+        <if test="UtgNodeMinerQueryForm.etType=='SN'">
+         ,t0.manager_addr manage_address
+        </if>
+        </if>
+        <if test="UtgNodeMinerQueryForm.etType==null">
+        ,
+         case when a.node_type='PoS' then  t0.manage_address 
+              when a.node_type='SP' then  t1.manager_addr
+              when a.node_type='SN' then  t2.manager_addr
+         end manage_address
+        </if>
+       
+         from node_pledge a
+         <if test="UtgNodeMinerQueryForm.etType!=null">
+         <if test="UtgNodeMinerQueryForm.etType!=null and UtgNodeMinerQueryForm.etType=='PoS'">
+        left join utg_node_miner  t0 on a.node_address = t0.node_address    and t0.node_type in (1,2)
+        </if>
+        <if test="UtgNodeMinerQueryForm.etType!=null and UtgNodeMinerQueryForm.etType=='SP'">
+         left join storage_pool  t0 on a.node_address = t0.hash  and t0.active_status=1
+         </if>
+         <if test="UtgNodeMinerQueryForm.etType!=null and UtgNodeMinerQueryForm.etType=='SN'">
+         left join storage_space  t0 on a.node_address = t0.device_addr   and t0.pledge_status!=6
+         </if>
+         </if>
+         <if test="UtgNodeMinerQueryForm.etType==null">
+        left join utg_node_miner  t0 on a.node_address = t0.node_address  and t0.node_type in (1,2)
+        left join storage_pool  t1 on a.node_address = t1.hash  and t1.active_status=1
+        left join storage_space  t2 on a.node_address = t2.device_addr     and t2.pledge_status!=6
+        </if>
+          
+        <where>
+            <if test="UtgNodeMinerQueryForm.node_address!=null and UtgNodeMinerQueryForm.node_address!='' ">
+                and a.node_address=#{UtgNodeMinerQueryForm.node_address}
+            </if>
+            <if test="UtgNodeMinerQueryForm.pledge_address!=null and UtgNodeMinerQueryForm.pledge_address!='' ">
+                and a.pledge_address=#{UtgNodeMinerQueryForm.pledge_address}
+            </if>
+            <if test="UtgNodeMinerQueryForm.address!=null and UtgNodeMinerQueryForm.address!='' ">
+                and (a.node_address=#{UtgNodeMinerQueryForm.address} or  a.pledge_address=#{UtgNodeMinerQueryForm.address} )
+            </if>
+            <if test="UtgNodeMinerQueryForm.pledge_status!=null ">
+                and a.pledge_status=#{UtgNodeMinerQueryForm.pledge_status}
+            </if>
+            <if test="UtgNodeMinerQueryForm.unpledge_type!=null ">
+                and a.unpledge_type=#{UtgNodeMinerQueryForm.unpledge_type}
+            </if>
+            <if test="UtgNodeMinerQueryForm.etType!=null ">
+                and a.node_type=#{UtgNodeMinerQueryForm.etType}
+            </if>
+           
+            
+        </where>
+        ) m 
+      <if test="UtgNodeMinerQueryForm.isEt!=null and  UtgNodeMinerQueryForm.isEt== 1">
+               where ifnull(m.manage_address,'') != ifnull(m.pledge_address,'')
+            </if>
+    </select>
+    
+    <select id="getNodePledgeBurnedAmount" resultType="bigdecimal">
+         select ifnull(sum(pledge_amount),0) amount from node_pledge where unpledge_type=1
+    </select>
+    
+      <select id="getNodePledgeByPledgeAddr" resultType="com.imooc.pojo.NodePledge">
+         select a.node_type,a.node_address,a.sp_hash,a.pledge_address,ifnull(sum(a.pledge_amount),0) pledge_amount 
+         from node_pledge a
+         
+         where pledge_address=#{pledge_address} and a.pledge_status=1
+         and a.id 
+not in (
+select n.id from  utg_node_miner t ,node_pledge n  where t.node_address=n.node_address and t.manage_address=n.pledge_address and n.pledge_status=1
+)
+and  a.id  not in (select n.id from  storage_pool p,node_pledge n  where p.hash=n.node_address and p.manager_addr=n.pledge_address and n.pledge_status=1)
+and  a.id  not in (select n.id from  storage_space s,node_pledge n  where s.device_addr=n.node_address and s.manager_addr=n.pledge_address and n.pledge_status=1)
+    </select>
+    <select id="getNodePledgeByHash" resultType="com.imooc.pojo.NodePledge" >
+        select a.* from node_pledge a where a.pledge_hash = #{pledge_hash}
+    </select>
+    <select id="isPledgeTransfer" resultType="BigInteger" >
+    select count(1) from  node_pledge p where  p.pledge_address=#{pledge_address} and p.pledge_number >#{pledge_number}
+    </select>
+     <update id="updateNodePledgeTransfer" parameterType="com.imooc.pojo.NodePledge">
+        update node_pledge set 
+        pledge_status=#{pledge_status},unpledge_type=#{unpledge_type},unpledge_hash=#{unpledge_hash},unpledge_number=#{unpledge_number},unpledge_time=#{unpledge_time}
+        where pledge_address=#{pledge_address} and pledge_status=1 
+     </update>
+     <update id="updateNodePledgeExit" parameterType="com.imooc.pojo.NodePledge">
+        update node_pledge set 
+        pledge_status=#{pledge_status},unpledge_type=#{unpledge_type},unpledge_hash=#{unpledge_hash},unpledge_number=#{unpledge_number},unpledge_time=#{unpledge_time}
+        where pledge_hash=#{pledge_hash}
+     </update>
+     <update id="updateNodePledgeBySpExit" parameterType="com.imooc.pojo.NodePledge">
+        update node_pledge set 
+        pledge_status=#{pledge_status},unpledge_type=#{unpledge_type},unpledge_hash=#{unpledge_hash},unpledge_number=#{unpledge_number},unpledge_time=#{unpledge_time}
+        where node_address=#{node_address}
+     </update>
+      <update id="updateNodePledgeBySpace" parameterType="com.imooc.pojo.NodePledge">
+        update node_pledge set 
+        pledge_status=#{pledge_status},pledge_amount=#{nodePledge.pledge_amount}
+        where id=#{id}
+     </update>
+    <insert id="saveOrUpdateNodePledge">
+       insert into node_pledge (
+		  node_address, pledge_address, pledge_hash, pledge_amount, pledge_status, pledge_number,
+		   pledge_time, unpledge_type, unpledge_hash, unpledge_number, unpledge_time,node_type,sp_hash
+		) values (
+		  #{nodePledge.node_address}, #{nodePledge.pledge_address}, #{nodePledge.pledge_hash}, 
+		  #{nodePledge.pledge_amount}, #{nodePledge.pledge_status}, #{nodePledge.pledge_number}, 
+		  #{nodePledge.pledge_time},#{nodePledge.unpledge_type}, #{nodePledge.unpledge_hash}, 
+		  #{nodePledge.unpledge_number}, #{nodePledge.unpledge_time}, #{nodePledge.node_type} 
+		  , #{nodePledge.sp_hash}   
+		) on duplicate key update
+		<if test="nodePledge.pledge_amount!=null and nodePledge.pledge_amount>0">
+		pledge_amount=values(pledge_amount),
+		</if>
+		<if test="nodePledge.sp_hash!=null and nodePledge.sp_hash!=''">
+		sp_hash=values(sp_hash),
+		</if>
+		  pledge_status = values(pledge_status),unpledge_type=values(unpledge_type),unpledge_hash=values(unpledge_hash),unpledge_number=values(unpledge_number),unpledge_time=values(unpledge_time)
+    </insert>
+    
+    
+    <select id="getPledgeRewardList" resultType="com.imooc.pojo.NodePledge" parameterType="com.imooc.pojo.Form.UtgNodeMinerQueryForm">
+        select address pledge_address,pledgeaddress node_address,t.pledge_amount,sum(totalamount) totalamount,sum(releaseamount) releaseamount,sum(burntamount) burntamount 
+		from transfer_miner a 
+		left join (
+		  select case when  node_type='SP' then CONCAT('ux',substr(node_address,27)) else  node_address end node_address,		  
+		  pledge_address,sum(if(pledge_status=1,pledge_amount,0)) pledge_amount from node_pledge t group by node_address,pledge_address) t
+		  on a.address=t.pledge_address and a.pledgeaddress=t.node_address
+		where a.type=#{UtgNodeMinerQueryForm.type} and a.address!='ux0000000000000000000000000000000000000000' 
+        <if test="UtgNodeMinerQueryForm.node_address!=null and UtgNodeMinerQueryForm.node_address!='' ">
+            and node_address=#{UtgNodeMinerQueryForm.node_address}
+        </if>
+        <if test="UtgNodeMinerQueryForm.pledge_address!=null and UtgNodeMinerQueryForm.pledge_address!='' ">
+            and pledge_address=#{UtgNodeMinerQueryForm.pledge_address}
+        </if>
+        <if test="UtgNodeMinerQueryForm.address!=null and UtgNodeMinerQueryForm.address!='' ">
+            and (node_address=#{UtgNodeMinerQueryForm.address} or pledge_address=#{UtgNodeMinerQueryForm.address} )
+        </if>
+        group by a.address,a.pledgeaddress
+        order by t.pledge_amount desc
+        limit #{UtgNodeMinerQueryForm.current}, #{UtgNodeMinerQueryForm.size}
+    </select>
+    
+    <select id="getPledgeRewardCount" resultType="long" parameterType="com.imooc.pojo.Form.UtgNodeMinerQueryForm">
+     select count(*) from ( 
+        select 1 from transfer_miner a  
+        left join (select node_address,pledge_address,sum(if(pledge_status=1,pledge_amount,0)) pledge_amount from node_pledge t group by node_address,pledge_address) t
+          on a.address=t.pledge_address and a.pledgeaddress=t.node_address
+        where a.type=1 and a.address!='ux0000000000000000000000000000000000000000'
+        <if test="UtgNodeMinerQueryForm.node_address!=null and UtgNodeMinerQueryForm.node_address!='' ">
+            and node_address=#{UtgNodeMinerQueryForm.node_address}
+        </if>
+        <if test="UtgNodeMinerQueryForm.pledge_address!=null and UtgNodeMinerQueryForm.pledge_address!='' ">
+            and pledge_address=#{UtgNodeMinerQueryForm.pledge_address}
+        </if>
+        <if test="UtgNodeMinerQueryForm.address!=null and UtgNodeMinerQueryForm.address!='' ">
+            and (node_address=#{UtgNodeMinerQueryForm.address} or pledge_address=#{UtgNodeMinerQueryForm.address} )
+        </if>
+        group by a.address,a.pledgeaddress
+      )t
+    </select>
+    <select id="getNodePledgeTotalSt"  resultType="com.imooc.pojo.NodePledge" parameterType="com.imooc.pojo.NodePledge">
+    SELECT p.pledge_address,p.node_address,p.node_type,max(p.pledge_number) pledge_number 
+    from  node_pledge p where p.pledge_status=1 
+    <if test="node_address!=null and node_address !=''">
+      and p.node_address=#{node_address}
+    </if>
+    <if test="pledge_address !=null and pledge_address !=''">
+      and p.pledge_address=#{pledge_address}
+    </if>
+    GROUP BY  p.pledge_address,p.node_address,p.node_type
+    </select>
+</mapper>

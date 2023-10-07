@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.imooc.mapper.ContractTokenMapper">
+    <resultMap id="BaseResultMapAccount" type="com.imooc.pojo.TokenContract">
+        <result column="id"  property="id" jdbcType="BIGINT"/>
+        <result column="contractaddress"  property="contractAddress" jdbcType="VARCHAR"/>
+        <result column="contractmanager"  property="contractManager" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <!--  select * from token_contract order by id desc limit #{blockQueryForm.current}, #{blockQueryForm.size}-->
+    <select id="getTokenContract"  parameterType="com.imooc.pojo.Form.BlockQueryForm"  resultMap="BaseResultMapAccount">
+        select * from token_contract group by contractmanager order by id desc limit #{blockQueryForm.current}, #{blockQueryForm.size}
+    </select>
+
+    <select id="getTotal" resultType="java.lang.Long">
+      select count(distinct contractmanager) from token_contract;
+    </select>
+
+    <insert id="insertOrUpdate">
+      insert  into token_contract
+        (
+         contractaddress,contractmanager
+        ) values
+     (
+     #{token.contractAddress},#{token.contractManager}
+     )
+     </insert>
+</mapper>

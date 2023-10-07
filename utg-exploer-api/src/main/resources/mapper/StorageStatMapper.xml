@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.imooc.mapper.StorageStatMapper">
+	<resultMap id="StorageSpaceStat" type="com.imooc.pojo.StorageSpaceStat">
+		<result column="id" property="id" jdbcType="BIGINT" />
+		<result column="blocknumber" property="blocknumber" jdbcType="BIGINT" />
+		<result column="blocktime" property="blocktime" jdbcType="TIMESTAMP" />
+		<result column="sttime" property="sttime" jdbcType="TIMESTAMP" />
+		<result column="storageid" property="storageid" jdbcType="BIGINT" />
+		<result column="device_addr" property="device_addr" jdbcType="VARCHAR" />
+		<result column="revenue_addr" property="revenue_addr" jdbcType="VARCHAR" />
+		<result column="pledge_status" property="pledge_status"	jdbcType="INTEGER" />
+		<result column="rent_space" property="rent_space" jdbcType="DECIMAL" />
+		<result column="rent_price" property="rent_price" jdbcType="DECIMAL" />
+		<result column="rent_num" property="rent_num" jdbcType="BIGINT" />
+		<result column="bw_size" property="bw_size" jdbcType="DECIMAL" />
+		<result column="bw_ratio" property="bw_ratio" jdbcType="DECIMAL" />
+		<result column="valid_number" property="valid_number" jdbcType="BIGINT" />
+		<result column="vaild_status" property="vaild_status" jdbcType="INTEGER" />
+		<result column="vaild_progress" property="vaild_progress" jdbcType="DECIMAL" />
+		<result column="total_amount" property="totalAmount" jdbcType="DECIMAL" />
+		<result column="storage_amount" property="storageAmount" jdbcType="DECIMAL" />
+		<result column="rent_amount" property="rentAmount" jdbcType="DECIMAL" />
+	</resultMap>
+	
+	<resultMap id="StorageGlobalStat" type="com.imooc.pojo.StorageGlobalStat">
+        <result column="id" property="id" jdbcType="BIGINT" />
+        <result column="blocknumber" property="blocknumber" jdbcType="BIGINT" />
+        <result column="blocktime" property="blocktime" jdbcType="TIMESTAMP" />
+        <result column="sttime" property="sttime" jdbcType="TIMESTAMP" />        
+        <result column="ratio" property="ratio" jdbcType="DECIMAL" />
+        <result column="capacity" property="capacity" jdbcType="DECIMAL" />
+        <result column="revenue_num" property="revenue_num" jdbcType="BIGINT" />
+        <result column="storage_num" property="storage_num" jdbcType="BIGINT" />
+        <result column="rent_num" property="rent_num" jdbcType="BIGINT" />        
+        <result column="increase_space" property="increase_space" jdbcType="DECIMAL" />
+        <result column="increase_rent" property="increase_rent" jdbcType="DECIMAL" />
+        <result column="storage_space" property="storage_space" jdbcType="DECIMAL" />        
+        <result column="rent_space" property="rent_space" jdbcType="DECIMAL" />
+        <result column="pledge_amount" property="pledge_amount" jdbcType="DECIMAL" />
+        <result column="storage_amount" property="storage_amount" jdbcType="DECIMAL" />
+        <result column="storage_release" property="storage_release" jdbcType="DECIMAL" />
+        <result column="rent_amount" property="rent_amount" jdbcType="DECIMAL" />
+        <result column="rent_release" property="rent_release" jdbcType="DECIMAL" />       
+    </resultMap>
+    
+    <insert id="insertSpaceStatBatch"  parameterType="java.util.List">
+        insert into storage_space_stat (
+           blocknumber, blocktime, sttime, storageid, device_addr, revenue_addr, pledge_status, rent_space, rent_price, rent_num, bw_size, bw_ratio, vaild_status,vaild_progress
+        ) values
+        <foreach collection="list" item="item" index="index" separator=",">
+        (
+           #{item.blocknumber}, #{item.blocktime}, #{item.sttime}, #{item.storageid}, #{item.device_addr}, #{item.revenue_addr}, #{item.pledge_status}, 
+           #{item.rent_space}, #{item.rent_price}, #{item.rent_num}, #{item.bw_size}, #{item.bw_ratio},#{item.vaild_status},#{item.vaild_progress}
+        )
+        </foreach>
+    </insert>
+    
+    <insert id="saveSpaceStat">
+        insert into storage_space_stat (
+		  blocknumber, blocktime, sttime, storageid, device_addr, revenue_addr, pledge_status, rent_space, rent_price, rent_num, bw_size, bw_ratio, vaild_status, vaild_progress  
+		)
+		select #{blocknumber} blocknumber, #{blocktime} blocktime, #{sttime} sttime, storageid,device_addr,revenue_addr,pledge_status,
+		(declare_space-free_space) rent_space,rent_price,rent_num,bw_size,bw_ratio,vaild_status,vaild_progress
+		from storage_space
+		where pledge_status !=1 and pledge_status!=6
+		on duplicate key update sttime = values(sttime)
+    </insert>
+    
+    <update id="updateSpaceRewardStat" >
+        update storage_space_stat t
+		inner join (
+			select t.storageid,t.device_addr,t.valid_number,t2.storageamount,t3.rentamount
+			from storage_space t 
+			left join (select ifnull(sum(totalamount),0) storageamount,address from transfer_miner where type=9 group by address ) t2 on t.device_addr = t2.address
+			left join (select ifnull(sum(totalamount),0) rentamount,address from transfer_miner where type=5 group by address ) t3 on t.device_addr = t3.address
+		) t1 on t.device_addr = t1.device_addr
+		 set t.valid_number =t1.valid_number, t.storage_amount =t1.storageamount ,t.rent_amount=t1.rentamount,t.total_amount = ifnull(t1.storageamount,0)+ifnull(t1.rentamount,0)
+		where t.blocknumber = #{blocknumber}
+    </update>
+     
+    <insert id="saveRevenueStat">
+        insert into storage_revenue_stat (
+          blocknumber, blocktime, sttime, revenue_addr, ratio, capacity, storage_num, rent_num, storage_space, rent_space, pledge_amount, storage_amount, storage_release, rent_amount, rent_release
+        )
+        select  #{blocknumber} blocknumber, #{blocktime} blocktime, #{sttime} sttime,
+        t.revenue_addr,t1.ratio,t1.capacity,count(t.storageid) storage_num,sum(t.rent_num) rent_num,sum(t.declare_space) storage_space,
+        sum(t.declare_space-free_space) rent_space,sum(t.pledge_amount) pledge_amount,t2.storage_amount,t2.storage_release,t3.rent_amount,t3.rent_release
+        from storage_space t
+        left join storage_revenue t1 on t.revenue_addr =t1.revenue_addr
+        left join (select ifnull(sum(totalamount),0) storage_amount,ifnull(sum(releaseamount),0) storage_release,revenueaddress from transfer_miner where type=9 group by revenueaddress ) t2 on t.revenue_addr = t2.revenueaddress
+        left join (select ifnull(sum(totalamount),0) rent_amount,ifnull(sum(releaseamount),0) rent_release,revenueaddress from transfer_miner where type=5 group by revenueaddress ) t3 on t.revenue_addr = t3.revenueaddress
+        where t.pledge_status = 0
+        <![CDATA[and t.pledge_number<=#{blocknumber} ]]>
+         and t.revenue_addr !='' and t.revenue_addr is not null
+        group by t.revenue_addr
+        on duplicate key update sttime = values(sttime)
+    </insert>
+        
+    <insert id="saveGlobalStat">
+        insert into storage_global_stat (
+		  blocknumber, blocktime,sttime, ratio, capacity, revenue_num, storage_num, rent_num, increase_space, storage_space,
+          increase_rent, rent_space, pledge_amount, storage_amount, storage_release, rent_amount, rent_release
+		)
+		select #{blocknumber} blocknumber, #{blocktime} blocktime, #{sttime} sttime, 
+		sum(t1.ratio) ratio,sum(t1.capacity) capacity,count(distinct t1.revenue_addr) revenue_num,count(t.device_addr) storage_num,sum(t.rent_num) rent_num,
+		sum(t.declare_space)-ifnull(t4.storage_space,0) increase_space,  sum(t.declare_space) storage_space,
+        sum(t.declare_space)-sum(t.free_space)-ifnull(t4.rent_space,0) increase_rent, sum(t.declare_space-free_space) rent_space,
+		sum(t.pledge_amount) pledge_amount,t2.storage_amount,t2.storage_release,t3.rent_amount,t3.rent_release
+		from storage_space t
+		left join storage_revenue t1 on t.revenue_addr =t1.revenue_addr
+		left join (select ifnull(sum(totalamount),0) storage_amount,ifnull(sum(releaseamount),0) storage_release,revenueaddress from transfer_miner where type=9 ) t2 on 1=1
+        left join (select ifnull(sum(totalamount),0) rent_amount,ifnull(sum(releaseamount),0) rent_release,revenueaddress from transfer_miner where type=5) t3 on 1=1
+        left join (select * from storage_global_stat order by blocknumber desc limit 1) t4 on 1=1
+		where t.pledge_status = 0 
+		<![CDATA[and t.pledge_number<=#{blocknumber} ]]>
+		on duplicate key update sttime = values(sttime)
+    </insert>
+    
+    
+    <select id="queryStorageGlobalStat" resultType="com.imooc.pojo.StorageGlobalStat">
+        select * from storage_global_stat
+        where <![CDATA[ LEFT(blocktime,10)>=#{startTime} and LEFT(blocktime,10)<=#{endTime} ]]>
+    </select>
+    
+</mapper>

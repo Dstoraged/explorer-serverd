@@ -1,0 +1,254 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.imooc.mapper.ThirdMapper">
+
+    <resultMap id="StorageRevenue" type="com.imooc.pojo.StorageRevenue">
+        <result column="revenueid"      property="revenueid"    jdbcType="BIGINT"/>
+        <result column="revenue_addr"   property="revenueAddr"  jdbcType="VARCHAR"/>
+        <result column="ratio"          property="ratio"        jdbcType="DECIMAL"/>
+        <result column="capacity"       property="capacity"     jdbcType="DECIMAL"/>
+        <result column="updatetime"     property="updatetime"   jdbcType="TIMESTAMP"/>
+        
+        <result column="totalamount"    property="totalamount"  jdbcType="DECIMAL"/>
+        <result column="releaseamount"  property="releaseamount" jdbcType="DECIMAL"/>
+        <result column="declare_space"  property="declareSpace" jdbcType="DECIMAL"/>
+    </resultMap>
+    
+    <resultMap id="StorageSpace" type="com.imooc.pojo.StorageSpace">
+        <result column="storageid"      property="storageid"    jdbcType="BIGINT"/>
+        <result column="device_addr"    property="deviceAddr"   jdbcType="VARCHAR"/>
+        <result column="pledge_addr"    property="pledgeAddr"   jdbcType="VARCHAR"/>
+        <result column="revenue_addr"   property="revenueAddr"  jdbcType="VARCHAR"/>        
+        <result column="pledge_status"  property="pledgeStatus" jdbcType="INTEGER"/>
+        <result column="pledge_number"  property="pledgeNumber" jdbcType="BIGINT"/>
+        <result column="pledge_amount"  property="pledgeAmount" jdbcType="DECIMAL"/>
+        <result column="prepledge_amount" property="prepledgeAmount" jdbcType="DECIMAL"/>        
+        <result column="pensate_amount" property="pensateAmount" jdbcType="DECIMAL"/>
+        <result column="declare_space"  property="declareSpace" jdbcType="DECIMAL"/>        
+        <result column="free_space"     property="freeSpace"    jdbcType="DECIMAL"/>
+        <result column="rent_price"     property="rentPrice"    jdbcType="DECIMAL"/>
+        <result column="rent_num"       property="rentNum"      jdbcType="BIGINT"/>
+        <result column="total_amount"   property="totalAmount"  jdbcType="DECIMAL"/>
+        <result column="storage_amount" property="storageAmount" jdbcType="DECIMAL"/>
+        <result column="rent_amount"    property="rentAmount"   jdbcType="DECIMAL"/>
+        <result column="valid_number"   property="validNumber"  jdbcType="BIGINT"/>
+        <result column="succ_number"    property="succNumber"   jdbcType="BIGINT"/>
+        <result column="fail_count"     property="failCount"    jdbcType="INTEGER"/>
+        <result column="vaild_status"   property="vaildStatus"  jdbcType="INTEGER"/>
+        <result column="vaild24_status" property="vaild24Status" jdbcType="INTEGER"/>
+        <result column="vaild_time"     property="vaildTime"    jdbcType="TIMESTAMP"/>        
+        <result column="vaild_progress" property="vaildProgress" jdbcType="DECIMAL"/>        
+        <result column="fail_days"      property="failDays"     jdbcType="INTEGER"/> 
+        <result column="bw_size"        property="bwSize"       jdbcType="DECIMAL"/>
+        <result column="bw_ratio"       property="bwRatio"      jdbcType="DECIMAL"/>
+        <result column="reward_ratio"   property="rewardRatio"  jdbcType="DECIMAL"/>        
+        <result column="instime"        property="instime"      jdbcType="TIMESTAMP"/>
+        <result column="updatetime"     property="updatetime"   jdbcType="TIMESTAMP"/>
+        
+        <result column="ratio"          property="ratio"        jdbcType="DECIMAL"/>
+        <result column="capacity"       property="capacity"     jdbcType="DECIMAL"/>
+    </resultMap>
+    
+    <resultMap id="StorageRent" type="com.imooc.pojo.StorageRent">
+        <result column="rentid"         property="rentid"       jdbcType="BIGINT"/>
+        <result column="rent_hash"      property="rentHash"     jdbcType="VARCHAR"/>
+        <result column="device_addr"    property="deviceAddr"   jdbcType="VARCHAR"/>
+        <result column="rent_addr"      property="rentAddr"     jdbcType="VARCHAR"/>        
+        <result column="pledge_addr"    property="pledgeAddr"   jdbcType="VARCHAR"/>
+        <result column="rent_space"     property="rentSpace"    jdbcType="DECIMAL"/>  
+        <result column="rent_price"     property="rentPrice"    jdbcType="DECIMAL"/>
+        <result column="rent_time"      property="rentTime"     jdbcType="INTEGER"/>
+        <result column="rent_number"    property="rentNumber"   jdbcType="BIGINT"/>
+        <result column="rent_amount"    property="rentAmount"   jdbcType="DECIMAL"/>
+        <result column="rent_status"    property="rentStatus"   jdbcType="INTEGER"/>        
+        <result column="renew_status"   property="renewStatus"  jdbcType="INTEGER"/>
+        <result column="renew_reqhash"  property="renewReqhash" jdbcType="VARCHAR"/>
+        <result column="renew_number"   property="renewNumber"  jdbcType="BIGINT"/>
+        <result column="renew_time"     property="renewTime"    jdbcType="INTEGER"/>               
+        <result column="recev_amount"   property="recevAmount"  jdbcType="DECIMAL"/>
+        <result column="valid_number"   property="validNumber"  jdbcType="BIGINT"/>
+        <result column="succ_number"    property="succNumber"   jdbcType="BIGINT"/>
+        <result column="fail_count"     property="failCount"    jdbcType="INTEGER"/>
+        <result column="vaild_status"   property="vaildStatus"  jdbcType="INTEGER"/>
+        <result column="vaild24_status" property="vaild24Status" jdbcType="INTEGER"/>
+        <result column="vaild_time"     property="vaildTime"    jdbcType="TIMESTAMP"/>
+        <result column="fail_days"      property="failDays"     jdbcType="INTEGER"/>
+        <result column="instime"        property="instime"      jdbcType="TIMESTAMP"/>
+        <result column="updatetime"     property="updatetime"   jdbcType="TIMESTAMP"/>
+    </resultMap>
+    
+    <resultMap id="TransferMiner" type="com.imooc.pojo.TransferMiner">
+        <result column="id"  property="id" jdbcType="BIGINT"/>
+        <result column="txhash"  property="txHash" jdbcType="VARCHAR"/>
+        <result column="logindex"  property="logIndex" jdbcType="VARCHAR"/>
+        <result column="type"  property="type" jdbcType="VARCHAR"/>
+        <result column="address"  property="address" jdbcType="VARCHAR"/>
+        <result column="value"  property="value" jdbcType="DECIMAL"/>
+        <result column="blockhash"  property="blockHash" jdbcType="VARCHAR"/>
+        <result column="blocknumber"  property="blockNumber" jdbcType="BIGINT"/>
+        <result column="starttime"  property="startTime" jdbcType="TIMESTAMP"/>
+        <result column="totalamount"  property="totalAmount" jdbcType="DECIMAL"/>
+        <result column="leftamount"  property="leftAmount" jdbcType="DECIMAL"/>
+        <result column="status"  property="status" jdbcType="INTEGER"/>
+        <result column="gasused"  property="gasUsed" jdbcType="BIGINT"/>
+        <result column="gaslimit"  property="gasLimit" jdbcType="BIGINT"/>
+        <result column="gasprice"  property="gasPrice" jdbcType="BIGINT"/>
+        <result column="unlocknumber"  property="unLockNumber" jdbcType="BIGINT"/>
+        <result column="loglength"  property="logLength" jdbcType="BIGINT"/>
+        <result column="nodenumber"  property="nodeNumber" jdbcType="VARCHAR"/>
+        <result column="presentamount"  property="presentAmount" jdbcType="DECIMAL"/>
+        <result column="locknumheigth"  property="lockNumHeight" jdbcType="BIGINT"/>
+        <result column="pledgeamount"  property="pledgeAmount" jdbcType="DECIMAL"/>
+        <result column="pledgeaddress"  property="pledgeAddress" jdbcType="VARCHAR"/>
+        <result column="punilshamount"  property="punilshAmount" jdbcType="DECIMAL"/>
+        <result column="receiveaddress"  property="receiveaddress" jdbcType="VARCHAR"/>
+        <result column="releaseheigth"  property="releaseHeigth" jdbcType="BIGINT"/>
+        <result column="releaseinterval"  property="releaseInterval" jdbcType="BIGINT"/>
+        <result column="pledgetotalamount"  property="pledgeTotalAmount" jdbcType="DECIMAL"/>
+
+        <result column="curtime"  property="curtime" jdbcType="TIMESTAMP"/>
+        <result column="releaseamount"  property="releaseamount" jdbcType="DECIMAL"/>
+        <result column="revenueaddress"  property="revenueaddress" jdbcType="VARCHAR"/>
+        
+        <result column="burntratio"  property="burntratio" jdbcType="DECIMAL"/>
+        <result column="burntaddress"  property="burntaddress" jdbcType="VARCHAR"/>
+        <result column="burntamount"  property="burntamount" jdbcType="DECIMAL"/>
+    </resultMap>
+    
+    
+    <select id="getRevenueInfo" resultMap="StorageRevenue">
+        select t.*,t1.totalamount,t1.releaseamount,t2.declare_space
+          from storage_revenue t
+          left join (select revenueaddress,sum(totalamount) totalamount,sum(releaseamount) releaseamount from transfer_miner where 1=1 and revenueaddress = #{revenue_addr}        
+            ) t1 on t.revenue_addr = t1.revenueaddress
+          left join (select revenue_addr,sum(declare_space) declare_space from storage_space where pledge_status=0 group by revenue_addr) t2 on t.revenue_addr = t2.revenue_addr      
+         where t.revenue_addr = #{revenue_addr}
+    </select>
+    
+    <select id="getRevenueSpaceList" resultMap="StorageSpace">
+       select t.*,t1.ratio,t1.capacity 
+        from storage_space t 
+        left join storage_revenue t1 on t.revenue_addr = t1.revenue_addr 
+        <where>
+            <if test="revenue_addr!=null and revenue_addr!=''">
+                  and t.revenue_addr=#{revenue_addr}
+            </if>
+        </where>
+        order by t.storageid desc
+    </select>
+    
+    <select id="getRevenueRentList" resultMap="StorageRent">
+       select t.*
+        from storage_rent t
+        <where>
+            <if test="device_addr!=null and device_addr!=''">
+                  and t.device_addr=#{device_addr}
+            </if>
+        </where>
+        order by t.rentid desc
+    </select>
+            
+    <select id="getReleaseList" resultMap="TransferMiner">
+        select a.address,a.type,a.revenueaddress,a.pledgeAddress,ifnull(sum(totalamount),0) totalamount,ifnull(sum(releaseamount),0) releaseamount,ifnull(sum(burntamount),0) burntamount
+         from  transfer_miner a
+        where 1=1
+        <if test="types !=null and types.length>0">
+            and a.type in
+            <foreach collection="types" item="item" index="index" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+        <if test="revenueaddress !=null and revenueaddress!=''">
+            and a.revenueaddress = #{revenueaddress}
+        </if>
+        group by a.address,a.type,a.revenueaddress,a.pledgeAddress
+        order by a.revenueaddress,a.type,releaseamount desc
+    </select>
+    
+    <select id="getRevenueListDaterange" resultMap="TransferMiner">
+        select a.*
+         from  transfer_miner a
+        where 1=1               
+        <if test="types !=null and types.length>0">
+            and a.type in
+            <foreach collection="types" item="item" index="index" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+        <if test="revenueaddress !=null and revenueaddress!=''">
+            and a.revenueaddress = #{revenueaddress}
+        </if>
+        <if test="starttime !=null">
+            <![CDATA[ and a.curtime>=#{starttime} ]]>
+        </if>
+        <if test="endtime !=null">
+            <![CDATA[ and a.curtime<#{endtime} ]]>
+        </if>
+        order by address,blocknumber,curtime  desc 
+    </select>
+    
+    <select id="getRevenueListBlockrange" resultMap="TransferMiner">
+        select a.*
+         from  transfer_miner a
+        where 1=1               
+        <if test="types !=null and types.length>0">
+            and a.type in
+            <foreach collection="types" item="item" index="index" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+        <if test="revenueaddress !=null and revenueaddress!=''">
+            and a.revenueaddress = #{revenueaddress}
+        </if>
+        <if test="startblock !=null">
+            <![CDATA[ and a.blocknumber>=#{startblock} ]]>
+        </if>
+        <if test="endblock !=null">
+            <![CDATA[ and a.blocknumber<#{endblock} ]]>
+        </if>
+        order by address,blocknumber,curtime  desc 
+    </select>
+    
+    
+    
+    <select id="getPosNodes" resultType="com.imooc.pojo.UtgNodeMiner">
+        select a.* from utg_node_miner a
+        where node_type!=3
+        <if test="type !=null">
+            and a.node_type = #{type}
+        </if>
+        <if test="address !=null and address!=''">
+            and a.node_address = #{address}
+        </if>
+        order by a.id desc 
+    </select>
+    
+    <select id="getPosNodeByAddress" resultType="com.imooc.pojo.UtgNodeMiner">
+        select a.* from utg_node_miner a
+        where a.node_address = #{address}        
+        order by a.id desc 
+    </select>
+    
+    <select id="getNodePledgeList" resultType="com.imooc.pojo.NodePledge">
+        select a.* from node_pledge a
+        where a.node_address = #{node_address}  
+        <if test="pledge_status !=null">
+            and a.pledge_status = #{pledge_status}
+        </if>        
+        order by a.id desc 
+    </select>
+    
+    
+    
+    <select id="getBlacklist" resultType="string">
+        select * from thirdapi_blacklist
+    </select>
+    
+    <insert id="saveLog">
+        insert into thirdapi_log (
+          `timestamp`, `ipaddr`, `request_path`, `request_url`, `query_string`, `interval`, `limited`
+        )values (
+           #{log.timestamp},#{log.ipaddr},#{log.request_path},#{log.request_url},#{log.query_string},#{log.interval},#{log.limited}
+        )
+    </insert>
+</mapper>
